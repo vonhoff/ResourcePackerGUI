@@ -1,5 +1,9 @@
-<img src="ResourcePackerGUI-logo.png" alt="ResourcePackerGUI Logo" />
-
+<h3 align="center">
+  <a href="https://github.com/vonhoff/ResourcePacker.GUI">
+    <img src="ResourcePackerGUI-logo.png" alt="ResourcePackerGUI Logo" />
+  </a>
+</h3>
+  
 # ResourcePacker.GUI
 ResourcePackerGUI is a graphical user interface application for the ResourcePacker command-line tool.
 
