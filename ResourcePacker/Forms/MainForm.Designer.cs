@@ -37,7 +37,13 @@
             this.btnRefresh = new System.Windows.Forms.ToolStripButton();
             this.btnAbout = new System.Windows.Forms.ToolStripButton();
             this.toolStripButton1 = new System.Windows.Forms.ToolStripButton();
+            this.statusStrip = new System.Windows.Forms.StatusStrip();
+            this.lblStatus = new System.Windows.Forms.ToolStripStatusLabel();
+            this.lblResultCount = new System.Windows.Forms.ToolStripStatusLabel();
+            this.prgRunning = new System.Windows.Forms.ToolStripProgressBar();
+            this.lblElapsed = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStrip.SuspendLayout();
+            this.statusStrip.SuspendLayout();
             this.SuspendLayout();
             // 
             // toolStrip
@@ -105,15 +111,50 @@
             this.toolStripButton1.Name = "toolStripButton1";
             this.toolStripButton1.Padding = new System.Windows.Forms.Padding(3);
             // 
+            // statusStrip
+            // 
+            this.statusStrip.ImageScalingSize = new System.Drawing.Size(20, 20);
+            this.statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.lblStatus,
+            this.lblResultCount,
+            this.prgRunning,
+            this.lblElapsed});
+            resources.ApplyResources(this.statusStrip, "statusStrip");
+            this.statusStrip.Name = "statusStrip";
+            // 
+            // lblStatus
+            // 
+            this.lblStatus.Name = "lblStatus";
+            resources.ApplyResources(this.lblStatus, "lblStatus");
+            this.lblStatus.Spring = true;
+            // 
+            // lblResultCount
+            // 
+            resources.ApplyResources(this.lblResultCount, "lblResultCount");
+            this.lblResultCount.Name = "lblResultCount";
+            // 
+            // prgRunning
+            // 
+            this.prgRunning.Name = "prgRunning";
+            resources.ApplyResources(this.prgRunning, "prgRunning");
+            // 
+            // lblElapsed
+            // 
+            resources.ApplyResources(this.lblElapsed, "lblElapsed");
+            this.lblElapsed.Name = "lblElapsed";
+            // 
             // MainForm
             // 
             this.AllowDrop = true;
             resources.ApplyResources(this, "$this");
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.statusStrip);
             this.Controls.Add(this.toolStrip);
             this.Name = "MainForm";
             this.toolStrip.ResumeLayout(false);
             this.toolStrip.PerformLayout();
+            this.statusStrip.ResumeLayout(false);
+            this.statusStrip.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -129,5 +170,10 @@
         private ToolStripButton btnRefresh;
         private ToolStripButton btnAbout;
         private ToolStripButton toolStripButton1;
+        private StatusStrip statusStrip;
+        private ToolStripStatusLabel lblStatus;
+        private ToolStripStatusLabel lblResultCount;
+        private ToolStripProgressBar prgRunning;
+        private ToolStripStatusLabel lblElapsed;
     }
 }

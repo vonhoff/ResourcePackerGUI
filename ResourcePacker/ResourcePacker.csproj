@@ -15,6 +15,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="devexpress.win.design" Version="21.2.5" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Compile Update="Properties\Images.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
