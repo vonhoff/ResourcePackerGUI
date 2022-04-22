@@ -38,26 +38,27 @@
             // pictureBox1
             // 
             this.pictureBox1.Image = global::ResourcePacker.Properties.Images.logo;
-            this.pictureBox1.Location = new System.Drawing.Point(15, 12);
+            this.pictureBox1.Location = new System.Drawing.Point(13, 12);
             this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(508, 140);
+            this.pictureBox1.Size = new System.Drawing.Size(540, 140);
+            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
             this.pictureBox1.TabIndex = 0;
             this.pictureBox1.TabStop = false;
             // 
             // richTextBox1
             // 
-            this.richTextBox1.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.richTextBox1.Location = new System.Drawing.Point(17, 161);
-            this.richTextBox1.Margin = new System.Windows.Forms.Padding(8, 6, 8, 6);
+            this.richTextBox1.BackColor = System.Drawing.SystemColors.Window;
+            this.richTextBox1.Location = new System.Drawing.Point(13, 159);
+            this.richTextBox1.Margin = new System.Windows.Forms.Padding(4);
             this.richTextBox1.Name = "richTextBox1";
             this.richTextBox1.ReadOnly = true;
-            this.richTextBox1.Size = new System.Drawing.Size(608, 252);
+            this.richTextBox1.Size = new System.Drawing.Size(560, 275);
             this.richTextBox1.TabIndex = 4;
             this.richTextBox1.Text = resources.GetString("richTextBox1.Text");
             // 
             // btnOK
             // 
-            this.btnOK.Location = new System.Drawing.Point(536, 422);
+            this.btnOK.Location = new System.Drawing.Point(479, 441);
             this.btnOK.Name = "btnOK";
             this.btnOK.Size = new System.Drawing.Size(94, 29);
             this.btnOK.TabIndex = 3;
@@ -69,7 +70,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(642, 463);
+            this.ClientSize = new System.Drawing.Size(585, 482);
             this.Controls.Add(this.richTextBox1);
             this.Controls.Add(this.btnOK);
             this.Controls.Add(this.pictureBox1);
