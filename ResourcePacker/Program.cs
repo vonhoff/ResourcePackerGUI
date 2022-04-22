@@ -11,7 +11,6 @@ namespace ResourcePacker
         private static void Main()
         {
             ApplicationConfiguration.Initialize();
-            Application.EnableVisualStyles();
             Application.SetHighDpiMode(HighDpiMode.PerMonitorV2);
             Application.Run(new MainForm());
         }

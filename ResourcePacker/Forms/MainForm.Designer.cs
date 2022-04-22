@@ -74,6 +74,7 @@
             resources.ApplyResources(this.btnOpen, "btnOpen");
             this.btnOpen.Name = "btnOpen";
             this.btnOpen.Padding = new System.Windows.Forms.Padding(3);
+            this.btnOpen.Click += new System.EventHandler(this.BtnOpen_Click);
             // 
             // btnClose
             // 
