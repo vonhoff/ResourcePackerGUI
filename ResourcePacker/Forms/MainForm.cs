@@ -33,7 +33,7 @@ namespace ResourcePacker.Forms
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Cannot open resource package. {ex.Message}", "Error", 
+                    MessageBox.Show($"Could not open resource package. {ex.Message}", "Error", 
                         MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }

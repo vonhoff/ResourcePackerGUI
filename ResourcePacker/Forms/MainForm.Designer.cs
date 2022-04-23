@@ -37,6 +37,7 @@
             this.btnRefresh = new System.Windows.Forms.ToolStripButton();
             this.btnAbout = new System.Windows.Forms.ToolStripButton();
             this.toolStripButton1 = new System.Windows.Forms.ToolStripButton();
+            this.btnDefinitions = new System.Windows.Forms.ToolStripButton();
             this.statusStrip = new System.Windows.Forms.StatusStrip();
             this.lblStatus = new System.Windows.Forms.ToolStripStatusLabel();
             this.lblResultCount = new System.Windows.Forms.ToolStripStatusLabel();
@@ -57,7 +58,8 @@
             this.toolStripSeparator1,
             this.btnRefresh,
             this.btnAbout,
-            this.toolStripButton1});
+            this.toolStripButton1,
+            this.btnDefinitions});
             resources.ApplyResources(this.toolStrip, "toolStrip");
             this.toolStrip.Name = "toolStrip";
             // 
@@ -111,6 +113,13 @@
             this.toolStripButton1.Image = global::ResourcePacker.Properties.Images.lightning;
             this.toolStripButton1.Name = "toolStripButton1";
             this.toolStripButton1.Padding = new System.Windows.Forms.Padding(3);
+            // 
+            // btnDefinitions
+            // 
+            resources.ApplyResources(this.btnDefinitions, "btnDefinitions");
+            this.btnDefinitions.Image = global::ResourcePacker.Properties.Images.book_link;
+            this.btnDefinitions.Name = "btnDefinitions";
+            this.btnDefinitions.Padding = new System.Windows.Forms.Padding(3);
             // 
             // statusStrip
             // 
@@ -176,5 +185,6 @@
         private ToolStripStatusLabel lblResultCount;
         private ToolStripProgressBar prgRunning;
         private ToolStripStatusLabel lblElapsed;
+        private ToolStripButton btnDefinitions;
     }
 }

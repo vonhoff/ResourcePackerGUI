@@ -1,12 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.IO;
+using System.Runtime.InteropServices;
 
 namespace ResourcePacker.Entities
 {
-    internal class Pack
+    [StructLayout(LayoutKind.Sequential)]
+    internal struct Pack
     {
+        public Stream FileStream;
+
+        public uint[] Key;
+
+        public int NumberOfEntries;
+
+        public Entry[] Entries;
+
+        public bool Encrypted;
     }
 }

@@ -1,12 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Runtime.InteropServices;
 
 namespace ResourcePacker.Entities
 {
-    internal class Entry
+    [StructLayout(LayoutKind.Sequential)]
+    internal struct Entry
     {
+        public uint Id;
+        public uint Crc;
+        public uint DataSize;
+        public uint PackSize;
+        public uint Offset;
     }
 }

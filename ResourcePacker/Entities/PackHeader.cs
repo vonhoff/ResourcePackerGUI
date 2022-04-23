@@ -8,8 +8,8 @@ namespace ResourcePacker.Entities
         [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 8)]
         public string Id;
 
-        public uint Reserved;
+        public int Reserved;
 
-        public uint NumberOfEntries;
+        public int NumberOfEntries;
     }
 }
