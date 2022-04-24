@@ -1,0 +1,100 @@
+﻿using ResourcePacker.Entities;
+using ResourcePacker.Helpers;
+
+namespace ResourcePacker.Forms
+{
+    public partial class OpenForm : Form
+    {
+        private PackHeader _packHeader;
+        private Pack _pack;
+        private Dictionary<uint, string> _items = new Dictionary<uint, string>();
+        private CancellationTokenSource _cancellationTokenSource = new();
+        private bool _processing;
+        
+        public OpenForm()
+        {
+            InitializeComponent();
+        }
+
+        private void BtnLocationExplore_Click(object sender, EventArgs e)
+        {
+            using var openFileDialog = new OpenFileDialog();
+            openFileDialog.Filter = "ResourcePack (*.dat)|*.dat";
+            openFileDialog.RestoreDirectory = true;
+
+            if (openFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                var fileStream = openFileDialog.OpenFile();
+
+                try
+                {
+                    _packHeader = PackHelper.GetHeader(fileStream);
+                    _pack = PackHelper.Load(_packHeader, fileStream);
+                    txtFileLocation.Text = openFileDialog.FileName;
+                    btnExecute.Enabled = true;
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Could not open resource package. {ex.Message}", "Error",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+        }
+
+        private void UpdateProgress(object? sender, int percentage)
+        {
+            progressBar.Value = percentage;
+        }
+
+        private void BtnExecute_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void BtnCancel_Click(object sender, EventArgs e)
+        {
+            if (_processing)
+            {
+                _processing = false;
+                if (_cancellationTokenSource.IsCancellationRequested)
+                {
+                    return;
+                }
+
+                _cancellationTokenSource.Cancel();
+                _cancellationTokenSource = new CancellationTokenSource();
+                return;
+            }
+           
+            Close();
+        }
+
+        private void BtnDefinitionsExplore_Click(object sender, EventArgs e)
+        {
+            using var openFileDialog = new OpenFileDialog();
+            openFileDialog.Filter = "Definition file (*.txt)|*.txt";
+            openFileDialog.RestoreDirectory = true;
+
+            if (openFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                var fileStream = openFileDialog.OpenFile();
+
+                try
+                {
+                    txtDefinitions.Text = openFileDialog.FileName;
+                    _items = DefinitionHelper.Create(fileStream);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Could not open resource package. {ex.Message}", "Error",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+        }
+
+        private void OpenForm_Load(object sender, EventArgs e)
+        {
+
+        }
+    }
+}

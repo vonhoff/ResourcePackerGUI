@@ -33,11 +33,11 @@
             this.btnCreate = new System.Windows.Forms.ToolStripButton();
             this.btnOpen = new System.Windows.Forms.ToolStripButton();
             this.btnClose = new System.Windows.Forms.ToolStripButton();
+            this.btnCancel = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.btnRefresh = new System.Windows.Forms.ToolStripButton();
             this.btnAbout = new System.Windows.Forms.ToolStripButton();
             this.toolStripButton1 = new System.Windows.Forms.ToolStripButton();
-            this.btnDefinitions = new System.Windows.Forms.ToolStripButton();
             this.statusStrip = new System.Windows.Forms.StatusStrip();
             this.lblStatus = new System.Windows.Forms.ToolStripStatusLabel();
             this.lblResultCount = new System.Windows.Forms.ToolStripStatusLabel();
@@ -55,11 +55,11 @@
             this.btnCreate,
             this.btnOpen,
             this.btnClose,
+            this.btnCancel,
             this.toolStripSeparator1,
             this.btnRefresh,
             this.btnAbout,
-            this.toolStripButton1,
-            this.btnDefinitions});
+            this.toolStripButton1});
             resources.ApplyResources(this.toolStrip, "toolStrip");
             this.toolStrip.Name = "toolStrip";
             // 
@@ -84,6 +84,13 @@
             resources.ApplyResources(this.btnClose, "btnClose");
             this.btnClose.Name = "btnClose";
             this.btnClose.Padding = new System.Windows.Forms.Padding(3);
+            // 
+            // btnCancel
+            // 
+            this.btnCancel.Image = global::ResourcePacker.Properties.Images.cross;
+            resources.ApplyResources(this.btnCancel, "btnCancel");
+            this.btnCancel.Name = "btnCancel";
+            this.btnCancel.Padding = new System.Windows.Forms.Padding(3);
             // 
             // toolStripSeparator1
             // 
@@ -113,13 +120,6 @@
             this.toolStripButton1.Image = global::ResourcePacker.Properties.Images.lightning;
             this.toolStripButton1.Name = "toolStripButton1";
             this.toolStripButton1.Padding = new System.Windows.Forms.Padding(3);
-            // 
-            // btnDefinitions
-            // 
-            resources.ApplyResources(this.btnDefinitions, "btnDefinitions");
-            this.btnDefinitions.Image = global::ResourcePacker.Properties.Images.book_link;
-            this.btnDefinitions.Name = "btnDefinitions";
-            this.btnDefinitions.Padding = new System.Windows.Forms.Padding(3);
             // 
             // statusStrip
             // 
@@ -185,6 +185,6 @@
         private ToolStripStatusLabel lblResultCount;
         private ToolStripProgressBar prgRunning;
         private ToolStripStatusLabel lblElapsed;
-        private ToolStripButton btnDefinitions;
+        private ToolStripButton btnCancel;
     }
 }

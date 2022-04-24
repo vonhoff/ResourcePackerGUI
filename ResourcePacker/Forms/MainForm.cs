@@ -19,24 +19,7 @@ namespace ResourcePacker.Forms
 
         private void BtnOpen_Click(object sender, EventArgs e)
         {
-            using var openFileDialog = new OpenFileDialog();
-            openFileDialog.Filter = "ResourcePack (*.dat)|*.dat";
-            openFileDialog.RestoreDirectory = true;
-
-            if (openFileDialog.ShowDialog() == DialogResult.OK)
-            {
-                var fileStream = openFileDialog.OpenFile();
-
-                try
-                {
-                    PackHelper.Open(fileStream, null);
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Could not open resource package. {ex.Message}", "Error", 
-                        MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-            }
+            new OpenForm().ShowDialog();
         }
     }
 }

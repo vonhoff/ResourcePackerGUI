@@ -11,7 +11,10 @@ namespace ResourcePacker.Helpers
     {
         public static void Load(Pack pack, Entry entry)
         {
+            var binaryReader = new BinaryReader(pack.FileStream);
 
         }
+
+
     }
 }

@@ -98,6 +98,18 @@
   <data name="btnClose.Visible" type="System.Boolean, mscorlib">
     <value>False</value>
   </data>
+  <data name="btnCancel.ImageTransparentColor" type="System.Drawing.Color, System.Drawing">
+    <value>Magenta</value>
+  </data>
+  <data name="btnCancel.Size" type="System.Drawing.Size, System.Drawing">
+    <value>83, 30</value>
+  </data>
+  <data name="btnCancel.Text" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="btnCancel.ToolTipText" xml:space="preserve">
+    <value>Cancel the current operation</value>
+  </data>
   <data name="toolStripSeparator1.Size" type="System.Drawing.Size, System.Drawing">
     <value>6, 33</value>
   </data>
@@ -137,21 +149,6 @@
   <data name="toolStripButton1.ToolTipText" xml:space="preserve">
     <value>Build resource pack</value>
   </data>
-  <data name="btnDefinitions.Enabled" type="System.Boolean, mscorlib">
-    <value>False</value>
-  </data>
-  <data name="btnDefinitions.ImageTransparentColor" type="System.Drawing.Color, System.Drawing">
-    <value>Magenta</value>
-  </data>
-  <data name="btnDefinitions.Size" type="System.Drawing.Size, System.Drawing">
-    <value>148, 30</value>
-  </data>
-  <data name="btnDefinitions.Text" xml:space="preserve">
-    <value>Load Definitions</value>
-  </data>
-  <data name="btnDefinitions.ToolTipText" xml:space="preserve">
-    <value>Load definitions for path hashes</value>
-  </data>
   <data name="toolStrip.Location" type="System.Drawing.Point, System.Drawing">
     <value>0, 0</value>
   </data>
@@ -184,7 +181,7 @@
     <value>132, 17</value>
   </metadata>
   <data name="lblStatus.Size" type="System.Drawing.Size, System.Drawing">
-    <value>405, 20</value>
+    <value>370, 20</value>
   </data>
   <data name="lblStatus.TextAlign" type="System.Drawing.ContentAlignment, System.Drawing">
     <value>MiddleLeft</value>
@@ -199,7 +196,7 @@
     <value>0 Entries</value>
   </data>
   <data name="prgRunning.Size" type="System.Drawing.Size, System.Drawing">
-    <value>100, 18</value>
+    <value>135, 18</value>
   </data>
   <data name="lblElapsed.AutoSize" type="System.Boolean, mscorlib">
     <value>False</value>
@@ -1826,6 +1823,12 @@
   <data name="&gt;&gt;btnClose.Type" xml:space="preserve">
     <value>System.Windows.Forms.ToolStripButton, System.Windows.Forms, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
+  <data name="&gt;&gt;btnCancel.Name" xml:space="preserve">
+    <value>btnCancel</value>
+  </data>
+  <data name="&gt;&gt;btnCancel.Type" xml:space="preserve">
+    <value>System.Windows.Forms.ToolStripButton, System.Windows.Forms, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
   <data name="&gt;&gt;toolStripSeparator1.Name" xml:space="preserve">
     <value>toolStripSeparator1</value>
   </data>
@@ -1848,12 +1851,6 @@
     <value>toolStripButton1</value>
   </data>
   <data name="&gt;&gt;toolStripButton1.Type" xml:space="preserve">
-    <value>System.Windows.Forms.ToolStripButton, System.Windows.Forms, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;btnDefinitions.Name" xml:space="preserve">
-    <value>btnDefinitions</value>
-  </data>
-  <data name="&gt;&gt;btnDefinitions.Type" xml:space="preserve">
     <value>System.Windows.Forms.ToolStripButton, System.Windows.Forms, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;lblStatus.Name" xml:space="preserve">
