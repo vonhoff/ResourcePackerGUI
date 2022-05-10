@@ -1,5 +1,9 @@
 ﻿using ResourcePacker.Entities;
 using ResourcePacker.Helpers;
+using Serilog;
+using Serilog.Core;
+using Serilog.Events;
+using Serilog.Sinks.RichTextBoxForms.Themes;
 
 namespace ResourcePacker.Forms
 {
@@ -7,10 +11,11 @@ namespace ResourcePacker.Forms
     {
         private PackHeader _packHeader;
         private Pack _pack;
-        private Dictionary<uint, string> _items = new Dictionary<uint, string>();
+        private Dictionary<uint, string> _items = new();
         private CancellationTokenSource _cancellationTokenSource = new();
+        private readonly LoggingLevelSwitch _loggingLevelSwitch = new(LogEventLevel.Debug);
         private bool _processing;
-        
+
         public OpenForm()
         {
             InitializeComponent();
@@ -48,7 +53,6 @@ namespace ResourcePacker.Forms
 
         private void BtnExecute_Click(object sender, EventArgs e)
         {
-
         }
 
         private void BtnCancel_Click(object sender, EventArgs e)
@@ -65,7 +69,7 @@ namespace ResourcePacker.Forms
                 _cancellationTokenSource = new CancellationTokenSource();
                 return;
             }
-           
+
             Close();
         }
 
@@ -94,7 +98,19 @@ namespace ResourcePacker.Forms
 
         private void OpenForm_Load(object sender, EventArgs e)
         {
+            Log.Logger = new LoggerConfiguration()
+                .MinimumLevel.Verbose()
+                .WriteTo.RichTextBox(outputBox, theme: ThemePresets.Light, levelSwitch: _loggingLevelSwitch)
+                .CreateLogger();
+        }
 
+        private void ChkShowDebug_CheckedChanged(object sender, EventArgs e)
+        {
+            if (sender is CheckBox chk)
+            {
+                _loggingLevelSwitch.MinimumLevel =
+                    chk.Checked ? LogEventLevel.Debug : LogEventLevel.Information;
+            }
         }
     }
 }

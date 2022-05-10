@@ -25,6 +25,7 @@ namespace ResourcePacker.Helpers
 
                 if (!definitions.ContainsKey(crc))
                 {
+                    Log.Debug("Added definition: {entry}", value);
                     definitions.Add(Crc32Algorithm.Compute(bytes), value);
                     continue;
                 }
