@@ -63,7 +63,7 @@
             this.groupBox1.Controls.Add(this.txtFileLocation);
             this.groupBox1.Location = new System.Drawing.Point(12, 12);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(697, 209);
+            this.groupBox1.Size = new System.Drawing.Size(818, 209);
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Resource file";
@@ -82,7 +82,7 @@
             this.chkShowPassword.AutoSize = true;
             this.chkShowPassword.Checked = true;
             this.chkShowPassword.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkShowPassword.Location = new System.Drawing.Point(557, 140);
+            this.chkShowPassword.Location = new System.Drawing.Point(678, 140);
             this.chkShowPassword.Name = "chkShowPassword";
             this.chkShowPassword.Size = new System.Drawing.Size(134, 24);
             this.chkShowPassword.TabIndex = 7;
@@ -93,13 +93,13 @@
             // 
             this.txtPassword.Location = new System.Drawing.Point(6, 164);
             this.txtPassword.Name = "txtPassword";
-            this.txtPassword.Size = new System.Drawing.Size(685, 27);
+            this.txtPassword.Size = new System.Drawing.Size(806, 27);
             this.txtPassword.TabIndex = 6;
             // 
             // btnDefinitionsExplore
             // 
             this.btnDefinitionsExplore.Image = global::ResourcePacker.Properties.Images.folder_explore;
-            this.btnDefinitionsExplore.Location = new System.Drawing.Point(597, 104);
+            this.btnDefinitionsExplore.Location = new System.Drawing.Point(718, 104);
             this.btnDefinitionsExplore.Name = "btnDefinitionsExplore";
             this.btnDefinitionsExplore.Size = new System.Drawing.Size(94, 29);
             this.btnDefinitionsExplore.TabIndex = 5;
@@ -123,13 +123,13 @@
             this.txtDefinitions.Margin = new System.Windows.Forms.Padding(3, 3, 3, 9);
             this.txtDefinitions.Name = "txtDefinitions";
             this.txtDefinitions.ReadOnly = true;
-            this.txtDefinitions.Size = new System.Drawing.Size(585, 27);
+            this.txtDefinitions.Size = new System.Drawing.Size(706, 27);
             this.txtDefinitions.TabIndex = 3;
             // 
             // btnLocationExplore
             // 
             this.btnLocationExplore.Image = global::ResourcePacker.Properties.Images.folder_explore;
-            this.btnLocationExplore.Location = new System.Drawing.Point(597, 45);
+            this.btnLocationExplore.Location = new System.Drawing.Point(718, 45);
             this.btnLocationExplore.Name = "btnLocationExplore";
             this.btnLocationExplore.Size = new System.Drawing.Size(94, 29);
             this.btnLocationExplore.TabIndex = 2;
@@ -153,13 +153,13 @@
             this.txtFileLocation.Margin = new System.Windows.Forms.Padding(3, 3, 3, 9);
             this.txtFileLocation.Name = "txtFileLocation";
             this.txtFileLocation.ReadOnly = true;
-            this.txtFileLocation.Size = new System.Drawing.Size(585, 27);
+            this.txtFileLocation.Size = new System.Drawing.Size(706, 27);
             this.txtFileLocation.TabIndex = 0;
             // 
             // btnExecute
             // 
             this.btnExecute.Enabled = false;
-            this.btnExecute.Location = new System.Drawing.Point(615, 532);
+            this.btnExecute.Location = new System.Drawing.Point(736, 622);
             this.btnExecute.Name = "btnExecute";
             this.btnExecute.Size = new System.Drawing.Size(94, 29);
             this.btnExecute.TabIndex = 2;
@@ -176,7 +176,7 @@
             this.groupBox3.Controls.Add(this.progressBar);
             this.groupBox3.Location = new System.Drawing.Point(12, 227);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(697, 299);
+            this.groupBox3.Size = new System.Drawing.Size(818, 389);
             this.groupBox3.TabIndex = 3;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Status";
@@ -186,7 +186,7 @@
             this.chkShowDebug.AutoSize = true;
             this.chkShowDebug.Checked = true;
             this.chkShowDebug.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkShowDebug.Location = new System.Drawing.Point(515, 81);
+            this.chkShowDebug.Location = new System.Drawing.Point(636, 81);
             this.chkShowDebug.Name = "chkShowDebug";
             this.chkShowDebug.Size = new System.Drawing.Size(176, 24);
             this.chkShowDebug.TabIndex = 9;
@@ -206,9 +206,9 @@
             // outputBox
             // 
             this.outputBox.Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.outputBox.Location = new System.Drawing.Point(6, 107);
+            this.outputBox.Location = new System.Drawing.Point(6, 105);
             this.outputBox.Name = "outputBox";
-            this.outputBox.Size = new System.Drawing.Size(685, 186);
+            this.outputBox.Size = new System.Drawing.Size(806, 278);
             this.outputBox.TabIndex = 7;
             this.outputBox.Text = "";
             // 
@@ -224,13 +224,14 @@
             // progressBar
             // 
             this.progressBar.Location = new System.Drawing.Point(6, 46);
+            this.progressBar.MarqueeAnimationSpeed = 75;
             this.progressBar.Name = "progressBar";
-            this.progressBar.Size = new System.Drawing.Size(685, 29);
+            this.progressBar.Size = new System.Drawing.Size(806, 29);
             this.progressBar.TabIndex = 0;
             // 
             // btnCancel
             // 
-            this.btnCancel.Location = new System.Drawing.Point(515, 532);
+            this.btnCancel.Location = new System.Drawing.Point(636, 622);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(94, 29);
             this.btnCancel.TabIndex = 4;
@@ -242,7 +243,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(721, 573);
+            this.ClientSize = new System.Drawing.Size(842, 663);
             this.Controls.Add(this.btnCancel);
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.btnExecute);

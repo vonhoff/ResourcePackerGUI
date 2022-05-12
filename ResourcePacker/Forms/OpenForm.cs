@@ -86,7 +86,12 @@ namespace ResourcePacker.Forms
                 try
                 {
                     txtDefinitions.Text = openFileDialog.FileName;
-                    _items = DefinitionHelper.Create(fileStream);
+                    var validate = DefinitionHelper.LoadDefinitions(fileStream);
+                    if (validate == null)
+                    {
+                        return;
+                    }
+                    //_items = DefinitionHelper.Create(fileStream);
                 }
                 catch (Exception ex)
                 {

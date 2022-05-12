@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Diagnostics;
+using System.Reflection;
 
 namespace ResourcePacker.Forms
 {
@@ -22,6 +23,14 @@ namespace ResourcePacker.Forms
         private void BtnOK_Click(object sender, EventArgs e)
         {
             Close();
+        }
+
+        private void AboutForm_Load(object sender, EventArgs e)
+        {
+            var assembly = typeof(AboutForm).Assembly;
+            var version = assembly.GetName().Version?.ToString();
+            var architecture = assembly.GetName().ProcessorArchitecture.ToString();
+            lblVersion.Text = $"Version {version} ({architecture})";
         }
     }
 }
