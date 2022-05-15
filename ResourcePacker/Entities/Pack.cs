@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 namespace ResourcePacker.Entities
 {
     [StructLayout(LayoutKind.Sequential)]
-    internal struct Pack
+    public struct Pack
     {
         public Stream FileStream;
 

@@ -3,7 +3,7 @@
 namespace ResourcePacker.Entities
 {
     [StructLayout(LayoutKind.Sequential)]
-    internal struct Entry
+    public struct Entry
     {
         public uint Id;
         public uint Crc;

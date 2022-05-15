@@ -1,5 +1,6 @@
 ﻿using ResourcePacker.Entities;
 using System.Runtime.InteropServices;
+using Serilog;
 
 namespace ResourcePacker.Helpers;
 
@@ -29,7 +30,7 @@ internal static class PackHelper
         return header;
     }
 
-    public static Pack Load(PackHeader header, Stream fileStream, CancellationToken cancellationToken = default)
+    public static Pack LoadEntryInformation(PackHeader header, Stream fileStream, CancellationToken cancellationToken = default)
     {
         var binaryReader = new BinaryReader(fileStream);
         var entrySize = Marshal.SizeOf(typeof(Entry));
@@ -51,7 +52,18 @@ internal static class PackHelper
         {
             cancellationToken.ThrowIfCancellationRequested();
             var ins = new IntPtr(ptr.ToInt64() + (i * entrySize));
-            pack.Entries[i] = Marshal.PtrToStructure<Entry>(ins);
+            var entry = Marshal.PtrToStructure<Entry>(ins);
+
+            if (entry.Crc == 0 || entry.DataSize == 0 || entry.Id == 0 || entry.PackSize == 0)
+            {
+                Log.Error("Invalid entry: {@entry}", 
+                    new { entry.Id, entry.Crc, entry.DataSize, entry.PackSize });
+                throw new InvalidDataException("The specified file is invalid.");
+            }
+
+            pack.Entries[i] = entry;
+            Log.Debug("Added entry: {@entry}",
+                new { entry.Id, entry.Crc, entry.DataSize });
         }
 
         return pack;
