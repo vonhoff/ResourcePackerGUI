@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.toolStrip = new System.Windows.Forms.ToolStrip();
             this.btnCreate = new System.Windows.Forms.ToolStripButton();
@@ -37,6 +38,7 @@
             this.btnAbout = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.btnLoadDefinitions = new System.Windows.Forms.ToolStripButton();
+            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.btnToggleDebugMessages = new System.Windows.Forms.ToolStripButton();
             this.statusStrip = new System.Windows.Forms.StatusStrip();
             this.lblStatus = new System.Windows.Forms.ToolStripStatusLabel();
@@ -47,6 +49,7 @@
             this.tabControl3 = new System.Windows.Forms.TabControl();
             this.tabPage3 = new System.Windows.Forms.TabPage();
             this.explorerTreeView = new System.Windows.Forms.TreeView();
+            this.explorerImages = new System.Windows.Forms.ImageList(this.components);
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
             this.tabControl2 = new System.Windows.Forms.TabControl();
             this.tabPage2 = new System.Windows.Forms.TabPage();
@@ -54,7 +57,6 @@
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.outputBox = new System.Windows.Forms.RichTextBox();
-            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.toolStrip.SuspendLayout();
             this.statusStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
@@ -142,6 +144,11 @@
             this.btnLoadDefinitions.Padding = new System.Windows.Forms.Padding(3);
             this.btnLoadDefinitions.Click += new System.EventHandler(this.BtnLoadDefinitions_Click);
             // 
+            // toolStripSeparator1
+            // 
+            this.toolStripSeparator1.Name = "toolStripSeparator1";
+            resources.ApplyResources(this.toolStripSeparator1, "toolStripSeparator1");
+            // 
             // btnToggleDebugMessages
             // 
             this.btnToggleDebugMessages.Image = global::ResourcePacker.Properties.Images.checkbox_checked;
@@ -212,7 +219,23 @@
             // explorerTreeView
             // 
             resources.ApplyResources(this.explorerTreeView, "explorerTreeView");
+            this.explorerTreeView.ImageList = this.explorerImages;
             this.explorerTreeView.Name = "explorerTreeView";
+            // 
+            // explorerImages
+            // 
+            this.explorerImages.ColorDepth = System.Windows.Forms.ColorDepth.Depth8Bit;
+            this.explorerImages.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("explorerImages.ImageStream")));
+            this.explorerImages.TransparentColor = System.Drawing.Color.Transparent;
+            this.explorerImages.Images.SetKeyName(0, "application_view_tile.png");
+            this.explorerImages.Images.SetKeyName(1, "music.png");
+            this.explorerImages.Images.SetKeyName(2, "font.png");
+            this.explorerImages.Images.SetKeyName(3, "picture.png");
+            this.explorerImages.Images.SetKeyName(4, "page_white_text.png");
+            this.explorerImages.Images.SetKeyName(5, "film.png");
+            this.explorerImages.Images.SetKeyName(6, "help.png");
+            this.explorerImages.Images.SetKeyName(7, "folder.png");
+            this.explorerImages.Images.SetKeyName(8, "database.png");
             // 
             // splitContainer2
             // 
@@ -265,11 +288,6 @@
             // 
             resources.ApplyResources(this.outputBox, "outputBox");
             this.outputBox.Name = "outputBox";
-            // 
-            // toolStripSeparator1
-            // 
-            this.toolStripSeparator1.Name = "toolStripSeparator1";
-            resources.ApplyResources(this.toolStripSeparator1, "toolStripSeparator1");
             // 
             // MainForm
             // 
@@ -333,5 +351,6 @@
         private ToolStripSeparator toolStripSeparator2;
         private ToolStripButton btnLoadDefinitions;
         private ToolStripSeparator toolStripSeparator1;
+        private ImageList explorerImages;
     }
 }

@@ -1,12 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Winista.Mime;
 
 namespace ResourcePacker.Entities
 {
-    internal class Asset
+    public class Asset
     {
+        private string _name = string.Empty;
+
+        public string Name
+        {
+            get => string.IsNullOrEmpty(_name) ? Entry.Id.ToString() : _name;
+            set => _name = value;
+        }
+
+        public Entry Entry { get; set; }
+
+        public byte[] Data { get; set; }
+
+        public MimeType? MimeType { get; set; }
     }
 }

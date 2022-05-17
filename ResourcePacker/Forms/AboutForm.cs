@@ -32,5 +32,14 @@ namespace ResourcePacker.Forms
             var architecture = assembly.GetName().ProcessorArchitecture.ToString();
             lblVersion.Text = $"Version {version} ({architecture})";
         }
+
+        private void RichTextBox1_LinkClicked(object sender, LinkClickedEventArgs e)
+        {
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = e.LinkText,
+                UseShellExecute = true
+            });
+        }
     }
 }

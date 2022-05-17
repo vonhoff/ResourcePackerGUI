@@ -11,33 +11,7 @@ namespace ResourcePacker.Helpers
         private static readonly Regex ValidDefinitionRegex =
             new(@"^((\.\./|[a-zA-Z0-9_/\-\\ ])*\.[a-zA-Z0-9]+)$", RegexOptions.Compiled);
 
-        public static List<EntryDefinition> CreateEntryDefinitions(Pack package)
-        {
-            return package.Entries.Select(entry => new EntryDefinition { Entry = entry }).ToList();
-        }
-
-        public static List<EntryDefinition> CreateEntryDefinitions(Pack package, Stream definitionStream)
-        {
-            var crcDictionary = CreateCrcDictionary(definitionStream);
-            var definitions = new List<EntryDefinition>();
-
-            foreach (var entry in package.Entries)
-            {
-                if (crcDictionary.TryGetValue(entry.Id, out var filePath))
-                {
-                    Log.Debug("Found definition for entry: {@id}", new { entry.Id });
-                    definitions.Add(new EntryDefinition { Entry = entry, Name = filePath });
-                    continue;
-                }
-
-                definitions.Add(new EntryDefinition { Entry = entry });
-                Log.Warning("Could not find definition for entry: {@id}", new { entry.Id });
-            }
-
-            return definitions;
-        }
-
-        private static IReadOnlyDictionary<uint, string> CreateCrcDictionary(Stream definitionStream)
+        public static IReadOnlyDictionary<uint, string> CreateCrcDictionary(Stream definitionStream)
         {
             var crcDictionary = new Dictionary<uint, string>();
 

@@ -68,6 +68,7 @@
             this.richTextBox1.Size = new System.Drawing.Size(526, 233);
             this.richTextBox1.TabIndex = 4;
             this.richTextBox1.Text = resources.GetString("richTextBox1.Text");
+            this.richTextBox1.LinkClicked += new System.Windows.Forms.LinkClickedEventHandler(this.RichTextBox1_LinkClicked);
             // 
             // groupBox1
             // 
