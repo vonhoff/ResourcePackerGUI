@@ -1,4 +1,7 @@
-﻿using Force.Crc32;
+﻿using System.Text;
+using System.Text.Json.Nodes;
+using System.Text.RegularExpressions;
+using Force.Crc32;
 using ResourcePacker.Entities;
 using Serilog;
 using Winista.Mime;
@@ -8,6 +11,7 @@ namespace ResourcePacker.Helpers
     internal static class AssetHelper
     {
         private static readonly Lazy<MimeTypes> MimeTypes = new(() => new MimeTypes());
+        private static readonly MimeType JsonMimeType = new MimeType("application", "json");
 
         /// <summary>
         /// Attempts to load a specified asset from a provided stream.
@@ -30,10 +34,32 @@ namespace ResourcePacker.Helpers
                 return false;
             }
 
-            asset.MimeType = MimeTypes.Value.GetMimeType(buffer);
+            asset.MimeType = GetMimeType(buffer);
             asset.Data = buffer;
             asset.Entry = entry;
             return true;
+        }
+
+        private static MimeType? GetMimeType(byte[] buffer)
+        {
+            var mimeType = MimeTypes.Value.GetMimeType(buffer);
+            if (mimeType != null)
+            {
+                return mimeType;
+            }
+
+            var text = Encoding.UTF8.GetString(buffer);
+            text = Regex.Replace(text, @"[^\t\r\n -~]", "");
+
+            try
+            {
+                JsonNode.Parse(text);
+                return JsonMimeType;
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         public static List<Asset> LoadAssetsFromPackage(Pack package)

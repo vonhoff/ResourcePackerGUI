@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Diagnostics;
+using System.Text;
 using ResourcePacker.Common;
 using ResourcePacker.Entities;
 using ResourcePacker.Extensions;
@@ -239,18 +240,27 @@ namespace ResourcePacker.Forms
             }
 
             var asset = (Asset)e.Node.Tag;
-            if (asset.MimeType?.PrimaryType != "image")
-            {
-                return;
-            }
 
-            var bitmap = asset.Data.ToBitmap();
-            if (bitmap == null)
+            switch (asset.MimeType)
             {
-                return;
+                case { PrimaryType: "image" }:
+                {
+                    asset.Bitmap ??= asset.Data.ToBitmap();
+                    if (asset.Bitmap != null)
+                    {
+                        previewImageBox.Image = asset.Bitmap;
+                        previewTabs.SelectedTab = previewImageTab;
+                    }
+                    return;
+                }
+                default:
+                {
+                    asset.Text ??= Encoding.UTF8.GetString(asset.Data);
+                    previewTextBox.Text = asset.Text;
+                    previewTabs.SelectedTab = previewTextTab;
+                    break;
+                }
             }
-
-            imageBox.Image = bitmap;
         }
     }
 }

@@ -56,7 +56,11 @@
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
             this.tabControl2 = new System.Windows.Forms.TabControl();
             this.tabPage2 = new System.Windows.Forms.TabPage();
-            this.imageBox = new Cyotek.Windows.Forms.ImageBox();
+            this.previewTabs = new System.Windows.Forms.TabControl();
+            this.previewImageTab = new System.Windows.Forms.TabPage();
+            this.previewImageBox = new Cyotek.Windows.Forms.ImageBox();
+            this.previewTextTab = new System.Windows.Forms.TabPage();
+            this.previewTextBox = new System.Windows.Forms.RichTextBox();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.outputBox = new System.Windows.Forms.RichTextBox();
@@ -78,6 +82,9 @@
             this.splitContainer2.SuspendLayout();
             this.tabControl2.SuspendLayout();
             this.tabPage2.SuspendLayout();
+            this.previewTabs.SuspendLayout();
+            this.previewImageTab.SuspendLayout();
+            this.previewTextTab.SuspendLayout();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.SuspendLayout();
@@ -294,15 +301,44 @@
             // 
             // tabPage2
             // 
-            this.tabPage2.Controls.Add(this.imageBox);
+            this.tabPage2.Controls.Add(this.previewTabs);
             resources.ApplyResources(this.tabPage2, "tabPage2");
             this.tabPage2.Name = "tabPage2";
             this.tabPage2.UseVisualStyleBackColor = true;
             // 
-            // imageBox
+            // previewTabs
             // 
-            resources.ApplyResources(this.imageBox, "imageBox");
-            this.imageBox.Name = "imageBox";
+            this.previewTabs.Controls.Add(this.previewImageTab);
+            this.previewTabs.Controls.Add(this.previewTextTab);
+            resources.ApplyResources(this.previewTabs, "previewTabs");
+            this.previewTabs.ImageList = this.explorerImages;
+            this.previewTabs.Name = "previewTabs";
+            this.previewTabs.SelectedIndex = 0;
+            // 
+            // previewImageTab
+            // 
+            this.previewImageTab.Controls.Add(this.previewImageBox);
+            resources.ApplyResources(this.previewImageTab, "previewImageTab");
+            this.previewImageTab.Name = "previewImageTab";
+            this.previewImageTab.UseVisualStyleBackColor = true;
+            // 
+            // previewImageBox
+            // 
+            resources.ApplyResources(this.previewImageBox, "previewImageBox");
+            this.previewImageBox.Name = "previewImageBox";
+            // 
+            // previewTextTab
+            // 
+            this.previewTextTab.Controls.Add(this.previewTextBox);
+            resources.ApplyResources(this.previewTextTab, "previewTextTab");
+            this.previewTextTab.Name = "previewTextTab";
+            this.previewTextTab.UseVisualStyleBackColor = true;
+            // 
+            // previewTextBox
+            // 
+            resources.ApplyResources(this.previewTextBox, "previewTextBox");
+            this.previewTextBox.Name = "previewTextBox";
+            this.previewTextBox.ReadOnly = true;
             // 
             // tabControl1
             // 
@@ -356,6 +392,9 @@
             this.splitContainer2.ResumeLayout(false);
             this.tabControl2.ResumeLayout(false);
             this.tabPage2.ResumeLayout(false);
+            this.previewTabs.ResumeLayout(false);
+            this.previewImageTab.ResumeLayout(false);
+            this.previewTextTab.ResumeLayout(false);
             this.tabControl1.ResumeLayout(false);
             this.tabPage1.ResumeLayout(false);
             this.ResumeLayout(false);
@@ -390,10 +429,14 @@
         private ToolStripButton btnLoadDefinitions;
         private ToolStripSeparator toolStripSeparator1;
         private ImageList explorerImages;
-        private Cyotek.Windows.Forms.ImageBox imageBox;
+        private Cyotek.Windows.Forms.ImageBox previewImageBox;
         private SplitContainer splitContainer3;
         private TextBox searchBox;
         private TreeView explorerTreeView;
         private Label lblNoResults;
+        private TabControl previewTabs;
+        private TabPage previewImageTab;
+        private TabPage previewTextTab;
+        private RichTextBox previewTextBox;
     }
 }

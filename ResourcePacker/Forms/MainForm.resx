@@ -65,7 +65,7 @@
         AAEAAAD/////AQAAAAAAAAAMAgAAAEZTeXN0ZW0uV2luZG93cy5Gb3JtcywgQ3VsdHVyZT1uZXV0cmFs
         LCBQdWJsaWNLZXlUb2tlbj1iNzdhNWM1NjE5MzRlMDg5BQEAAAAmU3lzdGVtLldpbmRvd3MuRm9ybXMu
         SW1hZ2VMaXN0U3RyZWFtZXIBAAAABERhdGEHAgIAAAAJAwAAAA8DAAAAnhEAAAJNU0Z0AUkBTAIBAQkB
-        AAGYAQEBmAEBARABAAEQAQAE/wEJAQAI/wFCAU0BNgEEBgABNgEEAgABKAMAAUADAAEwAwABAQEAAQgG
+        AAG4AQIBuAECARABAAEQAQAE/wEJAQAI/wFCAU0BNgEEBgABNgEEAgABKAMAAUADAAEwAwABAQEAAQgG
         AAEMGAABgAIAAYADAAKAAQABgAMAAYABAAGAAQACgAIAA8ABAAHAAdwBwAEAAfABygGmAQABMwUAATMB
         AAEzAQABMwEAAjMCAAMWAQADHAEAAyIBAAMpAQADVQEAA00BAANCAQADOQEAAYABfAH/AQACUAH/AQAB
         kwEAAdYBAAH/AewBzAEAAcYB1gHvAQAB1gLnAQABkAGpAa0CAAH/ATMDAAFmAwABmQMAAcwCAAEzAwAC
@@ -554,28 +554,142 @@
   <data name="splitContainer2.Orientation" type="System.Windows.Forms.Orientation, System.Windows.Forms">
     <value>Horizontal</value>
   </data>
-  <data name="imageBox.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+  <data name="previewImageBox.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
     <value>Fill</value>
   </data>
-  <data name="imageBox.Location" type="System.Drawing.Point, System.Drawing">
+  <data name="previewImageBox.Location" type="System.Drawing.Point, System.Drawing">
     <value>3, 3</value>
   </data>
-  <data name="imageBox.Size" type="System.Drawing.Size, System.Drawing">
-    <value>914, 366</value>
+  <data name="previewImageBox.Size" type="System.Drawing.Size, System.Drawing">
+    <value>900, 344</value>
   </data>
-  <data name="imageBox.TabIndex" type="System.Int32, mscorlib">
+  <data name="previewImageBox.TabIndex" type="System.Int32, mscorlib">
     <value>0</value>
   </data>
-  <data name="&gt;&gt;imageBox.Name" xml:space="preserve">
-    <value>imageBox</value>
+  <data name="&gt;&gt;previewImageBox.Name" xml:space="preserve">
+    <value>previewImageBox</value>
   </data>
-  <data name="&gt;&gt;imageBox.Type" xml:space="preserve">
+  <data name="&gt;&gt;previewImageBox.Type" xml:space="preserve">
     <value>Cyotek.Windows.Forms.ImageBox, Cyotek.Windows.Forms.ImageBox, Culture=neutral, PublicKeyToken=58daa28b0b2de221</value>
   </data>
-  <data name="&gt;&gt;imageBox.Parent" xml:space="preserve">
+  <data name="&gt;&gt;previewImageBox.Parent" xml:space="preserve">
+    <value>previewImageTab</value>
+  </data>
+  <data name="&gt;&gt;previewImageBox.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <data name="previewImageTab.ImageIndex" type="System.Int32, mscorlib">
+    <value>3</value>
+  </data>
+  <data name="previewImageTab.Location" type="System.Drawing.Point, System.Drawing">
+    <value>4, 29</value>
+  </data>
+  <data name="previewImageTab.Padding" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>3, 3, 3, 3</value>
+  </data>
+  <data name="previewImageTab.Size" type="System.Drawing.Size, System.Drawing">
+    <value>906, 350</value>
+  </data>
+  <data name="previewImageTab.TabIndex" type="System.Int32, mscorlib">
+    <value>0</value>
+  </data>
+  <data name="previewImageTab.Text" xml:space="preserve">
+    <value>Image</value>
+  </data>
+  <data name="&gt;&gt;previewImageTab.Name" xml:space="preserve">
+    <value>previewImageTab</value>
+  </data>
+  <data name="&gt;&gt;previewImageTab.Type" xml:space="preserve">
+    <value>System.Windows.Forms.TabPage, System.Windows.Forms, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;previewImageTab.Parent" xml:space="preserve">
+    <value>previewTabs</value>
+  </data>
+  <data name="&gt;&gt;previewImageTab.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <data name="previewTextBox.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>Fill</value>
+  </data>
+  <data name="previewTextBox.Font" type="System.Drawing.Font, System.Drawing">
+    <value>Consolas, 9pt</value>
+  </data>
+  <data name="previewTextBox.Location" type="System.Drawing.Point, System.Drawing">
+    <value>3, 3</value>
+  </data>
+  <data name="previewTextBox.Size" type="System.Drawing.Size, System.Drawing">
+    <value>900, 344</value>
+  </data>
+  <data name="previewTextBox.TabIndex" type="System.Int32, mscorlib">
+    <value>2</value>
+  </data>
+  <data name="previewTextBox.Text" xml:space="preserve">
+    <value />
+  </data>
+  <data name="&gt;&gt;previewTextBox.Name" xml:space="preserve">
+    <value>previewTextBox</value>
+  </data>
+  <data name="&gt;&gt;previewTextBox.Type" xml:space="preserve">
+    <value>System.Windows.Forms.RichTextBox, System.Windows.Forms, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;previewTextBox.Parent" xml:space="preserve">
+    <value>previewTextTab</value>
+  </data>
+  <data name="&gt;&gt;previewTextBox.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <data name="previewTextTab.ImageIndex" type="System.Int32, mscorlib">
+    <value>4</value>
+  </data>
+  <data name="previewTextTab.Location" type="System.Drawing.Point, System.Drawing">
+    <value>4, 29</value>
+  </data>
+  <data name="previewTextTab.Padding" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>3, 3, 3, 3</value>
+  </data>
+  <data name="previewTextTab.Size" type="System.Drawing.Size, System.Drawing">
+    <value>906, 350</value>
+  </data>
+  <data name="previewTextTab.TabIndex" type="System.Int32, mscorlib">
+    <value>1</value>
+  </data>
+  <data name="previewTextTab.Text" xml:space="preserve">
+    <value>Text</value>
+  </data>
+  <data name="&gt;&gt;previewTextTab.Name" xml:space="preserve">
+    <value>previewTextTab</value>
+  </data>
+  <data name="&gt;&gt;previewTextTab.Type" xml:space="preserve">
+    <value>System.Windows.Forms.TabPage, System.Windows.Forms, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;previewTextTab.Parent" xml:space="preserve">
+    <value>previewTabs</value>
+  </data>
+  <data name="&gt;&gt;previewTextTab.ZOrder" xml:space="preserve">
+    <value>1</value>
+  </data>
+  <data name="previewTabs.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>Fill</value>
+  </data>
+  <data name="previewTabs.Location" type="System.Drawing.Point, System.Drawing">
+    <value>3, 3</value>
+  </data>
+  <data name="previewTabs.Size" type="System.Drawing.Size, System.Drawing">
+    <value>914, 383</value>
+  </data>
+  <data name="previewTabs.TabIndex" type="System.Int32, mscorlib">
+    <value>0</value>
+  </data>
+  <data name="&gt;&gt;previewTabs.Name" xml:space="preserve">
+    <value>previewTabs</value>
+  </data>
+  <data name="&gt;&gt;previewTabs.Type" xml:space="preserve">
+    <value>System.Windows.Forms.TabControl, System.Windows.Forms, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;previewTabs.Parent" xml:space="preserve">
     <value>tabPage2</value>
   </data>
-  <data name="&gt;&gt;imageBox.ZOrder" xml:space="preserve">
+  <data name="&gt;&gt;previewTabs.ZOrder" xml:space="preserve">
     <value>0</value>
   </data>
   <data name="tabPage2.Location" type="System.Drawing.Point, System.Drawing">
@@ -585,7 +699,7 @@
     <value>3, 3, 3, 3</value>
   </data>
   <data name="tabPage2.Size" type="System.Drawing.Size, System.Drawing">
-    <value>920, 372</value>
+    <value>920, 389</value>
   </data>
   <data name="tabPage2.TabIndex" type="System.Int32, mscorlib">
     <value>0</value>
@@ -612,7 +726,7 @@
     <value>0, 0</value>
   </data>
   <data name="tabControl2.Size" type="System.Drawing.Size, System.Drawing">
-    <value>928, 405</value>
+    <value>928, 422</value>
   </data>
   <data name="tabControl2.TabIndex" type="System.Int32, mscorlib">
     <value>0</value>
@@ -651,7 +765,7 @@
     <value>3, 3</value>
   </data>
   <data name="outputBox.Size" type="System.Drawing.Size, System.Drawing">
-    <value>914, 242</value>
+    <value>914, 225</value>
   </data>
   <data name="outputBox.TabIndex" type="System.Int32, mscorlib">
     <value>0</value>
@@ -678,7 +792,7 @@
     <value>3, 3, 3, 3</value>
   </data>
   <data name="tabPage1.Size" type="System.Drawing.Size, System.Drawing">
-    <value>920, 248</value>
+    <value>920, 231</value>
   </data>
   <data name="tabPage1.TabIndex" type="System.Int32, mscorlib">
     <value>0</value>
@@ -705,7 +819,7 @@
     <value>0, 0</value>
   </data>
   <data name="tabControl1.Size" type="System.Drawing.Size, System.Drawing">
-    <value>928, 281</value>
+    <value>928, 264</value>
   </data>
   <data name="tabControl1.TabIndex" type="System.Int32, mscorlib">
     <value>0</value>
@@ -738,7 +852,7 @@
     <value>928, 690</value>
   </data>
   <data name="splitContainer2.SplitterDistance" type="System.Int32, mscorlib">
-    <value>405</value>
+    <value>422</value>
   </data>
   <data name="splitContainer2.TabIndex" type="System.Int32, mscorlib">
     <value>0</value>

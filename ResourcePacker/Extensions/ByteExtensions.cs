@@ -5,7 +5,7 @@ namespace ResourcePacker.Extensions
     public static class ByteExtensions
     {
         /// <summary>
-        /// Converts byte array into a <see cref="Bitmap"/>.
+        /// Converts a byte array into a <see cref="Bitmap"/>.
         /// </summary>
         /// <param name="blob">The byte array.</param>
         /// <returns>A bitmap from the provided byte array.</returns>
