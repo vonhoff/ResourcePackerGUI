@@ -1,4 +1,8 @@
+using System.Collections;
+using System.Diagnostics;
+using ResourcePacker.Common;
 using ResourcePacker.Entities;
+using ResourcePacker.Extensions;
 using ResourcePacker.Helpers;
 using ResourcePacker.Properties;
 using Serilog;
@@ -11,16 +15,30 @@ namespace ResourcePacker.Forms
 {
     public partial class MainForm : Form
     {
-        private readonly LoggingLevelSwitch _loggingLevelSwitch = new(LogEventLevel.Debug);
-        private List<Asset>? _assets;
         private Pack _pack;
-        private string _packageName = string.Empty;
         private PackHeader _packHeader;
+        private readonly ActionDebouncer _outputScrollDebouncer;
+        private readonly ActionDebouncer _searchDebouncer;
+        private readonly LoggingLevelSwitch _loggingLevelSwitch = new(LogEventLevel.Debug);
+        private string _packageName = string.Empty;
+        private string _searchQuery = string.Empty;
         private bool _showDebugMessages = true;
+        private List<Asset>? _assets;
 
         public MainForm()
         {
             InitializeComponent();
+            _outputScrollDebouncer = new ActionDebouncer(ScrollOutputToEnd, TimeSpan.FromSeconds(0.25));
+            _searchDebouncer = new ActionDebouncer(RefreshFileTree, TimeSpan.FromSeconds(0.35));
+        }
+
+        private void ScrollOutputToEnd()
+        {
+            outputBox.Invoke(() =>
+            {
+                outputBox.SelectionStart = Math.Max(0, outputBox.TextLength - 2);
+                outputBox.ScrollToCaret();
+            });
         }
 
         /// <summary>
@@ -58,25 +76,23 @@ namespace ResourcePacker.Forms
             openFileDialog.Filter = "Definition file (*.txt)|*.txt";
             openFileDialog.RestoreDirectory = true;
 
-            if (openFileDialog.ShowDialog() == DialogResult.OK)
+            if (openFileDialog.ShowDialog() != DialogResult.OK)
             {
-                var definitionStream = openFileDialog.OpenFile();
-
-                Task.Run(() =>
-                {
-                    var crcDictionary = DefinitionHelper.CreateCrcDictionary(definitionStream);
-                    var entries = AssetHelper.LoadAllFromPackage(_pack, crcDictionary);
-                    if (entries.Count == 0)
-                    {
-                        MessageBox.Show("Failed to proceed with setting definitions. The specified file does not contain valid file definitions.",
-                            "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        return;
-                    }
-
-                    _assets = entries;
-                    RefreshFileTree();
-                });
+                return;
             }
+
+            var definitionStream = openFileDialog.OpenFile();
+            var crcDictionary = DefinitionHelper.CreateCrcDictionary(definitionStream);
+            var assets = AssetHelper.LoadAssetsFromPackage(_pack, crcDictionary);
+            if (assets.Count == 0)
+            {
+                MessageBox.Show("Could not set definitions. The specified file does not contain valid file definitions.",
+                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            _assets = assets;
+            RefreshFileTree();
         }
 
         private void BtnOpen_Click(object sender, EventArgs e)
@@ -85,28 +101,32 @@ namespace ResourcePacker.Forms
             openFileDialog.Filter = "ResourcePack (*.dat)|*.dat";
             openFileDialog.RestoreDirectory = true;
 
-            if (openFileDialog.ShowDialog() == DialogResult.OK)
+            if (openFileDialog.ShowDialog() != DialogResult.OK)
             {
-                var fileStream = openFileDialog.OpenFile();
-                try
-                {
-                    // Get pack information.
-                    _packHeader = PackHelper.GetHeader(fileStream);
-                    _packageName = Path.GetFileNameWithoutExtension(openFileDialog.FileName);
-                    _pack = PackHelper.LoadEntryInformation(_packHeader, fileStream);
-                    _assets = AssetHelper.LoadAllFromPackage(_pack);
-                    Log.Information("ResourcePackage: {@info}",
-                        new { _packHeader.Id, _packHeader.NumberOfEntries });
+                return;
+            }
 
-                    lblResultCount.Text = $"{_packHeader.NumberOfEntries} Entries";
-                    RefreshFileTree();
-                    btnLoadDefinitions.Enabled = true;
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Could not open resource package. {ex.Message}", "Error",
-                        MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
+            var fileStream = openFileDialog.OpenFile();
+            try
+            {
+                // Get pack information.
+                _packHeader = PackHelper.GetHeader(fileStream);
+                Log.Information("ResourcePackage: {@info}",
+                    new { _packHeader.Id, _packHeader.NumberOfEntries });
+
+                _packageName = Path.GetFileNameWithoutExtension(openFileDialog.FileName);
+                _pack = PackHelper.LoadEntryInformation(_packHeader, fileStream);
+
+                _assets = AssetHelper.LoadAssetsFromPackage(_pack);
+                RefreshFileTree();
+
+                lblResultCount.Text = $"{_packHeader.NumberOfEntries} Entries";
+                btnLoadDefinitions.Enabled = true;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Could not open resource package. {ex.Message}", "Error",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -132,12 +152,10 @@ namespace ResourcePacker.Forms
 
         /// <summary>
         /// Refreshes the file explorer <see cref="TreeView"/> with
-        /// data from the entity list.
+        /// data from the asset list.
         /// </summary>
         private void RefreshFileTree()
         {
-            explorerTreeView.Invoke(explorerTreeView.Nodes.Clear);
-
             if (_assets == null)
             {
                 return;
@@ -145,31 +163,94 @@ namespace ResourcePacker.Forms
 
             var rootNode = new TreeNode(_packageName)
             {
-                ImageIndex = 8, 
+                ImageIndex = 8,
                 SelectedImageIndex = 8
             };
 
-            rootNode.Expand();
-
-            foreach (var asset in _assets)
+            foreach (var asset in _assets.Where(a => a.Name.Contains(_searchQuery)))
             {
                 var path = asset.Name;
                 var currentNode = rootNode;
-                foreach (var item in path.Split('/'))
+                var nodes = path.Split('/');
+                for (var j = 0; j < nodes.Length; j++)
                 {
-                    var treeNodes = currentNode.Nodes.Cast<TreeNode>().
-                        Where(x => x.Text.Equals(item)).ToList();
-                    currentNode = treeNodes.Count > 0 ? treeNodes.Single() : currentNode.Nodes.Add(item);
+                    var item = nodes[j];
+                    var folder = currentNode.Nodes.Cast<TreeNode>().FirstOrDefault(x => x.Text.Equals(item));
 
-                    // Set the corresponding icon.
-                    currentNode.ImageIndex = treeNodes.Count > 0 ? 7 :
-                        GetMimeTypeIconIndex(asset.MimeType);
+                    if (folder != null)
+                    {
+                        currentNode = folder;
+                        currentNode.ImageIndex = 7;
+                    }
+                    else
+                    {
+                        currentNode = currentNode.Nodes.Add(item);
+
+                        if (j == nodes.Length - 1)
+                        {
+                            currentNode.ImageIndex = GetMimeTypeIconIndex(asset.MimeType);
+                            currentNode.Tag = asset;
+                        }
+                        else
+                        {
+                            currentNode.ImageIndex = 7;
+                        }
+                    }
 
                     currentNode.SelectedImageIndex = currentNode.ImageIndex;
                 }
             }
 
-            explorerTreeView.Invoke(() => explorerTreeView.Nodes.Add(rootNode));
+            explorerTreeView.Invoke(() =>
+            {
+                explorerTreeView.Nodes.Clear();
+                if (rootNode.GetNodeCount(true) < 1)
+                {
+                    lblNoResults.Visible = true;
+                    return;
+                }
+
+                lblNoResults.Visible = false;
+                explorerTreeView.Nodes.Add(rootNode);
+                explorerTreeView.ExpandAll();
+            });
+        }
+
+        private void SplitContainer2_SplitterMoved(object sender, SplitterEventArgs e)
+        {
+            _outputScrollDebouncer.Invoke();
+        }
+
+        private void MainForm_SizeChanged(object sender, EventArgs e)
+        {
+            _outputScrollDebouncer.Invoke();
+        }
+        private void SearchBox_TextChanged(object sender, EventArgs e)
+        {
+            _searchQuery = ((TextBox)sender).Text;
+            _searchDebouncer.Invoke();
+        }
+
+        private void ExplorerTreeView_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
+        {
+            if (e.Node.Tag == null)
+            {
+                return;
+            }
+
+            var asset = (Asset)e.Node.Tag;
+            if (asset.MimeType?.PrimaryType != "image")
+            {
+                return;
+            }
+
+            var bitmap = asset.Data.ToBitmap();
+            if (bitmap == null)
+            {
+                return;
+            }
+
+            imageBox.Image = bitmap;
         }
     }
 }

@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.Json;
-using System.Text.Json.Nodes;
-using System.Threading.Tasks;
-using Force.Crc32;
+﻿using Force.Crc32;
 using ResourcePacker.Entities;
 using Serilog;
 using Winista.Mime;
@@ -16,9 +9,16 @@ namespace ResourcePacker.Helpers
     {
         private static readonly Lazy<MimeTypes> MimeTypes = new(() => new MimeTypes());
 
-        public static bool Load(Pack pack, Entry entry, out Asset asset)
+        /// <summary>
+        /// Attempts to load a specified asset from a provided stream.
+        /// </summary>
+        /// <param name="fileStream">The package stream.</param>
+        /// <param name="entry">Information about the entry.</param>
+        /// <param name="asset"></param>
+        /// <returns><see langword="true"/> when integrity check succeeded; otherwise, <see langword="false"/>.</returns>
+        public static bool LoadAsset(Stream fileStream, Entry entry, out Asset asset)
         {
-            var binaryReader = new BinaryReader(pack.FileStream);
+            var binaryReader = new BinaryReader(fileStream);
             binaryReader.BaseStream.Position = entry.Offset;
             var buffer = binaryReader.ReadBytes((int)(entry.DataSize + 1));
 
@@ -30,34 +30,32 @@ namespace ResourcePacker.Helpers
                 return false;
             }
 
-            asset.MimeType = GetMimeType(buffer);
+            asset.MimeType = MimeTypes.Value.GetMimeType(buffer);
             asset.Data = buffer;
             asset.Entry = entry;
             return true;
         }
 
-        private static MimeType? GetMimeType(byte[] buffer)
-        {
-            return MimeTypes.Value.GetMimeType(buffer);
-        }
-
-        public static List<Asset> LoadAllFromPackage(Pack package)
+        public static List<Asset> LoadAssetsFromPackage(Pack package)
         {
             var assets = new List<Asset>();
             foreach (var entry in package.Entries)
             {
-                if (!Load(package, entry, out var asset))
+                if (!LoadAsset(package.FileStream, entry, out var asset))
                 {
+                    Log.Error("Integrity check failed for entry: {id}", new { entry.Id });
                     continue;
                 }
 
+                Log.Debug("Added asset: {@asset}",
+                    new { asset.Name, MediaType = asset.MimeType?.Name });
                 assets.Add(asset);
             }
 
             return assets;
         }
 
-        public static List<Asset> LoadAllFromPackage(Pack package, IReadOnlyDictionary<uint, string> crcDefinitionDictionary)
+        public static List<Asset> LoadAssetsFromPackage(Pack package, IReadOnlyDictionary<uint, string> crcDefinitionDictionary)
         {
             if (crcDefinitionDictionary.Count == 0)
             {
@@ -69,23 +67,25 @@ namespace ResourcePacker.Helpers
 
             foreach (var entry in package.Entries)
             {
-                if (!Load(package, entry, out var asset))
+                if (!LoadAsset(package.FileStream, entry, out var asset))
                 {
+                    Log.Error("Integrity check failed for entry: {id}", new { entry.Id });
                     continue;
                 }
 
                 if (crcDefinitionDictionary.TryGetValue(entry.Id, out var filePath))
                 {
-                    Log.Debug("Found definition for entry: {@id}", new { entry.Id });
                     asset.Name = filePath;
+                    matches++;
                 }
                 else
                 {
                     Log.Warning("Could not find definition for entry: {@id}", new { entry.Id });
                 }
 
+                Log.Debug("Added asset: {@asset}",
+                    new { entry.Id, asset.Name, MediaType = asset.MimeType?.Name });
                 assets.Add(asset);
-                matches++;
             }
 
             Log.Information("Found {matchCount} out of {expectedCount} definitions.",

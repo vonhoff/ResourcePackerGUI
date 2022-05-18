@@ -30,6 +30,7 @@
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
+            this.explorerImages = new System.Windows.Forms.ImageList(this.components);
             this.toolStrip = new System.Windows.Forms.ToolStrip();
             this.btnCreate = new System.Windows.Forms.ToolStripButton();
             this.btnOpen = new System.Windows.Forms.ToolStripButton();
@@ -48,12 +49,14 @@
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.tabControl3 = new System.Windows.Forms.TabControl();
             this.tabPage3 = new System.Windows.Forms.TabPage();
+            this.splitContainer3 = new System.Windows.Forms.SplitContainer();
+            this.searchBox = new System.Windows.Forms.TextBox();
+            this.lblNoResults = new System.Windows.Forms.Label();
             this.explorerTreeView = new System.Windows.Forms.TreeView();
-            this.explorerImages = new System.Windows.Forms.ImageList(this.components);
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
             this.tabControl2 = new System.Windows.Forms.TabControl();
             this.tabPage2 = new System.Windows.Forms.TabPage();
-            this.pictureBox1 = new System.Windows.Forms.PictureBox();
+            this.imageBox = new Cyotek.Windows.Forms.ImageBox();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.outputBox = new System.Windows.Forms.RichTextBox();
@@ -65,16 +68,34 @@
             this.splitContainer1.SuspendLayout();
             this.tabControl3.SuspendLayout();
             this.tabPage3.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer3)).BeginInit();
+            this.splitContainer3.Panel1.SuspendLayout();
+            this.splitContainer3.Panel2.SuspendLayout();
+            this.splitContainer3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).BeginInit();
             this.splitContainer2.Panel1.SuspendLayout();
             this.splitContainer2.Panel2.SuspendLayout();
             this.splitContainer2.SuspendLayout();
             this.tabControl2.SuspendLayout();
             this.tabPage2.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.SuspendLayout();
+            // 
+            // explorerImages
+            // 
+            this.explorerImages.ColorDepth = System.Windows.Forms.ColorDepth.Depth8Bit;
+            this.explorerImages.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("explorerImages.ImageStream")));
+            this.explorerImages.TransparentColor = System.Drawing.Color.Transparent;
+            this.explorerImages.Images.SetKeyName(0, "application_view_tile.png");
+            this.explorerImages.Images.SetKeyName(1, "music.png");
+            this.explorerImages.Images.SetKeyName(2, "font.png");
+            this.explorerImages.Images.SetKeyName(3, "picture.png");
+            this.explorerImages.Images.SetKeyName(4, "page_white_text.png");
+            this.explorerImages.Images.SetKeyName(5, "film.png");
+            this.explorerImages.Images.SetKeyName(6, "help.png");
+            this.explorerImages.Images.SetKeyName(7, "folder.png");
+            this.explorerImages.Images.SetKeyName(8, "database.png");
             // 
             // toolStrip
             // 
@@ -211,31 +232,44 @@
             // 
             // tabPage3
             // 
-            this.tabPage3.Controls.Add(this.explorerTreeView);
+            this.tabPage3.Controls.Add(this.splitContainer3);
             resources.ApplyResources(this.tabPage3, "tabPage3");
             this.tabPage3.Name = "tabPage3";
             this.tabPage3.UseVisualStyleBackColor = true;
+            // 
+            // splitContainer3
+            // 
+            resources.ApplyResources(this.splitContainer3, "splitContainer3");
+            this.splitContainer3.FixedPanel = System.Windows.Forms.FixedPanel.Panel1;
+            this.splitContainer3.Name = "splitContainer3";
+            // 
+            // splitContainer3.Panel1
+            // 
+            this.splitContainer3.Panel1.Controls.Add(this.searchBox);
+            // 
+            // splitContainer3.Panel2
+            // 
+            this.splitContainer3.Panel2.Controls.Add(this.lblNoResults);
+            this.splitContainer3.Panel2.Controls.Add(this.explorerTreeView);
+            // 
+            // searchBox
+            // 
+            resources.ApplyResources(this.searchBox, "searchBox");
+            this.searchBox.Name = "searchBox";
+            this.searchBox.TextChanged += new System.EventHandler(this.SearchBox_TextChanged);
+            // 
+            // lblNoResults
+            // 
+            resources.ApplyResources(this.lblNoResults, "lblNoResults");
+            this.lblNoResults.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.lblNoResults.Name = "lblNoResults";
             // 
             // explorerTreeView
             // 
             resources.ApplyResources(this.explorerTreeView, "explorerTreeView");
             this.explorerTreeView.ImageList = this.explorerImages;
             this.explorerTreeView.Name = "explorerTreeView";
-            // 
-            // explorerImages
-            // 
-            this.explorerImages.ColorDepth = System.Windows.Forms.ColorDepth.Depth8Bit;
-            this.explorerImages.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("explorerImages.ImageStream")));
-            this.explorerImages.TransparentColor = System.Drawing.Color.Transparent;
-            this.explorerImages.Images.SetKeyName(0, "application_view_tile.png");
-            this.explorerImages.Images.SetKeyName(1, "music.png");
-            this.explorerImages.Images.SetKeyName(2, "font.png");
-            this.explorerImages.Images.SetKeyName(3, "picture.png");
-            this.explorerImages.Images.SetKeyName(4, "page_white_text.png");
-            this.explorerImages.Images.SetKeyName(5, "film.png");
-            this.explorerImages.Images.SetKeyName(6, "help.png");
-            this.explorerImages.Images.SetKeyName(7, "folder.png");
-            this.explorerImages.Images.SetKeyName(8, "database.png");
+            this.explorerTreeView.NodeMouseDoubleClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.ExplorerTreeView_NodeMouseDoubleClick);
             // 
             // splitContainer2
             // 
@@ -249,6 +283,7 @@
             // splitContainer2.Panel2
             // 
             this.splitContainer2.Panel2.Controls.Add(this.tabControl1);
+            this.splitContainer2.SplitterMoved += new System.Windows.Forms.SplitterEventHandler(this.SplitContainer2_SplitterMoved);
             // 
             // tabControl2
             // 
@@ -259,16 +294,15 @@
             // 
             // tabPage2
             // 
-            this.tabPage2.Controls.Add(this.pictureBox1);
+            this.tabPage2.Controls.Add(this.imageBox);
             resources.ApplyResources(this.tabPage2, "tabPage2");
             this.tabPage2.Name = "tabPage2";
             this.tabPage2.UseVisualStyleBackColor = true;
             // 
-            // pictureBox1
+            // imageBox
             // 
-            resources.ApplyResources(this.pictureBox1, "pictureBox1");
-            this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.TabStop = false;
+            resources.ApplyResources(this.imageBox, "imageBox");
+            this.imageBox.Name = "imageBox";
             // 
             // tabControl1
             // 
@@ -299,6 +333,7 @@
             this.Controls.Add(this.toolStrip);
             this.Name = "MainForm";
             this.Load += new System.EventHandler(this.MainForm_Load);
+            this.SizeChanged += new System.EventHandler(this.MainForm_SizeChanged);
             this.toolStrip.ResumeLayout(false);
             this.toolStrip.PerformLayout();
             this.statusStrip.ResumeLayout(false);
@@ -309,13 +344,18 @@
             this.splitContainer1.ResumeLayout(false);
             this.tabControl3.ResumeLayout(false);
             this.tabPage3.ResumeLayout(false);
+            this.splitContainer3.Panel1.ResumeLayout(false);
+            this.splitContainer3.Panel1.PerformLayout();
+            this.splitContainer3.Panel2.ResumeLayout(false);
+            this.splitContainer3.Panel2.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer3)).EndInit();
+            this.splitContainer3.ResumeLayout(false);
             this.splitContainer2.Panel1.ResumeLayout(false);
             this.splitContainer2.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).EndInit();
             this.splitContainer2.ResumeLayout(false);
             this.tabControl2.ResumeLayout(false);
             this.tabPage2.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.tabControl1.ResumeLayout(false);
             this.tabPage1.ResumeLayout(false);
             this.ResumeLayout(false);
@@ -345,12 +385,15 @@
         private TabControl tabControl1;
         private TabPage tabPage1;
         private RichTextBox outputBox;
-        private TreeView explorerTreeView;
-        private PictureBox pictureBox1;
         private ToolStripButton btnToggleDebugMessages;
         private ToolStripSeparator toolStripSeparator2;
         private ToolStripButton btnLoadDefinitions;
         private ToolStripSeparator toolStripSeparator1;
         private ImageList explorerImages;
+        private Cyotek.Windows.Forms.ImageBox imageBox;
+        private SplitContainer splitContainer3;
+        private TextBox searchBox;
+        private TreeView explorerTreeView;
+        private Label lblNoResults;
     }
 }
