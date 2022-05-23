@@ -1,6 +1,9 @@
-using System.Collections;
-using System.Diagnostics;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Nodes;
+using System.Text.RegularExpressions;
+using System.Xml;
+using Be.Windows.Forms;
 using ResourcePacker.Common;
 using ResourcePacker.Entities;
 using ResourcePacker.Extensions;
@@ -23,8 +26,10 @@ namespace ResourcePacker.Forms
         private readonly LoggingLevelSwitch _loggingLevelSwitch = new(LogEventLevel.Debug);
         private string _packageName = string.Empty;
         private string _searchQuery = string.Empty;
-        private bool _showDebugMessages = true;
         private List<Asset>? _assets;
+        private Asset? _selectedPreviewAsset;
+        private bool _showDebugMessages = true;
+        private bool _formatPreviewText = true;
 
         public MainForm()
         {
@@ -239,28 +244,124 @@ namespace ResourcePacker.Forms
                 return;
             }
 
-            var asset = (Asset)e.Node.Tag;
+            _selectedPreviewAsset = (Asset)e.Node.Tag;
 
-            switch (asset.MimeType)
+            switch (_selectedPreviewAsset.MimeType)
             {
                 case { PrimaryType: "image" }:
                 {
-                    asset.Bitmap ??= asset.Data.ToBitmap();
-                    if (asset.Bitmap != null)
-                    {
-                        previewImageBox.Image = asset.Bitmap;
-                        previewTabs.SelectedTab = previewImageTab;
-                    }
-                    return;
+                    previewTabs.SelectedTab = previewImageTab;
+                    break;
                 }
-                default:
+                case { SubType: "xml" }:
+                case { SubType: "json" }:
+                case { PrimaryType: "text" }:
                 {
-                    asset.Text ??= Encoding.UTF8.GetString(asset.Data);
-                    previewTextBox.Text = asset.Text;
                     previewTabs.SelectedTab = previewTextTab;
                     break;
                 }
+                default:
+                {
+                    previewTabs.SelectedTab = previewHexTab;
+                    break;
+                }
             }
+
+            PreparePreviewTab(previewTabs.SelectedTab);
+        }
+
+        private void BtnFormattedText_Click(object sender, EventArgs e)
+        {
+            _formatPreviewText = !_formatPreviewText;
+
+            btnFormattedText.Image =
+                _formatPreviewText ? Images.checkbox_checked : Images.checkbox_unchecked;
+
+            PreparePreviewTab(previewTabs.SelectedTab);
+        }
+
+        private void PreparePreviewTab(TabPage? tabPage)
+        {
+            previewHexBox.ByteProvider = null;
+            previewImageBox.Image = null;
+            previewTextBox.Clear();
+
+            if (_selectedPreviewAsset?.Data == null)
+            {
+                return;
+            }
+
+            lblMediaType.Text = $"Media type: {_selectedPreviewAsset.MimeType?.Name}";
+            lblDataSize.Text = _selectedPreviewAsset.Entry.DataSize switch
+            {
+                > 1000000000 => $"Size: {_selectedPreviewAsset.Entry.DataSize / 1000000000}gb",
+                > 1000000 => $"Size: {_selectedPreviewAsset.Entry.DataSize / 1000000}mb",
+                > 1000 => $"Size: {_selectedPreviewAsset.Entry.DataSize / 1000}kb",
+                _ => $"Size: {_selectedPreviewAsset.Entry.DataSize}b"
+            };
+
+            if (tabPage == previewImageTab)
+            {
+                if (_selectedPreviewAsset.MimeType?.PrimaryType != "image")
+                {
+                    previewImageBox.Text = "No image available.";
+                    return;
+                }
+
+                previewImageBox.Text = string.Empty;
+                _selectedPreviewAsset.Bitmap ??= _selectedPreviewAsset.Data.ToBitmap();
+                if (_selectedPreviewAsset != null)
+                {
+                    previewImageBox.Image = _selectedPreviewAsset.Bitmap;
+                }
+            }
+            else if (tabPage == previewTextTab)
+            {
+                var text = Encoding.UTF8.GetString(_selectedPreviewAsset.Data);
+                text = Regex.Replace(text, @"[^\t\r\n -~]", string.Empty);
+
+                if (!_formatPreviewText)
+                {
+                    previewTextBox.Text = text;
+                    return;
+                }
+
+                switch (_selectedPreviewAsset.MimeType)
+                {
+                    case { SubType: "json" }:
+                    {
+                        var json = JsonNode.Parse(text);
+                        var options = new JsonSerializerOptions { WriteIndented = true };
+                        previewTextBox.Text = json!.ToJsonString(options);
+                        break;
+                    }
+                    case { SubType: "xml" }:
+                    {
+                        var xmlDocument = new XmlDocument();
+                        xmlDocument.LoadXml(text);
+                        var stringWriter = new StringWriter();
+                        var xmlTextWriter = new XmlTextWriter(stringWriter);
+                        xmlTextWriter.Formatting = Formatting.Indented;
+                        xmlDocument.WriteTo(xmlTextWriter);
+                        previewTextBox.Text = stringWriter.ToString();
+                        break;
+                    }
+                    default:
+                    {
+                        previewTextBox.Text = text;
+                        break;
+                    }
+                }
+            }
+            else if (tabPage == previewHexTab)
+            {
+                previewHexBox.ByteProvider = new DynamicByteProvider(_selectedPreviewAsset.Data);
+            }
+        }
+
+        private void PreviewTabs_Selecting(object sender, TabControlCancelEventArgs e)
+        {
+            PreparePreviewTab(e.TabPage);
         }
     }
 }

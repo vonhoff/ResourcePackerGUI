@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel;
 using System.Diagnostics;
-using System.Reflection;
 
 namespace ResourcePacker.Forms
 {

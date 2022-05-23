@@ -11,7 +11,12 @@ namespace ResourcePacker.Helpers
     internal static class AssetHelper
     {
         private static readonly Lazy<MimeTypes> MimeTypes = new(() => new MimeTypes());
-        private static readonly MimeType JsonMimeType = new MimeType("application", "json");
+
+        private static readonly MimeType JsonMimeType =
+            new("application", "json")
+            {
+                Description = "JavaScript Object Notation"
+            };
 
         /// <summary>
         /// Attempts to load a specified asset from a provided stream.
@@ -27,7 +32,7 @@ namespace ResourcePacker.Helpers
             var buffer = binaryReader.ReadBytes((int)(entry.DataSize + 1));
 
             var crc = Crc32Algorithm.Compute(buffer, 0, (int)entry.DataSize);
-            asset = new Asset();
+            asset = new Asset(buffer);
 
             if (entry.Crc != crc)
             {
@@ -35,7 +40,6 @@ namespace ResourcePacker.Helpers
             }
 
             asset.MimeType = GetMimeType(buffer);
-            asset.Data = buffer;
             asset.Entry = entry;
             return true;
         }
@@ -43,16 +47,16 @@ namespace ResourcePacker.Helpers
         private static MimeType? GetMimeType(byte[] buffer)
         {
             var mimeType = MimeTypes.Value.GetMimeType(buffer);
+
             if (mimeType != null)
             {
                 return mimeType;
             }
 
-            var text = Encoding.UTF8.GetString(buffer);
-            text = Regex.Replace(text, @"[^\t\r\n -~]", "");
-
             try
             {
+                var text = Encoding.UTF8.GetString(buffer);
+                text = Regex.Replace(text, @"[^\t\r\n -~]", string.Empty, RegexOptions.Compiled);
                 JsonNode.Parse(text);
                 return JsonMimeType;
             }

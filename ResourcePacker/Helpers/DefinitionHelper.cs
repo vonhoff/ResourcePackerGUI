@@ -1,7 +1,6 @@
 ﻿using System.Text;
 using System.Text.RegularExpressions;
 using Force.Crc32;
-using ResourcePacker.Entities;
 using Serilog;
 
 namespace ResourcePacker.Helpers

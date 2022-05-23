@@ -31,16 +31,6 @@
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.explorerImages = new System.Windows.Forms.ImageList(this.components);
-            this.toolStrip = new System.Windows.Forms.ToolStrip();
-            this.btnCreate = new System.Windows.Forms.ToolStripButton();
-            this.btnOpen = new System.Windows.Forms.ToolStripButton();
-            this.btnClose = new System.Windows.Forms.ToolStripButton();
-            this.btnCancel = new System.Windows.Forms.ToolStripButton();
-            this.btnAbout = new System.Windows.Forms.ToolStripButton();
-            this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
-            this.btnLoadDefinitions = new System.Windows.Forms.ToolStripButton();
-            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
-            this.btnToggleDebugMessages = new System.Windows.Forms.ToolStripButton();
             this.statusStrip = new System.Windows.Forms.StatusStrip();
             this.lblStatus = new System.Windows.Forms.ToolStripStatusLabel();
             this.lblResultCount = new System.Windows.Forms.ToolStripStatusLabel();
@@ -57,14 +47,30 @@
             this.tabControl2 = new System.Windows.Forms.TabControl();
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.previewTabs = new System.Windows.Forms.TabControl();
-            this.previewImageTab = new System.Windows.Forms.TabPage();
-            this.previewImageBox = new Cyotek.Windows.Forms.ImageBox();
+            this.previewHexTab = new System.Windows.Forms.TabPage();
+            this.previewHexBox = new Be.Windows.Forms.HexBox();
             this.previewTextTab = new System.Windows.Forms.TabPage();
             this.previewTextBox = new System.Windows.Forms.RichTextBox();
+            this.previewImageTab = new System.Windows.Forms.TabPage();
+            this.previewImageBox = new Cyotek.Windows.Forms.ImageBox();
+            this.toolStrip1 = new System.Windows.Forms.ToolStrip();
+            this.lblMediaType = new System.Windows.Forms.ToolStripLabel();
+            this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
+            this.lblDataSize = new System.Windows.Forms.ToolStripLabel();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.outputBox = new System.Windows.Forms.RichTextBox();
-            this.toolStrip.SuspendLayout();
+            this.btnCreate = new System.Windows.Forms.ToolStripButton();
+            this.btnOpen = new System.Windows.Forms.ToolStripButton();
+            this.btnClose = new System.Windows.Forms.ToolStripButton();
+            this.btnCancel = new System.Windows.Forms.ToolStripButton();
+            this.btnAbout = new System.Windows.Forms.ToolStripButton();
+            this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
+            this.btnLoadDefinitions = new System.Windows.Forms.ToolStripButton();
+            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+            this.btnToggleDebugMessages = new System.Windows.Forms.ToolStripButton();
+            this.toolStrip = new System.Windows.Forms.ToolStrip();
+            this.btnFormattedText = new System.Windows.Forms.ToolStripButton();
             this.statusStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
@@ -83,10 +89,13 @@
             this.tabControl2.SuspendLayout();
             this.tabPage2.SuspendLayout();
             this.previewTabs.SuspendLayout();
-            this.previewImageTab.SuspendLayout();
+            this.previewHexTab.SuspendLayout();
             this.previewTextTab.SuspendLayout();
+            this.previewImageTab.SuspendLayout();
+            this.toolStrip1.SuspendLayout();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
+            this.toolStrip.SuspendLayout();
             this.SuspendLayout();
             // 
             // explorerImages
@@ -103,87 +112,6 @@
             this.explorerImages.Images.SetKeyName(6, "help.png");
             this.explorerImages.Images.SetKeyName(7, "folder.png");
             this.explorerImages.Images.SetKeyName(8, "database.png");
-            // 
-            // toolStrip
-            // 
-            this.toolStrip.ImageScalingSize = new System.Drawing.Size(20, 20);
-            this.toolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.btnCreate,
-            this.btnOpen,
-            this.btnClose,
-            this.btnCancel,
-            this.btnAbout,
-            this.toolStripSeparator2,
-            this.btnLoadDefinitions,
-            this.toolStripSeparator1,
-            this.btnToggleDebugMessages});
-            resources.ApplyResources(this.toolStrip, "toolStrip");
-            this.toolStrip.Name = "toolStrip";
-            // 
-            // btnCreate
-            // 
-            this.btnCreate.Image = global::ResourcePacker.Properties.Images.database_add;
-            resources.ApplyResources(this.btnCreate, "btnCreate");
-            this.btnCreate.Name = "btnCreate";
-            this.btnCreate.Padding = new System.Windows.Forms.Padding(3);
-            // 
-            // btnOpen
-            // 
-            this.btnOpen.Image = global::ResourcePacker.Properties.Images.database_connect;
-            resources.ApplyResources(this.btnOpen, "btnOpen");
-            this.btnOpen.Name = "btnOpen";
-            this.btnOpen.Padding = new System.Windows.Forms.Padding(3);
-            this.btnOpen.Click += new System.EventHandler(this.BtnOpen_Click);
-            // 
-            // btnClose
-            // 
-            this.btnClose.Image = global::ResourcePacker.Properties.Images.database_delete;
-            resources.ApplyResources(this.btnClose, "btnClose");
-            this.btnClose.Name = "btnClose";
-            this.btnClose.Padding = new System.Windows.Forms.Padding(3);
-            // 
-            // btnCancel
-            // 
-            this.btnCancel.Image = global::ResourcePacker.Properties.Images.cross;
-            resources.ApplyResources(this.btnCancel, "btnCancel");
-            this.btnCancel.Name = "btnCancel";
-            this.btnCancel.Padding = new System.Windows.Forms.Padding(3);
-            // 
-            // btnAbout
-            // 
-            this.btnAbout.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
-            this.btnAbout.AutoToolTip = false;
-            this.btnAbout.Image = global::ResourcePacker.Properties.Images.information;
-            resources.ApplyResources(this.btnAbout, "btnAbout");
-            this.btnAbout.Name = "btnAbout";
-            this.btnAbout.Padding = new System.Windows.Forms.Padding(3);
-            this.btnAbout.Click += new System.EventHandler(this.BtnAbout_Click);
-            // 
-            // toolStripSeparator2
-            // 
-            this.toolStripSeparator2.Name = "toolStripSeparator2";
-            resources.ApplyResources(this.toolStripSeparator2, "toolStripSeparator2");
-            // 
-            // btnLoadDefinitions
-            // 
-            resources.ApplyResources(this.btnLoadDefinitions, "btnLoadDefinitions");
-            this.btnLoadDefinitions.Image = global::ResourcePacker.Properties.Images.book_link;
-            this.btnLoadDefinitions.Name = "btnLoadDefinitions";
-            this.btnLoadDefinitions.Padding = new System.Windows.Forms.Padding(3);
-            this.btnLoadDefinitions.Click += new System.EventHandler(this.BtnLoadDefinitions_Click);
-            // 
-            // toolStripSeparator1
-            // 
-            this.toolStripSeparator1.Name = "toolStripSeparator1";
-            resources.ApplyResources(this.toolStripSeparator1, "toolStripSeparator1");
-            // 
-            // btnToggleDebugMessages
-            // 
-            this.btnToggleDebugMessages.Image = global::ResourcePacker.Properties.Images.checkbox_checked;
-            resources.ApplyResources(this.btnToggleDebugMessages, "btnToggleDebugMessages");
-            this.btnToggleDebugMessages.Name = "btnToggleDebugMessages";
-            this.btnToggleDebugMessages.Padding = new System.Windows.Forms.Padding(3);
-            this.btnToggleDebugMessages.Click += new System.EventHandler(this.BtnToggleDebugMessages_Click);
             // 
             // statusStrip
             // 
@@ -302,18 +230,53 @@
             // tabPage2
             // 
             this.tabPage2.Controls.Add(this.previewTabs);
+            this.tabPage2.Controls.Add(this.toolStrip1);
             resources.ApplyResources(this.tabPage2, "tabPage2");
             this.tabPage2.Name = "tabPage2";
             this.tabPage2.UseVisualStyleBackColor = true;
             // 
             // previewTabs
             // 
-            this.previewTabs.Controls.Add(this.previewImageTab);
+            this.previewTabs.Controls.Add(this.previewHexTab);
             this.previewTabs.Controls.Add(this.previewTextTab);
+            this.previewTabs.Controls.Add(this.previewImageTab);
             resources.ApplyResources(this.previewTabs, "previewTabs");
-            this.previewTabs.ImageList = this.explorerImages;
             this.previewTabs.Name = "previewTabs";
             this.previewTabs.SelectedIndex = 0;
+            this.previewTabs.Selecting += new System.Windows.Forms.TabControlCancelEventHandler(this.PreviewTabs_Selecting);
+            // 
+            // previewHexTab
+            // 
+            this.previewHexTab.Controls.Add(this.previewHexBox);
+            resources.ApplyResources(this.previewHexTab, "previewHexTab");
+            this.previewHexTab.Name = "previewHexTab";
+            this.previewHexTab.UseVisualStyleBackColor = true;
+            // 
+            // previewHexBox
+            // 
+            this.previewHexBox.ColumnInfoVisible = true;
+            resources.ApplyResources(this.previewHexBox, "previewHexBox");
+            this.previewHexBox.LineInfoVisible = true;
+            this.previewHexBox.Name = "previewHexBox";
+            this.previewHexBox.ReadOnly = true;
+            this.previewHexBox.ShadowSelectionColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(60)))), ((int)(((byte)(188)))), ((int)(((byte)(255)))));
+            this.previewHexBox.StringViewVisible = true;
+            this.previewHexBox.UseFixedBytesPerLine = true;
+            this.previewHexBox.VScrollBarVisible = true;
+            // 
+            // previewTextTab
+            // 
+            this.previewTextTab.Controls.Add(this.previewTextBox);
+            resources.ApplyResources(this.previewTextTab, "previewTextTab");
+            this.previewTextTab.Name = "previewTextTab";
+            this.previewTextTab.UseVisualStyleBackColor = true;
+            // 
+            // previewTextBox
+            // 
+            this.previewTextBox.BackColor = System.Drawing.SystemColors.Window;
+            this.previewTextBox.DetectUrls = false;
+            resources.ApplyResources(this.previewTextBox, "previewTextBox");
+            this.previewTextBox.Name = "previewTextBox";
             // 
             // previewImageTab
             // 
@@ -327,18 +290,33 @@
             resources.ApplyResources(this.previewImageBox, "previewImageBox");
             this.previewImageBox.Name = "previewImageBox";
             // 
-            // previewTextTab
+            // toolStrip1
             // 
-            this.previewTextTab.Controls.Add(this.previewTextBox);
-            resources.ApplyResources(this.previewTextTab, "previewTextTab");
-            this.previewTextTab.Name = "previewTextTab";
-            this.previewTextTab.UseVisualStyleBackColor = true;
+            this.toolStrip1.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
+            this.toolStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
+            this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.lblMediaType,
+            this.toolStripSeparator3,
+            this.lblDataSize});
+            resources.ApplyResources(this.toolStrip1, "toolStrip1");
+            this.toolStrip1.Name = "toolStrip1";
             // 
-            // previewTextBox
+            // lblMediaType
             // 
-            resources.ApplyResources(this.previewTextBox, "previewTextBox");
-            this.previewTextBox.Name = "previewTextBox";
-            this.previewTextBox.ReadOnly = true;
+            this.lblMediaType.Name = "lblMediaType";
+            this.lblMediaType.Padding = new System.Windows.Forms.Padding(3);
+            resources.ApplyResources(this.lblMediaType, "lblMediaType");
+            // 
+            // toolStripSeparator3
+            // 
+            this.toolStripSeparator3.Name = "toolStripSeparator3";
+            resources.ApplyResources(this.toolStripSeparator3, "toolStripSeparator3");
+            // 
+            // lblDataSize
+            // 
+            this.lblDataSize.Name = "lblDataSize";
+            this.lblDataSize.Padding = new System.Windows.Forms.Padding(3);
+            resources.ApplyResources(this.lblDataSize, "lblDataSize");
             // 
             // tabControl1
             // 
@@ -356,8 +334,99 @@
             // 
             // outputBox
             // 
+            this.outputBox.BackColor = System.Drawing.SystemColors.Window;
             resources.ApplyResources(this.outputBox, "outputBox");
             this.outputBox.Name = "outputBox";
+            // 
+            // btnCreate
+            // 
+            this.btnCreate.Image = global::ResourcePacker.Properties.Images.database_add;
+            resources.ApplyResources(this.btnCreate, "btnCreate");
+            this.btnCreate.Name = "btnCreate";
+            this.btnCreate.Padding = new System.Windows.Forms.Padding(3);
+            // 
+            // btnOpen
+            // 
+            this.btnOpen.Image = global::ResourcePacker.Properties.Images.database_connect;
+            resources.ApplyResources(this.btnOpen, "btnOpen");
+            this.btnOpen.Name = "btnOpen";
+            this.btnOpen.Padding = new System.Windows.Forms.Padding(3);
+            this.btnOpen.Click += new System.EventHandler(this.BtnOpen_Click);
+            // 
+            // btnClose
+            // 
+            this.btnClose.Image = global::ResourcePacker.Properties.Images.database_delete;
+            resources.ApplyResources(this.btnClose, "btnClose");
+            this.btnClose.Name = "btnClose";
+            this.btnClose.Padding = new System.Windows.Forms.Padding(3);
+            // 
+            // btnCancel
+            // 
+            this.btnCancel.Image = global::ResourcePacker.Properties.Images.cross;
+            resources.ApplyResources(this.btnCancel, "btnCancel");
+            this.btnCancel.Name = "btnCancel";
+            this.btnCancel.Padding = new System.Windows.Forms.Padding(3);
+            // 
+            // btnAbout
+            // 
+            this.btnAbout.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
+            this.btnAbout.AutoToolTip = false;
+            this.btnAbout.Image = global::ResourcePacker.Properties.Images.information;
+            resources.ApplyResources(this.btnAbout, "btnAbout");
+            this.btnAbout.Name = "btnAbout";
+            this.btnAbout.Padding = new System.Windows.Forms.Padding(3);
+            this.btnAbout.Click += new System.EventHandler(this.BtnAbout_Click);
+            // 
+            // toolStripSeparator2
+            // 
+            this.toolStripSeparator2.Name = "toolStripSeparator2";
+            resources.ApplyResources(this.toolStripSeparator2, "toolStripSeparator2");
+            // 
+            // btnLoadDefinitions
+            // 
+            resources.ApplyResources(this.btnLoadDefinitions, "btnLoadDefinitions");
+            this.btnLoadDefinitions.Image = global::ResourcePacker.Properties.Images.book_link;
+            this.btnLoadDefinitions.Name = "btnLoadDefinitions";
+            this.btnLoadDefinitions.Padding = new System.Windows.Forms.Padding(3);
+            this.btnLoadDefinitions.Click += new System.EventHandler(this.BtnLoadDefinitions_Click);
+            // 
+            // toolStripSeparator1
+            // 
+            this.toolStripSeparator1.Name = "toolStripSeparator1";
+            resources.ApplyResources(this.toolStripSeparator1, "toolStripSeparator1");
+            // 
+            // btnToggleDebugMessages
+            // 
+            this.btnToggleDebugMessages.Image = global::ResourcePacker.Properties.Images.checkbox_checked;
+            resources.ApplyResources(this.btnToggleDebugMessages, "btnToggleDebugMessages");
+            this.btnToggleDebugMessages.Name = "btnToggleDebugMessages";
+            this.btnToggleDebugMessages.Padding = new System.Windows.Forms.Padding(3);
+            this.btnToggleDebugMessages.Click += new System.EventHandler(this.BtnToggleDebugMessages_Click);
+            // 
+            // toolStrip
+            // 
+            this.toolStrip.ImageScalingSize = new System.Drawing.Size(20, 20);
+            this.toolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.btnCreate,
+            this.btnOpen,
+            this.btnClose,
+            this.btnCancel,
+            this.btnAbout,
+            this.toolStripSeparator2,
+            this.btnLoadDefinitions,
+            this.toolStripSeparator1,
+            this.btnToggleDebugMessages,
+            this.btnFormattedText});
+            resources.ApplyResources(this.toolStrip, "toolStrip");
+            this.toolStrip.Name = "toolStrip";
+            // 
+            // btnFormattedText
+            // 
+            this.btnFormattedText.Image = global::ResourcePacker.Properties.Images.checkbox_checked;
+            resources.ApplyResources(this.btnFormattedText, "btnFormattedText");
+            this.btnFormattedText.Name = "btnFormattedText";
+            this.btnFormattedText.Padding = new System.Windows.Forms.Padding(3);
+            this.btnFormattedText.Click += new System.EventHandler(this.BtnFormattedText_Click);
             // 
             // MainForm
             // 
@@ -370,8 +439,6 @@
             this.Name = "MainForm";
             this.Load += new System.EventHandler(this.MainForm_Load);
             this.SizeChanged += new System.EventHandler(this.MainForm_SizeChanged);
-            this.toolStrip.ResumeLayout(false);
-            this.toolStrip.PerformLayout();
             this.statusStrip.ResumeLayout(false);
             this.statusStrip.PerformLayout();
             this.splitContainer1.Panel1.ResumeLayout(false);
@@ -392,51 +459,63 @@
             this.splitContainer2.ResumeLayout(false);
             this.tabControl2.ResumeLayout(false);
             this.tabPage2.ResumeLayout(false);
+            this.tabPage2.PerformLayout();
             this.previewTabs.ResumeLayout(false);
-            this.previewImageTab.ResumeLayout(false);
+            this.previewHexTab.ResumeLayout(false);
             this.previewTextTab.ResumeLayout(false);
+            this.previewImageTab.ResumeLayout(false);
+            this.toolStrip1.ResumeLayout(false);
+            this.toolStrip1.PerformLayout();
             this.tabControl1.ResumeLayout(false);
             this.tabPage1.ResumeLayout(false);
+            this.toolStrip.ResumeLayout(false);
+            this.toolStrip.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
         }
 
         #endregion
-
-        private ToolStrip toolStrip;
-        private ToolStripButton btnCreate;
-        private ToolStripButton btnOpen;
-        private ToolStripButton btnClose;
-        private ToolStripButton btnAbout;
         private StatusStrip statusStrip;
         private ToolStripStatusLabel lblStatus;
         private ToolStripStatusLabel lblResultCount;
         private ToolStripProgressBar prgRunning;
         private ToolStripStatusLabel lblElapsed;
-        private ToolStripButton btnCancel;
         private SplitContainer splitContainer1;
         private SplitContainer splitContainer2;
         private TabControl tabControl3;
         private TabPage tabPage3;
         private TabControl tabControl2;
-        private TabPage tabPage2;
         private TabControl tabControl1;
         private TabPage tabPage1;
         private RichTextBox outputBox;
-        private ToolStripButton btnToggleDebugMessages;
-        private ToolStripSeparator toolStripSeparator2;
-        private ToolStripButton btnLoadDefinitions;
-        private ToolStripSeparator toolStripSeparator1;
         private ImageList explorerImages;
-        private Cyotek.Windows.Forms.ImageBox previewImageBox;
         private SplitContainer splitContainer3;
         private TextBox searchBox;
         private TreeView explorerTreeView;
         private Label lblNoResults;
+        private TabPage tabPage2;
         private TabControl previewTabs;
         private TabPage previewImageTab;
         private TabPage previewTextTab;
+        private ToolStrip toolStrip1;
+        private ToolStripLabel lblMediaType;
+        private ToolStripSeparator toolStripSeparator3;
+        private ToolStripLabel lblDataSize;
+        private Cyotek.Windows.Forms.ImageBox previewImageBox;
         private RichTextBox previewTextBox;
+        private TabPage previewHexTab;
+        private Be.Windows.Forms.HexBox previewHexBox;
+        private ToolStripButton btnCreate;
+        private ToolStripButton btnOpen;
+        private ToolStripButton btnClose;
+        private ToolStripButton btnCancel;
+        private ToolStripButton btnAbout;
+        private ToolStripSeparator toolStripSeparator2;
+        private ToolStripButton btnLoadDefinitions;
+        private ToolStripSeparator toolStripSeparator1;
+        private ToolStripButton btnToggleDebugMessages;
+        private ToolStrip toolStrip;
+        private ToolStripButton btnFormattedText;
     }
 }
