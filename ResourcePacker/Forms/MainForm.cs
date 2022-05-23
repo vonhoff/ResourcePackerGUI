@@ -78,27 +78,31 @@ namespace ResourcePacker.Forms
 
         private void BtnLoadDefinitions_Click(object sender, EventArgs e)
         {
-            using var openFileDialog = new OpenFileDialog();
-            openFileDialog.Filter = "Definition file (*.txt)|*.txt";
-            openFileDialog.RestoreDirectory = true;
-
-            if (openFileDialog.ShowDialog() != DialogResult.OK)
+            if (_assets == null)
             {
-                return;
-            }
-
-            var definitionStream = openFileDialog.OpenFile();
-            var crcDictionary = DefinitionHelper.CreateCrcDictionary(definitionStream);
-            var assets = AssetHelper.LoadAssetsFromPackage(_pack, crcDictionary);
-            if (assets.Count == 0)
-            {
-                MessageBox.Show("Could not set definitions. The specified file does not contain valid file definitions.",
+                MessageBox.Show("A resource package must be selected before a definition source can be set.",
                     "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
-            _assets = assets;
-            RefreshFileTree();
+            using var openFileDialog = new OpenFileDialog();
+            openFileDialog.Filter = "Definition file (*.txt)|*.txt";
+            openFileDialog.RestoreDirectory = true;
+
+            if (openFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                var definitionStream = openFileDialog.OpenFile();
+                var crcDictionary = DefinitionHelper.CreateCrcDictionary(definitionStream);
+                var matches = AssetHelper.UpdateAssetsWithDefinitions(_assets, crcDictionary);
+                if (matches == 0)
+                {
+                    MessageBox.Show(
+                        "Could not set definitions. The specified file does not contain valid file definitions.",
+                        "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+
+                RefreshFileTree();
+            }
         }
 
         private void BtnOpen_Click(object sender, EventArgs e)
@@ -120,10 +124,25 @@ namespace ResourcePacker.Forms
                 Log.Information("ResourcePackage: {@info}",
                     new { _packHeader.Id, _packHeader.NumberOfEntries });
 
-                _packageName = Path.GetFileNameWithoutExtension(openFileDialog.FileName);
-                _pack = PackHelper.LoadEntryInformation(_packHeader, fileStream);
+                _pack = PackHelper.LoadAllEntryInformation(_packHeader, fileStream);
 
-                _assets = AssetHelper.LoadAssetsFromPackage(_pack);
+                // Try to load the first asset to check whether the archive is encrypted.
+                if (!AssetHelper.LoadSingleFromPackage(_pack, _pack.Entries[0], out var asset))
+                {
+                    var passwordDialog = new PasswordForm();
+                    if (passwordDialog.ShowDialog() != DialogResult.OK)
+                    {
+                        return;
+                    }
+
+                    //_assets = AssetHelper.UpdateAssetsWithDefinitions(_pack, passwordDialog.Password);
+                }
+                else
+                {
+                    _assets = AssetHelper.LoadAllFromPackage(_pack);
+                }
+
+                _packageName = Path.GetFileNameWithoutExtension(openFileDialog.FileName);
                 RefreshFileTree();
 
                 lblResultCount.Text = $"{_packHeader.NumberOfEntries} Entries";

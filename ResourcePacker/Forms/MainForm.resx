@@ -65,7 +65,7 @@
         AAEAAAD/////AQAAAAAAAAAMAgAAAEZTeXN0ZW0uV2luZG93cy5Gb3JtcywgQ3VsdHVyZT1uZXV0cmFs
         LCBQdWJsaWNLZXlUb2tlbj1iNzdhNWM1NjE5MzRlMDg5BQEAAAAmU3lzdGVtLldpbmRvd3MuRm9ybXMu
         SW1hZ2VMaXN0U3RyZWFtZXIBAAAABERhdGEHAgIAAAAJAwAAAA8DAAAAnhEAAAJNU0Z0AUkBTAIBAQkB
-        AAEQAQcBEAEHARABAAEQAQAE/wEJAQAI/wFCAU0BNgEEBgABNgEEAgABKAMAAUADAAEwAwABAQEAAQgG
+        AAHwAQcB8AEHARABAAEQAQAE/wEJAQAI/wFCAU0BNgEEBgABNgEEAgABKAMAAUADAAEwAwABAQEAAQgG
         AAEMGAABgAIAAYADAAKAAQABgAMAAYABAAGAAQACgAIAA8ABAAHAAdwBwAEAAfABygGmAQABMwUAATMB
         AAEzAQABMwEAAjMCAAMWAQADHAEAAyIBAAMpAQADVQEAA00BAANCAQADOQEAAYABfAH/AQACUAH/AQAB
         kwEAAdYBAAH/AewBzAEAAcYB1gHvAQAB1gLnAQABkAGpAa0CAAH/ATMDAAFmAwABmQMAAcwCAAEzAwAC
@@ -441,7 +441,7 @@
     <value>0, 0</value>
   </data>
   <data name="previewHexBox.Size" type="System.Drawing.Size, System.Drawing">
-    <value>906, 411</value>
+    <value>906, 338</value>
   </data>
   <data name="previewHexBox.TabIndex" type="System.Int32, mscorlib">
     <value>0</value>
@@ -462,7 +462,7 @@
     <value>4, 29</value>
   </data>
   <data name="previewHexTab.Size" type="System.Drawing.Size, System.Drawing">
-    <value>906, 411</value>
+    <value>906, 338</value>
   </data>
   <data name="previewHexTab.TabIndex" type="System.Int32, mscorlib">
     <value>2</value>
@@ -492,7 +492,7 @@
     <value>3, 3</value>
   </data>
   <data name="previewTextBox.Size" type="System.Drawing.Size, System.Drawing">
-    <value>900, 411</value>
+    <value>900, 371</value>
   </data>
   <data name="previewTextBox.TabIndex" type="System.Int32, mscorlib">
     <value>0</value>
@@ -519,7 +519,7 @@
     <value>3, 3, 3, 3</value>
   </data>
   <data name="previewTextTab.Size" type="System.Drawing.Size, System.Drawing">
-    <value>906, 417</value>
+    <value>906, 377</value>
   </data>
   <data name="previewTextTab.TabIndex" type="System.Int32, mscorlib">
     <value>1</value>
@@ -546,7 +546,7 @@
     <value>3, 3</value>
   </data>
   <data name="previewImageBox.Size" type="System.Drawing.Size, System.Drawing">
-    <value>900, 411</value>
+    <value>900, 371</value>
   </data>
   <data name="previewImageBox.TabIndex" type="System.Int32, mscorlib">
     <value>0</value>
@@ -570,7 +570,7 @@
     <value>3, 3, 3, 3</value>
   </data>
   <data name="previewImageTab.Size" type="System.Drawing.Size, System.Drawing">
-    <value>906, 417</value>
+    <value>906, 377</value>
   </data>
   <data name="previewImageTab.TabIndex" type="System.Int32, mscorlib">
     <value>0</value>
@@ -597,7 +597,7 @@
     <value>3, 32</value>
   </data>
   <data name="previewTabs.Size" type="System.Drawing.Size, System.Drawing">
-    <value>914, 444</value>
+    <value>914, 371</value>
   </data>
   <data name="previewTabs.TabIndex" type="System.Int32, mscorlib">
     <value>1</value>
@@ -663,7 +663,7 @@
     <value>3, 3, 3, 3</value>
   </data>
   <data name="tabPage2.Size" type="System.Drawing.Size, System.Drawing">
-    <value>920, 479</value>
+    <value>920, 406</value>
   </data>
   <data name="tabPage2.TabIndex" type="System.Int32, mscorlib">
     <value>0</value>
@@ -690,7 +690,7 @@
     <value>0, 0</value>
   </data>
   <data name="tabControl2.Size" type="System.Drawing.Size, System.Drawing">
-    <value>928, 512</value>
+    <value>928, 439</value>
   </data>
   <data name="tabControl2.TabIndex" type="System.Int32, mscorlib">
     <value>0</value>
@@ -729,7 +729,7 @@
     <value>3, 3</value>
   </data>
   <data name="outputBox.Size" type="System.Drawing.Size, System.Drawing">
-    <value>914, 135</value>
+    <value>914, 208</value>
   </data>
   <data name="outputBox.TabIndex" type="System.Int32, mscorlib">
     <value>0</value>
@@ -756,7 +756,7 @@
     <value>3, 3, 3, 3</value>
   </data>
   <data name="tabPage1.Size" type="System.Drawing.Size, System.Drawing">
-    <value>920, 141</value>
+    <value>920, 214</value>
   </data>
   <data name="tabPage1.TabIndex" type="System.Int32, mscorlib">
     <value>0</value>
@@ -783,7 +783,7 @@
     <value>0, 0</value>
   </data>
   <data name="tabControl1.Size" type="System.Drawing.Size, System.Drawing">
-    <value>928, 174</value>
+    <value>928, 247</value>
   </data>
   <data name="tabControl1.TabIndex" type="System.Int32, mscorlib">
     <value>0</value>
@@ -816,7 +816,7 @@
     <value>928, 690</value>
   </data>
   <data name="splitContainer2.SplitterDistance" type="System.Int32, mscorlib">
-    <value>512</value>
+    <value>439</value>
   </data>
   <data name="splitContainer2.TabIndex" type="System.Int32, mscorlib">
     <value>0</value>
@@ -972,8 +972,8 @@
     <value>Format JSON/XML</value>
   </data>
   <data name="btnFormattedText.ToolTipText" xml:space="preserve">
-    <value>Format JSON/XML documents with correct 
-indentation in preview panel</value>
+    <value>Display JSON/XML documents with correct 
+indentations in the preview panel</value>
   </data>
   <data name="toolStrip.Location" type="System.Drawing.Point, System.Drawing">
     <value>0, 0</value>

@@ -10,6 +10,11 @@ namespace ResourcePacker.Helpers
         private static readonly Regex ValidDefinitionRegex =
             new(@"^((\.\./|[a-zA-Z0-9_/\-\\ ])*\.[a-zA-Z0-9]+)$", RegexOptions.Compiled);
 
+        /// <summary>
+        /// Creates a dictionary of names and CRC codes.
+        /// </summary>
+        /// <param name="definitionStream">The stream which contains the definitions.</param>
+        /// <returns>A dictionary of names and CRC codes.</returns>
         public static IReadOnlyDictionary<uint, string> CreateCrcDictionary(Stream definitionStream)
         {
             var crcDictionary = new Dictionary<uint, string>();

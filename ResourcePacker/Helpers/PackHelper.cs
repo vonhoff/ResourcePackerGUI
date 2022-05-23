@@ -8,6 +8,13 @@ internal static class PackHelper
 {
     public static string PackHeaderId => "ResPack";
 
+    /// <summary>
+    /// Gets the header of the provided file stream.
+    /// </summary>
+    /// <param name="fileStream">The stream of the provided file.</param>
+    /// <returns>The header of the provided resource package.</returns>
+    /// <exception cref="InvalidDataException">
+    /// When the file stream is not a valid <see langword="ResPack"/> stream.</exception>
     public static PackHeader GetHeader(Stream fileStream)
     {
         var binaryReader = new BinaryReader(fileStream);
@@ -30,7 +37,15 @@ internal static class PackHelper
         return header;
     }
 
-    public static Pack LoadEntryInformation(PackHeader header, Stream fileStream, CancellationToken cancellationToken = default)
+    /// <summary>
+    /// Creates a package containing all information about the entries inside a package.
+    /// </summary>
+    /// <param name="header">A <see cref="PackHeader"/> instance.</param>
+    /// <param name="fileStream">The stream of the package file.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A <see cref="Pack"/> instance containing all information about a package.</returns>
+    /// <exception cref="InvalidDataException">When the provided file stream is corrupted.</exception>
+    public static Pack LoadAllEntryInformation(PackHeader header, Stream fileStream, CancellationToken cancellationToken = default)
     {
         var binaryReader = new BinaryReader(fileStream);
         var entrySize = Marshal.SizeOf(typeof(Entry));
