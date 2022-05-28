@@ -71,9 +71,8 @@ internal static class PackHelper
 
             if (entry.Crc == 0 || entry.DataSize == 0 || entry.Id == 0 || entry.PackSize == 0)
             {
-                Log.Error("Invalid entry: {@entry}",
+                Log.Warning("Invalid entry: {@entry}",
                     new { entry.Id, entry.Crc, entry.DataSize, entry.PackSize });
-                throw new InvalidDataException("The specified file is invalid.");
             }
 
             pack.Entries[i] = entry;

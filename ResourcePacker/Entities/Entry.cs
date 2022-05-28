@@ -7,8 +7,8 @@ namespace ResourcePacker.Entities
     {
         public uint Id;
         public uint Crc;
-        public uint DataSize;
-        public uint PackSize;
+        public int DataSize;
+        public int PackSize;
         public uint Offset;
     }
 }

@@ -7,7 +7,7 @@ namespace ResourcePacker.Entities
     {
         public Stream FileStream;
 
-        public uint[] Key;
+        public byte[] Key;
 
         public int NumberOfEntries;
 

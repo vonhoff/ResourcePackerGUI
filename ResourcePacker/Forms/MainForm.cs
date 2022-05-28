@@ -127,7 +127,7 @@ namespace ResourcePacker.Forms
                 _pack = PackHelper.LoadAllEntryInformation(_packHeader, fileStream);
 
                 // Try to load the first asset to check whether the archive is encrypted.
-                if (!AssetHelper.LoadSingleFromPackage(_pack, _pack.Entries[0], out var asset))
+                if (!AssetHelper.LoadSingleFromPackage(_pack, _pack.Entries[0], out _))
                 {
                     var passwordDialog = new PasswordForm();
                     if (passwordDialog.ShowDialog() != DialogResult.OK)
@@ -135,7 +135,12 @@ namespace ResourcePacker.Forms
                         return;
                     }
 
-                    //_assets = AssetHelper.UpdateAssetsWithDefinitions(_pack, passwordDialog.Password);
+                    if (!AssetHelper.LoadSingleFromPackage(_pack, _pack.Entries[0], out _, passwordDialog.Password))
+                    {
+                        throw new Exception("The password entered is incorrect.");
+                    }
+
+                    _assets = AssetHelper.LoadAllFromPackage(_pack, passwordDialog.Password);
                 }
                 else
                 {
@@ -357,12 +362,21 @@ namespace ResourcePacker.Forms
                     case { SubType: "xml" }:
                     {
                         var xmlDocument = new XmlDocument();
-                        xmlDocument.LoadXml(text);
-                        var stringWriter = new StringWriter();
-                        var xmlTextWriter = new XmlTextWriter(stringWriter);
-                        xmlTextWriter.Formatting = Formatting.Indented;
-                        xmlDocument.WriteTo(xmlTextWriter);
-                        previewTextBox.Text = stringWriter.ToString();
+                        try
+                        {
+                            xmlDocument.LoadXml(text);
+                            var stringWriter = new StringWriter();
+                            var xmlTextWriter = new XmlTextWriter(stringWriter);
+                            xmlTextWriter.Formatting = Formatting.Indented;
+                            xmlDocument.WriteTo(xmlTextWriter);
+                            previewTextBox.Text = stringWriter.ToString();
+                        }
+                        catch (Exception ex)
+                        {
+                            Log.Error(ex.Message);
+                            previewTextBox.Text = text;
+                        }
+
                         break;
                     }
                     default:

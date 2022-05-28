@@ -10,6 +10,8 @@ namespace ResourcePacker.Helpers
 {
     internal static class AssetHelper
     {
+        private static readonly byte[] Iv = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f };
+
         private static readonly MimeType JsonMimeType =
             new("application", "json")
             {
@@ -23,12 +25,12 @@ namespace ResourcePacker.Helpers
         /// </summary>
         /// <param name="package">The package to load the assets from.</param>
         /// <returns>A list of all assets inside the <paramref name="package"/>.</returns>
-        public static List<Asset> LoadAllFromPackage(Pack package)
+        public static List<Asset> LoadAllFromPackage(Pack package, string password = "")
         {
             var assets = new List<Asset>();
             foreach (var entry in package.Entries)
             {
-                if (!LoadSingleFromPackage(package, entry, out var asset))
+                if (!LoadSingleFromPackage(package, entry, out var asset, password))
                 {
                     Log.Error("Integrity check failed for entry: {id}", new { entry.Id });
                     continue;
@@ -49,13 +51,21 @@ namespace ResourcePacker.Helpers
         /// <param name="entry">Information about the entry.</param>
         /// <param name="asset"></param>
         /// <returns><see langword="true"/> when integrity check succeeded; otherwise, <see langword="false"/>.</returns>
-        public static bool LoadSingleFromPackage(Pack pack, Entry entry, out Asset asset)
+        public static bool LoadSingleFromPackage(Pack pack, Entry entry, out Asset asset, string password = "")
         {
             var binaryReader = new BinaryReader(pack.FileStream);
             binaryReader.BaseStream.Position = entry.Offset;
-            var buffer = binaryReader.ReadBytes((int)(entry.DataSize + 1));
+            var buffer = binaryReader.ReadBytes(entry.PackSize);
 
-            var crc = Crc32Algorithm.Compute(buffer, 0, (int)entry.DataSize);
+            if (!string.IsNullOrEmpty(password))
+            {
+                var key = AesEncryptionHelper.KeySetup(password);
+                var output = new byte[entry.PackSize];
+                AesEncryptionHelper.DecryptCbc(buffer, entry.PackSize, ref output, key, Iv);
+                buffer = output;
+            }
+
+            var crc = Crc32Algorithm.Compute(buffer, 0, entry.DataSize);
             asset = new Asset(buffer);
 
             if (entry.Crc != crc)
@@ -78,8 +88,8 @@ namespace ResourcePacker.Helpers
         {
             if (definitionDictionary.Count == 0 || source.Count == 0)
             {
-                Log.Error("Could not update assets with definitions: {@info}", 
-                    new {AssetCount = source.Count, DefinitionCount = definitionDictionary.Count});
+                Log.Error("Could not update assets with definitions: {@info}",
+                    new { AssetCount = source.Count, DefinitionCount = definitionDictionary.Count });
                 return -1;
             }
 
