@@ -1,10 +1,11 @@
 ﻿using System.Runtime.InteropServices;
+using Force.Crc32;
 using ResourcePacker.Entities;
 using Serilog;
 
 namespace ResourcePacker.Helpers;
 
-internal static class PackHelper
+internal static class PackageHelper
 {
     public static string PackHeaderId => "ResPack";
 
@@ -15,19 +16,19 @@ internal static class PackHelper
     /// <returns>The header of the provided resource package.</returns>
     /// <exception cref="InvalidDataException">
     /// When the file stream is not a valid <see langword="ResPack"/> stream.</exception>
-    public static PackHeader GetHeader(Stream fileStream)
+    public static PackageHeader GetHeader(Stream fileStream)
     {
         var binaryReader = new BinaryReader(fileStream);
-        var headerSize = Marshal.SizeOf(typeof(PackHeader));
+        var headerSize = Marshal.SizeOf(typeof(PackageHeader));
 
         var buffer = binaryReader.ReadBytes(headerSize);
         var ptr = Marshal.AllocHGlobal(headerSize);
 
         Marshal.Copy(buffer, 0, ptr, headerSize);
-        var structure = Marshal.PtrToStructure(ptr, typeof(PackHeader));
+        var structure = Marshal.PtrToStructure(ptr, typeof(PackageHeader));
 
         Marshal.FreeHGlobal(ptr);
-        var header = structure != null ? (PackHeader)structure : default;
+        var header = structure != null ? (PackageHeader)structure : default;
 
         if (header.Id != null && (!header.Id.Equals(PackHeaderId) || header.NumberOfEntries <= 0))
         {
@@ -40,23 +41,23 @@ internal static class PackHelper
     /// <summary>
     /// Creates a package containing all information about the entries inside a package.
     /// </summary>
-    /// <param name="header">A <see cref="PackHeader"/> instance.</param>
+    /// <param name="header">A <see cref="PackageHeader"/> instance.</param>
     /// <param name="fileStream">The stream of the package file.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>A <see cref="Pack"/> instance containing all information about a package.</returns>
+    /// <returns>A <see cref="Package"/> instance containing all information about a package.</returns>
     /// <exception cref="InvalidDataException">When the provided file stream is corrupted.</exception>
-    public static Pack LoadAllEntryInformation(PackHeader header, Stream fileStream, CancellationToken cancellationToken = default)
+    public static Package LoadAllEntryInformation(PackageHeader header, Stream fileStream, CancellationToken cancellationToken = default)
     {
         var binaryReader = new BinaryReader(fileStream);
         var entrySize = Marshal.SizeOf(typeof(Entry));
-        var packSize = Marshal.SizeOf(typeof(Pack)) + (entrySize * header.NumberOfEntries);
+        var packSize = Marshal.SizeOf(typeof(PackageHeader)) + (entrySize * header.NumberOfEntries);
 
         var buffer = binaryReader.ReadBytes(packSize);
         var ptr = Marshal.AllocHGlobal(packSize);
 
         Marshal.Copy(buffer, 0, ptr, packSize);
 
-        var pack = new Pack
+        var pack = new Package
         {
             FileStream = fileStream,
             NumberOfEntries = header.NumberOfEntries,

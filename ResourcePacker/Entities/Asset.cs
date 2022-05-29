@@ -13,7 +13,7 @@ namespace ResourcePacker.Entities
 
         public Bitmap? Bitmap { get; set; }
 
-        public byte[] Data { get; set; }
+        public byte[] Data { get; init; }
 
         public Entry Entry { get; set; }
 

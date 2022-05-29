@@ -25,14 +25,27 @@ namespace ResourcePacker.Forms
 
         private void BtnOk_Click(object sender, EventArgs e)
         {
-            Password = txtPassword.Text;
-            DialogResult = DialogResult.OK;
-            Close();
+            ConfirmPassword();
         }
 
         private void BtnCancel_Click(object sender, EventArgs e)
         {
             DialogResult = DialogResult.Cancel;
+            Close();
+        }
+
+        private void TxtPassword_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyData == Keys.Enter)
+            {
+                ConfirmPassword();
+            }
+        }
+
+        private void ConfirmPassword()
+        {
+            Password = txtPassword.Text;
+            DialogResult = DialogResult.OK;
             Close();
         }
     }

@@ -3,16 +3,13 @@
 namespace ResourcePacker.Entities
 {
     [StructLayout(LayoutKind.Sequential)]
-    public struct Pack
+    public struct PackageHeader
     {
-        public Stream FileStream;
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 8)]
+        public string Id;
 
-        public byte[] Key;
+        public int Reserved;
 
         public int NumberOfEntries;
-
-        public Entry[] Entries;
-
-        public bool Encrypted;
     }
 }

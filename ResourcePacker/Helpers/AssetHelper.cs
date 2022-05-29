@@ -21,11 +21,11 @@ namespace ResourcePacker.Helpers
         private static readonly Lazy<MimeTypes> MimeTypes = new(() => new MimeTypes());
 
         /// <summary>
-        /// Attempts to load all assets inside a <see cref="Pack"/>.
+        /// Attempts to load all assets inside a <see cref="Package"/>.
         /// </summary>
         /// <param name="package">The package to load the assets from.</param>
         /// <returns>A list of all assets inside the <paramref name="package"/>.</returns>
-        public static List<Asset> LoadAllFromPackage(Pack package, string password = "")
+        public static List<Asset> LoadAllFromPackage(Package package, string password = "")
         {
             var assets = new List<Asset>();
             foreach (var entry in package.Entries)
@@ -47,13 +47,13 @@ namespace ResourcePacker.Helpers
         /// <summary>
         /// Attempts to load a specified asset from a provided stream.
         /// </summary>
-        /// <param name="pack">The package.</param>
+        /// <param name="package">The package.</param>
         /// <param name="entry">Information about the entry.</param>
         /// <param name="asset"></param>
         /// <returns><see langword="true"/> when integrity check succeeded; otherwise, <see langword="false"/>.</returns>
-        public static bool LoadSingleFromPackage(Pack pack, Entry entry, out Asset asset, string password = "")
+        public static bool LoadSingleFromPackage(Package package, Entry entry, out Asset asset, string password = "")
         {
-            var binaryReader = new BinaryReader(pack.FileStream);
+            var binaryReader = new BinaryReader(package.FileStream);
             binaryReader.BaseStream.Position = entry.Offset;
             var buffer = binaryReader.ReadBytes(entry.PackSize);
 

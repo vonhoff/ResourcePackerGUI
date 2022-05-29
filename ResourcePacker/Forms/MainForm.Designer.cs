@@ -62,14 +62,13 @@
             this.outputBox = new System.Windows.Forms.RichTextBox();
             this.btnCreate = new System.Windows.Forms.ToolStripButton();
             this.btnOpen = new System.Windows.Forms.ToolStripButton();
-            this.btnClose = new System.Windows.Forms.ToolStripButton();
-            this.btnCancel = new System.Windows.Forms.ToolStripButton();
             this.btnAbout = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.btnLoadDefinitions = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.btnToggleDebugMessages = new System.Windows.Forms.ToolStripButton();
             this.toolStrip = new System.Windows.Forms.ToolStrip();
+            this.btnExtract = new System.Windows.Forms.ToolStripButton();
             this.btnFormattedText = new System.Windows.Forms.ToolStripButton();
             this.statusStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
@@ -353,20 +352,6 @@
             this.btnOpen.Padding = new System.Windows.Forms.Padding(3);
             this.btnOpen.Click += new System.EventHandler(this.BtnOpen_Click);
             // 
-            // btnClose
-            // 
-            this.btnClose.Image = global::ResourcePacker.Properties.Images.database_delete;
-            resources.ApplyResources(this.btnClose, "btnClose");
-            this.btnClose.Name = "btnClose";
-            this.btnClose.Padding = new System.Windows.Forms.Padding(3);
-            // 
-            // btnCancel
-            // 
-            this.btnCancel.Image = global::ResourcePacker.Properties.Images.cross;
-            resources.ApplyResources(this.btnCancel, "btnCancel");
-            this.btnCancel.Name = "btnCancel";
-            this.btnCancel.Padding = new System.Windows.Forms.Padding(3);
-            // 
             // btnAbout
             // 
             this.btnAbout.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
@@ -409,16 +394,22 @@
             this.toolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.btnCreate,
             this.btnOpen,
-            this.btnClose,
-            this.btnCancel,
             this.btnAbout,
             this.toolStripSeparator2,
             this.btnLoadDefinitions,
+            this.btnExtract,
             this.toolStripSeparator1,
             this.btnToggleDebugMessages,
             this.btnFormattedText});
             resources.ApplyResources(this.toolStrip, "toolStrip");
             this.toolStrip.Name = "toolStrip";
+            // 
+            // btnExtract
+            // 
+            resources.ApplyResources(this.btnExtract, "btnExtract");
+            this.btnExtract.Image = global::ResourcePacker.Properties.Images.compress;
+            this.btnExtract.Name = "btnExtract";
+            this.btnExtract.Padding = new System.Windows.Forms.Padding(3);
             // 
             // btnFormattedText
             // 
@@ -508,8 +499,6 @@
         private Be.Windows.Forms.HexBox previewHexBox;
         private ToolStripButton btnCreate;
         private ToolStripButton btnOpen;
-        private ToolStripButton btnClose;
-        private ToolStripButton btnCancel;
         private ToolStripButton btnAbout;
         private ToolStripSeparator toolStripSeparator2;
         private ToolStripButton btnLoadDefinitions;
@@ -517,5 +506,6 @@
         private ToolStripButton btnToggleDebugMessages;
         private ToolStrip toolStrip;
         private ToolStripButton btnFormattedText;
+        private ToolStripButton btnExtract;
     }
 }
