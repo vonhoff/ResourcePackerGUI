@@ -11,8 +11,6 @@ namespace ResourcePacker.Entities
             Data = data;
         }
 
-        public Bitmap? Bitmap { get; set; }
-
         public byte[] Data { get; init; }
 
         public Entry Entry { get; set; }

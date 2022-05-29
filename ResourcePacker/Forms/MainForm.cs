@@ -30,7 +30,6 @@ namespace ResourcePacker.Forms
         private string _password = string.Empty;
         private bool _formatPreviewText = true;
         private bool _showDebugMessages = true;
-        private bool _packageExists;
 
         public MainForm()
         {
@@ -89,10 +88,10 @@ namespace ResourcePacker.Forms
                 }
 
                 previewImageBox.Text = string.Empty;
-                _selectedPreviewAsset.Bitmap ??= _selectedPreviewAsset.Data.ToBitmap();
-                if (_selectedPreviewAsset != null)
+                var bitmap = _selectedPreviewAsset.Data.ToBitmap();
+                if (bitmap != null)
                 {
-                    previewImageBox.Image = _selectedPreviewAsset.Bitmap;
+                    previewImageBox.Image = bitmap;
                 }
             }
             else if (tabPage == previewTextTab)
@@ -292,6 +291,7 @@ namespace ResourcePacker.Forms
                         new { _packageHeader.Id, _packageHeader.NumberOfEntries });
 
                     var entries = PackageHelper.LoadAllEntryInformation(_packageHeader, stream);
+                    _password = string.Empty;
 
                     // Try to load the first asset to check whether the archive is encrypted.
                     if (!AssetHelper.LoadSingleFromPackage(stream, entries[0], out _))
@@ -312,7 +312,6 @@ namespace ResourcePacker.Forms
                     _assets = AssetHelper.LoadAllFromPackage(entries, stream, _password);
                 }
 
-                _packageExists = true;
                 _packagePath = openFileDialog.FileName;
                 RefreshFileTree();
                 lblResultCount.Text = $"{_packageHeader.NumberOfEntries} Entries";
