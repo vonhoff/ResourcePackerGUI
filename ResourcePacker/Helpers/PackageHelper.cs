@@ -46,7 +46,7 @@ internal static class PackageHelper
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A <see cref="Package"/> instance containing all information about a package.</returns>
     /// <exception cref="InvalidDataException">When the provided file stream is corrupted.</exception>
-    public static Package LoadAllEntryInformation(PackageHeader header, Stream fileStream, CancellationToken cancellationToken = default)
+    public static Entry[] LoadAllEntryInformation(PackageHeader header, Stream fileStream, CancellationToken cancellationToken = default)
     {
         var binaryReader = new BinaryReader(fileStream);
         var entrySize = Marshal.SizeOf(typeof(Entry));
@@ -57,14 +57,8 @@ internal static class PackageHelper
 
         Marshal.Copy(buffer, 0, ptr, packSize);
 
-        var pack = new Package
-        {
-            FileStream = fileStream,
-            NumberOfEntries = header.NumberOfEntries,
-            Entries = new Entry[header.NumberOfEntries]
-        };
-
-        for (var i = 0; i < pack.NumberOfEntries; i++)
+        var entries = new Entry[header.NumberOfEntries];
+        for (var i = 0; i < header.NumberOfEntries; i++)
         {
             cancellationToken.ThrowIfCancellationRequested();
             var ins = new IntPtr(ptr.ToInt64() + (i * entrySize));
@@ -76,11 +70,11 @@ internal static class PackageHelper
                     new { entry.Id, entry.Crc, entry.DataSize, entry.PackSize });
             }
 
-            pack.Entries[i] = entry;
+            entries[i] = entry;
             Log.Debug("Added entry: {@entry}",
                 new { entry.Id, entry.Crc, entry.DataSize });
         }
 
-        return pack;
+        return entries;
     }
 }

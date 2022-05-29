@@ -21,16 +21,18 @@ namespace ResourcePacker.Helpers
         private static readonly Lazy<MimeTypes> MimeTypes = new(() => new MimeTypes());
 
         /// <summary>
-        /// Attempts to load all assets inside a <see cref="Package"/>.
+        /// Attempts to load all assets from a collection of entries.
         /// </summary>
-        /// <param name="package">The package to load the assets from.</param>
-        /// <returns>A list of all assets inside the <paramref name="package"/>.</returns>
-        public static List<Asset> LoadAllFromPackage(Package package, string password = "")
+        /// <param name="entries"></param>
+        /// <param name="fileStream"></param>
+        /// <param name="password"></param>
+        /// <returns>A list of all assets inside the package.</returns>
+        public static List<Asset> LoadAllFromPackage(Entry[] entries, Stream fileStream, string password = "")
         {
             var assets = new List<Asset>();
-            foreach (var entry in package.Entries)
+            foreach (var entry in entries)
             {
-                if (!LoadSingleFromPackage(package, entry, out var asset, password))
+                if (!LoadSingleFromPackage(fileStream, entry, out var asset, password))
                 {
                     Log.Error("Integrity check failed for entry: {id}", new { entry.Id });
                     continue;
@@ -47,13 +49,13 @@ namespace ResourcePacker.Helpers
         /// <summary>
         /// Attempts to load a specified asset from a provided stream.
         /// </summary>
-        /// <param name="package">The package.</param>
+        /// <param name="fileStream">The package stream.</param>
         /// <param name="entry">Information about the entry.</param>
         /// <param name="asset"></param>
         /// <returns><see langword="true"/> when integrity check succeeded; otherwise, <see langword="false"/>.</returns>
-        public static bool LoadSingleFromPackage(Package package, Entry entry, out Asset asset, string password = "")
+        public static bool LoadSingleFromPackage(Stream fileStream, Entry entry, out Asset asset, string password = "")
         {
-            var binaryReader = new BinaryReader(package.FileStream);
+            var binaryReader = new BinaryReader(fileStream);
             binaryReader.BaseStream.Position = entry.Offset;
             var buffer = binaryReader.ReadBytes(entry.PackSize);
 

@@ -23,7 +23,6 @@ namespace ResourcePacker.Forms
         private readonly ActionDebouncer _outputScrollDebouncer;
         private readonly ActionDebouncer _searchDebouncer;
         private List<Asset>? _assets;
-        private Package _package;
         private PackageHeader _packageHeader;
         private Asset? _selectedPreviewAsset;
         private string _packagePath = string.Empty;
@@ -292,10 +291,10 @@ namespace ResourcePacker.Forms
                     Log.Information("ResourcePackage: {@info}",
                         new { _packageHeader.Id, _packageHeader.NumberOfEntries });
 
-                    _package = PackageHelper.LoadAllEntryInformation(_packageHeader, stream);
+                    var entries = PackageHelper.LoadAllEntryInformation(_packageHeader, stream);
 
                     // Try to load the first asset to check whether the archive is encrypted.
-                    if (!AssetHelper.LoadSingleFromPackage(_package, _package.Entries[0], out _))
+                    if (!AssetHelper.LoadSingleFromPackage(stream, entries[0], out _))
                     {
                         var passwordDialog = new PasswordForm();
                         if (passwordDialog.ShowDialog() != DialogResult.OK)
@@ -304,13 +303,13 @@ namespace ResourcePacker.Forms
                         }
 
                         _password = passwordDialog.Password;
-                        if (!AssetHelper.LoadSingleFromPackage(_package, _package.Entries[0], out _, _password))
+                        if (!AssetHelper.LoadSingleFromPackage(stream, entries[0], out _, _password))
                         {
                             throw new Exception("The password entered is incorrect.");
                         }
                     }
 
-                    _assets = AssetHelper.LoadAllFromPackage(_package, _password);
+                    _assets = AssetHelper.LoadAllFromPackage(entries, stream, _password);
                 }
 
                 _packageExists = true;
