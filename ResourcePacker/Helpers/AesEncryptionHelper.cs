@@ -607,10 +607,10 @@
         }
 
         /// <summary>
-        /// Performs the MixColums step. The state is multiplied by itself using matrix
+        /// Performs the MixColumns step. The state is multiplied by itself using matrix
         /// multiplication in a Galios Field 2^8. All multiplication is pre-computed in a table.
-        /// Addition is equivilent to XOR. (Must always make a copy of the column as the original
-        /// values will be destoyed.)
+        /// Addition is equivalent to XOR. (Must always make a copy of the column as the original
+        /// values will be destroyed.)
         /// </summary>
         /// <param name="state">The state for which to perform the mix columns step.</param>
         private static void MixColumns(ref byte[][] state)

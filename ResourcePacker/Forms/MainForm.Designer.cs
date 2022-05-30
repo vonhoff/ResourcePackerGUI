@@ -30,12 +30,6 @@
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
-            this.explorerImages = new System.Windows.Forms.ImageList(this.components);
-            this.statusStrip = new System.Windows.Forms.StatusStrip();
-            this.lblStatus = new System.Windows.Forms.ToolStripStatusLabel();
-            this.lblResultCount = new System.Windows.Forms.ToolStripStatusLabel();
-            this.prgRunning = new System.Windows.Forms.ToolStripProgressBar();
-            this.lblElapsed = new System.Windows.Forms.ToolStripStatusLabel();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.tabControl3 = new System.Windows.Forms.TabControl();
             this.tabPage3 = new System.Windows.Forms.TabPage();
@@ -43,6 +37,7 @@
             this.searchBox = new System.Windows.Forms.TextBox();
             this.lblNoResults = new System.Windows.Forms.Label();
             this.explorerTreeView = new System.Windows.Forms.TreeView();
+            this.explorerImages = new System.Windows.Forms.ImageList(this.components);
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
             this.tabControl2 = new System.Windows.Forms.TabControl();
             this.tabPage2 = new System.Windows.Forms.TabPage();
@@ -60,6 +55,11 @@
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.outputBox = new System.Windows.Forms.RichTextBox();
+            this.statusStrip = new System.Windows.Forms.StatusStrip();
+            this.lblStatus = new System.Windows.Forms.ToolStripStatusLabel();
+            this.lblResultCount = new System.Windows.Forms.ToolStripStatusLabel();
+            this.prgRunning = new System.Windows.Forms.ToolStripProgressBar();
+            this.lblElapsed = new System.Windows.Forms.ToolStripStatusLabel();
             this.btnCreate = new System.Windows.Forms.ToolStripButton();
             this.btnOpen = new System.Windows.Forms.ToolStripButton();
             this.btnAbout = new System.Windows.Forms.ToolStripButton();
@@ -70,7 +70,6 @@
             this.toolStrip = new System.Windows.Forms.ToolStrip();
             this.btnExtract = new System.Windows.Forms.ToolStripButton();
             this.btnFormattedText = new System.Windows.Forms.ToolStripButton();
-            this.statusStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -94,55 +93,9 @@
             this.toolStrip1.SuspendLayout();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
+            this.statusStrip.SuspendLayout();
             this.toolStrip.SuspendLayout();
             this.SuspendLayout();
-            // 
-            // explorerImages
-            // 
-            this.explorerImages.ColorDepth = System.Windows.Forms.ColorDepth.Depth8Bit;
-            this.explorerImages.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("explorerImages.ImageStream")));
-            this.explorerImages.TransparentColor = System.Drawing.Color.Transparent;
-            this.explorerImages.Images.SetKeyName(0, "application_view_tile.png");
-            this.explorerImages.Images.SetKeyName(1, "music.png");
-            this.explorerImages.Images.SetKeyName(2, "font.png");
-            this.explorerImages.Images.SetKeyName(3, "picture.png");
-            this.explorerImages.Images.SetKeyName(4, "page_white_text.png");
-            this.explorerImages.Images.SetKeyName(5, "film.png");
-            this.explorerImages.Images.SetKeyName(6, "help.png");
-            this.explorerImages.Images.SetKeyName(7, "folder.png");
-            this.explorerImages.Images.SetKeyName(8, "database.png");
-            // 
-            // statusStrip
-            // 
-            this.statusStrip.ImageScalingSize = new System.Drawing.Size(20, 20);
-            this.statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.lblStatus,
-            this.lblResultCount,
-            this.prgRunning,
-            this.lblElapsed});
-            resources.ApplyResources(this.statusStrip, "statusStrip");
-            this.statusStrip.Name = "statusStrip";
-            // 
-            // lblStatus
-            // 
-            this.lblStatus.Name = "lblStatus";
-            resources.ApplyResources(this.lblStatus, "lblStatus");
-            this.lblStatus.Spring = true;
-            // 
-            // lblResultCount
-            // 
-            resources.ApplyResources(this.lblResultCount, "lblResultCount");
-            this.lblResultCount.Name = "lblResultCount";
-            // 
-            // prgRunning
-            // 
-            this.prgRunning.Name = "prgRunning";
-            resources.ApplyResources(this.prgRunning, "prgRunning");
-            // 
-            // lblElapsed
-            // 
-            resources.ApplyResources(this.lblElapsed, "lblElapsed");
-            this.lblElapsed.Name = "lblElapsed";
             // 
             // splitContainer1
             // 
@@ -152,6 +105,7 @@
             // splitContainer1.Panel1
             // 
             this.splitContainer1.Panel1.Controls.Add(this.tabControl3);
+            resources.ApplyResources(this.splitContainer1.Panel1, "splitContainer1.Panel1");
             // 
             // splitContainer1.Panel2
             // 
@@ -205,6 +159,21 @@
             this.explorerTreeView.Name = "explorerTreeView";
             this.explorerTreeView.NodeMouseDoubleClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.ExplorerTreeView_NodeMouseDoubleClick);
             // 
+            // explorerImages
+            // 
+            this.explorerImages.ColorDepth = System.Windows.Forms.ColorDepth.Depth8Bit;
+            this.explorerImages.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("explorerImages.ImageStream")));
+            this.explorerImages.TransparentColor = System.Drawing.Color.Transparent;
+            this.explorerImages.Images.SetKeyName(0, "application_view_tile.png");
+            this.explorerImages.Images.SetKeyName(1, "music.png");
+            this.explorerImages.Images.SetKeyName(2, "font.png");
+            this.explorerImages.Images.SetKeyName(3, "picture.png");
+            this.explorerImages.Images.SetKeyName(4, "page_white_text.png");
+            this.explorerImages.Images.SetKeyName(5, "film.png");
+            this.explorerImages.Images.SetKeyName(6, "help.png");
+            this.explorerImages.Images.SetKeyName(7, "folder.png");
+            this.explorerImages.Images.SetKeyName(8, "database.png");
+            // 
             // splitContainer2
             // 
             resources.ApplyResources(this.splitContainer2, "splitContainer2");
@@ -213,6 +182,7 @@
             // splitContainer2.Panel1
             // 
             this.splitContainer2.Panel1.Controls.Add(this.tabControl2);
+            resources.ApplyResources(this.splitContainer2.Panel1, "splitContainer2.Panel1");
             // 
             // splitContainer2.Panel2
             // 
@@ -337,12 +307,45 @@
             resources.ApplyResources(this.outputBox, "outputBox");
             this.outputBox.Name = "outputBox";
             // 
+            // statusStrip
+            // 
+            this.statusStrip.ImageScalingSize = new System.Drawing.Size(20, 20);
+            this.statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.lblStatus,
+            this.lblResultCount,
+            this.prgRunning,
+            this.lblElapsed});
+            resources.ApplyResources(this.statusStrip, "statusStrip");
+            this.statusStrip.Name = "statusStrip";
+            // 
+            // lblStatus
+            // 
+            this.lblStatus.Name = "lblStatus";
+            resources.ApplyResources(this.lblStatus, "lblStatus");
+            this.lblStatus.Spring = true;
+            // 
+            // lblResultCount
+            // 
+            resources.ApplyResources(this.lblResultCount, "lblResultCount");
+            this.lblResultCount.Name = "lblResultCount";
+            // 
+            // prgRunning
+            // 
+            this.prgRunning.Name = "prgRunning";
+            resources.ApplyResources(this.prgRunning, "prgRunning");
+            // 
+            // lblElapsed
+            // 
+            resources.ApplyResources(this.lblElapsed, "lblElapsed");
+            this.lblElapsed.Name = "lblElapsed";
+            // 
             // btnCreate
             // 
             this.btnCreate.Image = global::ResourcePacker.Properties.Images.database_add;
             resources.ApplyResources(this.btnCreate, "btnCreate");
             this.btnCreate.Name = "btnCreate";
             this.btnCreate.Padding = new System.Windows.Forms.Padding(3);
+            this.btnCreate.Click += new System.EventHandler(this.BtnCreate_Click);
             // 
             // btnOpen
             // 
@@ -430,8 +433,6 @@
             this.Name = "MainForm";
             this.Load += new System.EventHandler(this.MainForm_Load);
             this.SizeChanged += new System.EventHandler(this.MainForm_SizeChanged);
-            this.statusStrip.ResumeLayout(false);
-            this.statusStrip.PerformLayout();
             this.splitContainer1.Panel1.ResumeLayout(false);
             this.splitContainer1.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
@@ -459,6 +460,8 @@
             this.toolStrip1.PerformLayout();
             this.tabControl1.ResumeLayout(false);
             this.tabPage1.ResumeLayout(false);
+            this.statusStrip.ResumeLayout(false);
+            this.statusStrip.PerformLayout();
             this.toolStrip.ResumeLayout(false);
             this.toolStrip.PerformLayout();
             this.ResumeLayout(false);

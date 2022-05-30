@@ -1,3 +1,4 @@
+using System.IO;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -6,7 +7,6 @@ using System.Xml;
 using Be.Windows.Forms;
 using ResourcePacker.Common;
 using ResourcePacker.Entities;
-using ResourcePacker.Extensions;
 using ResourcePacker.Helpers;
 using ResourcePacker.Properties;
 using Serilog;
@@ -40,6 +40,159 @@ namespace ResourcePacker.Forms
 
         #region Custom methods
 
+        #region Preview methods
+
+        /// <summary>
+        /// Prepares the preview tab with the corresponding values.
+        /// </summary>
+        /// <param name="tabPage">The tab to initialize.</param>
+        private void ReloadPreviewTab(TabPage? tabPage)
+        {
+            // Clear all previews.
+            previewHexBox.ByteProvider = null;
+            previewImageBox.Image = null;
+            previewTextBox.Clear();
+
+            if (_selectedPreviewAsset?.Data == null)
+            {
+                return;
+            }
+
+            // Set status labels.
+            lblMediaType.Text = $"Media type: {_selectedPreviewAsset.MimeType?.Name ?? "n/a"}";
+            lblDataSize.Text = _selectedPreviewAsset.Entry.DataSize switch
+            {
+                > 1000000000 => $"Size: {_selectedPreviewAsset.Entry.DataSize / 1000000000}gb",
+                > 1000000 => $"Size: {_selectedPreviewAsset.Entry.DataSize / 1000000}mb",
+                > 1000 => $"Size: {_selectedPreviewAsset.Entry.DataSize / 1000}kb",
+                _ => $"Size: {_selectedPreviewAsset.Entry.DataSize}b"
+            };
+
+            // Set values for the corresponding tab.
+            if (tabPage == previewImageTab)
+            {
+                SetImagePreviewValue();
+            }
+            else if (tabPage == previewTextTab)
+            {
+                SetTextPreviewValue();
+            }
+            else if (tabPage == previewHexTab)
+            {
+                SetHexPreviewValue();
+            }
+        }
+
+        /// <summary>
+        /// Sets the hex preview to the data from <see cref="_selectedPreviewAsset"/>.
+        /// </summary>
+        private void SetHexPreviewValue()
+        {
+            if (_selectedPreviewAsset?.Data == null)
+            {
+                return;
+            }
+
+            previewHexBox.ByteProvider = new DynamicByteProvider(_selectedPreviewAsset.Data);
+        }
+
+        /// <summary>
+        /// Sets the image preview to the data from <see cref="_selectedPreviewAsset"/>.
+        /// </summary>
+        private void SetImagePreviewValue()
+        {
+            if (_selectedPreviewAsset?.Data == null)
+            {
+                return;
+            }
+
+            if (_selectedPreviewAsset.MimeType?.PrimaryType != "image")
+            {
+                previewImageBox.Text = "No image available.";
+                return;
+            }
+
+            previewImageBox.Text = string.Empty;
+
+            try
+            {
+                var memoryStream = new MemoryStream();
+                memoryStream.Write(_selectedPreviewAsset.Data, 0,
+                    _selectedPreviewAsset.Data.Length);
+
+                var bitmap = new Bitmap(memoryStream, false);
+                memoryStream.Dispose();
+                previewImageBox.Image = bitmap;
+            }
+            catch (Exception exception)
+            {
+                Log.Error("Could not convert byte array to bitmap: \n{exception}", exception);
+            }
+        }
+
+        /// <summary>
+        /// Sets the text preview to the data from <see cref="_selectedPreviewAsset"/>.
+        /// </summary>
+        private void SetTextPreviewValue()
+        {
+            if (_selectedPreviewAsset?.Data == null)
+            {
+                return;
+            }
+
+            var text = Encoding.UTF8.GetString(_selectedPreviewAsset.Data);
+            text = Regex.Replace(text, @"[^\t\r\n -~]", string.Empty);
+
+            if (!_formatPreviewText)
+            {
+                previewTextBox.Text = text;
+                return;
+            }
+
+            switch (_selectedPreviewAsset.MimeType)
+            {
+                case { SubType: "json" }:
+                {
+                    var json = JsonNode.Parse(text);
+                    var options = new JsonSerializerOptions { WriteIndented = true };
+                    previewTextBox.Text = json!.ToJsonString(options);
+                    break;
+                }
+                case { SubType: "xml" }:
+                {
+                    var xmlDocument = new XmlDocument();
+                    try
+                    {
+                        xmlDocument.LoadXml(text);
+                        var stringWriter = new StringWriter();
+                        var xmlTextWriter = new XmlTextWriter(stringWriter);
+                        xmlTextWriter.Formatting = Formatting.Indented;
+                        xmlDocument.WriteTo(xmlTextWriter);
+                        previewTextBox.Text = stringWriter.ToString();
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Error(ex.Message);
+                        previewTextBox.Text = text;
+                    }
+
+                    break;
+                }
+                default:
+                {
+                    previewTextBox.Text = text;
+                    break;
+                }
+            }
+        }
+
+        #endregion Preview methods
+
+        /// <summary>
+        /// Gets the corresponding icon for the provided <paramref name="mimeType"/>.
+        /// </summary>
+        /// <param name="mimeType">A mimetype.</param>
+        /// <returns>The index for an icon.</returns>
         private static int GetMimeTypeIconIndex(MimeType? mimeType)
         {
             if (mimeType == null)
@@ -57,94 +210,6 @@ namespace ResourcePacker.Forms
                 "video" => 5,
                 _ => 6
             };
-        }
-
-        private void PreparePreviewTab(TabPage? tabPage)
-        {
-            previewHexBox.ByteProvider = null;
-            previewImageBox.Image = null;
-            previewTextBox.Clear();
-
-            if (_selectedPreviewAsset?.Data == null)
-            {
-                return;
-            }
-
-            lblMediaType.Text = $"Media type: {_selectedPreviewAsset.MimeType?.Name}";
-            lblDataSize.Text = _selectedPreviewAsset.Entry.DataSize switch
-            {
-                > 1000000000 => $"Size: {_selectedPreviewAsset.Entry.DataSize / 1000000000}gb",
-                > 1000000 => $"Size: {_selectedPreviewAsset.Entry.DataSize / 1000000}mb",
-                > 1000 => $"Size: {_selectedPreviewAsset.Entry.DataSize / 1000}kb",
-                _ => $"Size: {_selectedPreviewAsset.Entry.DataSize}b"
-            };
-
-            if (tabPage == previewImageTab)
-            {
-                if (_selectedPreviewAsset.MimeType?.PrimaryType != "image")
-                {
-                    previewImageBox.Text = "No image available.";
-                    return;
-                }
-
-                previewImageBox.Text = string.Empty;
-                var bitmap = _selectedPreviewAsset.Data.ToBitmap();
-                if (bitmap != null)
-                {
-                    previewImageBox.Image = bitmap;
-                }
-            }
-            else if (tabPage == previewTextTab)
-            {
-                var text = Encoding.UTF8.GetString(_selectedPreviewAsset.Data);
-                text = Regex.Replace(text, @"[^\t\r\n -~]", string.Empty);
-
-                if (!_formatPreviewText)
-                {
-                    previewTextBox.Text = text;
-                    return;
-                }
-
-                switch (_selectedPreviewAsset.MimeType)
-                {
-                    case { SubType: "json" }:
-                    {
-                        var json = JsonNode.Parse(text);
-                        var options = new JsonSerializerOptions { WriteIndented = true };
-                        previewTextBox.Text = json!.ToJsonString(options);
-                        break;
-                    }
-                    case { SubType: "xml" }:
-                    {
-                        var xmlDocument = new XmlDocument();
-                        try
-                        {
-                            xmlDocument.LoadXml(text);
-                            var stringWriter = new StringWriter();
-                            var xmlTextWriter = new XmlTextWriter(stringWriter);
-                            xmlTextWriter.Formatting = Formatting.Indented;
-                            xmlDocument.WriteTo(xmlTextWriter);
-                            previewTextBox.Text = stringWriter.ToString();
-                        }
-                        catch (Exception ex)
-                        {
-                            Log.Error(ex.Message);
-                            previewTextBox.Text = text;
-                        }
-
-                        break;
-                    }
-                    default:
-                    {
-                        previewTextBox.Text = text;
-                        break;
-                    }
-                }
-            }
-            else if (tabPage == previewHexTab)
-            {
-                previewHexBox.ByteProvider = new DynamicByteProvider(_selectedPreviewAsset.Data);
-            }
         }
 
         private void RefreshFileTree()
@@ -235,7 +300,10 @@ namespace ResourcePacker.Forms
             btnFormattedText.Image =
                 _formatPreviewText ? Images.checkbox_checked : Images.checkbox_unchecked;
 
-            PreparePreviewTab(previewTabs.SelectedTab);
+            if (previewTabs.SelectedTab == previewTextTab)
+            {
+                SetTextPreviewValue();
+            }
         }
 
         private void BtnLoadDefinitions_Click(object sender, EventArgs e)
@@ -367,7 +435,7 @@ namespace ResourcePacker.Forms
                 }
             }
 
-            PreparePreviewTab(previewTabs.SelectedTab);
+            ReloadPreviewTab(previewTabs.SelectedTab);
         }
 
         private void MainForm_Load(object sender, EventArgs e)
@@ -386,7 +454,7 @@ namespace ResourcePacker.Forms
 
         private void PreviewTabs_Selecting(object sender, TabControlCancelEventArgs e)
         {
-            PreparePreviewTab(e.TabPage);
+            ReloadPreviewTab(e.TabPage);
         }
 
         private void SearchBox_TextChanged(object sender, EventArgs e)
@@ -401,5 +469,10 @@ namespace ResourcePacker.Forms
         }
 
         #endregion Component events
+
+        private void BtnCreate_Click(object sender, EventArgs e)
+        {
+            var createDialogResult = new CreateForm().ShowDialog();
+        }
     }
 }

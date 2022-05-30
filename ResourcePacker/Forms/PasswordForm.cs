@@ -1,14 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-
-namespace ResourcePacker.Forms
+﻿namespace ResourcePacker.Forms
 {
     public partial class PasswordForm : Form
     {
@@ -16,6 +6,7 @@ namespace ResourcePacker.Forms
         {
             InitializeComponent();
         }
+
         public string Password { get; set; } = string.Empty;
 
         private void ChkShowPassword_CheckedChanged(object sender, EventArgs e)
