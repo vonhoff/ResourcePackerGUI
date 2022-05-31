@@ -3,6 +3,11 @@
     public static class AesEncryptionHelper
     {
         /// <summary>
+        /// Default IV when a custom value is not assigned.
+        /// </summary>
+        private static readonly byte[] Iv = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f };
+
+        /// <summary>
         /// AES operates on 16 bytes at a time.
         /// </summary>
         public const int BlockSize = 16;
@@ -185,7 +190,7 @@
             new byte[]{ 0x8C, 0xA1, 0x89, 0x0D, 0xBF, 0xE6, 0x42, 0x68, 0x41, 0x99, 0x2D, 0x0F, 0xB0, 0x54, 0xBB, 0x16}
         };
 
-        public static bool DecryptCbc(byte[] input, int inputLength, ref byte[] output, uint[] key, byte[] iv)
+        public static bool DecryptCbc(byte[] input, int inputLength, ref byte[] output, uint[] key, byte[]? iv = null)
         {
             var inputBuffer = new byte[BlockSize];
             var outputBuffer = new byte[BlockSize];
@@ -196,6 +201,7 @@
                 return false;
             }
 
+            iv ??= Iv;
             var blocks = inputLength / BlockSize;
             Array.Copy(iv, ivBuffer, BlockSize);
 

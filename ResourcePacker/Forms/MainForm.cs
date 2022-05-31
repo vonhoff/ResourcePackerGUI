@@ -62,10 +62,10 @@ namespace ResourcePacker.Forms
             lblMediaType.Text = $"Media type: {_selectedPreviewAsset.MimeType?.Name ?? "n/a"}";
             lblDataSize.Text = _selectedPreviewAsset.Entry.DataSize switch
             {
-                > 1000000000 => $"Size: {_selectedPreviewAsset.Entry.DataSize / 1000000000}gb",
-                > 1000000 => $"Size: {_selectedPreviewAsset.Entry.DataSize / 1000000}mb",
-                > 1000 => $"Size: {_selectedPreviewAsset.Entry.DataSize / 1000}kb",
-                _ => $"Size: {_selectedPreviewAsset.Entry.DataSize}b"
+                > 1000000000 => $"Size: {_selectedPreviewAsset.Entry.DataSize / 1000000000} GB",
+                > 1000000 => $"Size: {_selectedPreviewAsset.Entry.DataSize / 1000000} MB",
+                > 1000 => $"Size: {_selectedPreviewAsset.Entry.DataSize / 1000} KB",
+                _ => $"Size: {_selectedPreviewAsset.Entry.DataSize} bytes"
             };
 
             // Set values for the corresponding tab.
@@ -327,14 +327,7 @@ namespace ResourcePacker.Forms
                     crcDictionary = DefinitionHelper.CreateCrcDictionary(fileStream);
                 }
 
-                var matches = AssetHelper.UpdateAssetsWithDefinitions(_assets, crcDictionary);
-                if (matches == 0)
-                {
-                    MessageBox.Show(
-                        "Could not set definitions. The specified file does not contain valid file definitions.",
-                        "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-
+                AssetHelper.UpdateAssetsWithDefinitions(_assets, crcDictionary);
                 RefreshFileTree();
             }
         }

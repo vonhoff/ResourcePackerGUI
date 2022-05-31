@@ -11,8 +11,6 @@ namespace ResourcePacker.Helpers
 {
     internal static class AssetHelper
     {
-        private static readonly byte[] Iv = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f };
-
         private static readonly MimeType JsonMimeType =
             new("application", "json")
             {
@@ -44,6 +42,16 @@ namespace ResourcePacker.Helpers
                 assets.Add(asset);
             }
 
+            if (assets.Count == entries.Length)
+            {
+                Log.Information("Loaded {assetCount} assets.", assets.Count);
+            }
+            else
+            {
+                Log.Warning("Loaded {assetCount} out of {entryCount} assets.",
+                    assets.Count, entries.Length);
+            }
+
             return assets;
         }
 
@@ -64,7 +72,7 @@ namespace ResourcePacker.Helpers
             {
                 var key = AesEncryptionHelper.KeySetup(password);
                 var output = new byte[entry.PackSize];
-                AesEncryptionHelper.DecryptCbc(buffer, entry.PackSize, ref output, key, Iv);
+                AesEncryptionHelper.DecryptCbc(buffer, entry.PackSize, ref output, key);
                 buffer = output;
             }
 
@@ -107,15 +115,23 @@ namespace ResourcePacker.Helpers
                 }
                 else
                 {
-                    Log.Warning("Could not find definition for entry: {@id}", new { asset.Entry.Id });
+                    Log.Warning("Could not find definition for hash: {id}", asset.Entry.Id);
+                    continue;
                 }
 
                 Log.Debug("Updated asset: {@asset}",
                     new { asset.Entry.Id, asset.Name, MediaType = asset.MimeType?.Name });
             }
 
-            Log.Information("Found {matchCount} out of {expectedCount} definitions.",
-                matches, source.Count);
+            if (matches == source.Count)
+            {
+                Log.Information("Updated {matchCount} asset names.", matches);
+            }
+            else
+            {
+                Log.Warning("Updated {matchCount} out of {expectedCount} asset names.",
+                    matches, source.Count);
+            }
 
             return matches;
         }

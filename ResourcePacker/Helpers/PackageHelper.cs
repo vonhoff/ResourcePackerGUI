@@ -65,8 +65,7 @@ namespace ResourcePacker.Helpers
                 var ins = new IntPtr(ptr.ToInt64() + (i * entrySize));
                 var entry = Marshal.PtrToStructure<Entry>(ins);
 
-                if (entry.Crc == 0 || entry.DataSize == 0 || 
-                    entry.Id == 0 || entry.PackSize == 0 || entry.Offset == 0)
+                if (entry.Id == 0)
                 {
                     Log.Error("Invalid entry: {@entry}",
                         new { entry.Id, entry.Crc, entry.DataSize, entry.PackSize });
@@ -76,6 +75,16 @@ namespace ResourcePacker.Helpers
                 entries.Add(entry);
                 Log.Debug("Added entry: {@entry}",
                     new { entry.Id, entry.Crc, entry.DataSize });
+            }
+
+            if (entries.Count == header.NumberOfEntries)
+            {
+                Log.Information("Loaded {entryCount} entries.", entries.Count);
+            }
+            else
+            {
+                Log.Warning("Loaded {entryCount} out of {expectedCount} entries.",
+                    entries.Count, header.NumberOfEntries);
             }
 
             return entries.ToArray();
