@@ -6,6 +6,7 @@ using Force.Crc32;
 using ResourcePacker.Entities;
 using Serilog;
 using Winista.Mime;
+using HeyRed.Mime;
 
 namespace ResourcePacker.Helpers
 {
@@ -110,6 +111,17 @@ namespace ResourcePacker.Helpers
             {
                 if (definitionDictionary.TryGetValue(asset.Entry.Id, out var filePath))
                 {
+                    // If the media type has not been found before, 
+                    // try to find the media type by the file extension.
+                    if (asset.MimeType == null)
+                    {
+                        var typeMap = MimeTypesMap.GetMimeType(filePath);
+                        if (typeMap != null && typeMap != "application/octet-stream")
+                        {
+                            asset.MimeType = MimeTypes.Value.ForName(typeMap);
+                        }
+                    }
+                    
                     asset.Name = filePath;
                     matches++;
                 }

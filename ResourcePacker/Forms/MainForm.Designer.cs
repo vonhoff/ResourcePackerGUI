@@ -168,7 +168,7 @@
             this.explorerImages.Images.SetKeyName(1, "music.png");
             this.explorerImages.Images.SetKeyName(2, "font.png");
             this.explorerImages.Images.SetKeyName(3, "picture.png");
-            this.explorerImages.Images.SetKeyName(4, "page_white_text.png");
+            this.explorerImages.Images.SetKeyName(4, "page.png");
             this.explorerImages.Images.SetKeyName(5, "film.png");
             this.explorerImages.Images.SetKeyName(6, "help.png");
             this.explorerImages.Images.SetKeyName(7, "folder.png");

@@ -36,38 +36,40 @@
             this.label5 = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
-            this.radioButton2 = new System.Windows.Forms.RadioButton();
-            this.radioButton1 = new System.Windows.Forms.RadioButton();
+            this.radioRepackMode = new System.Windows.Forms.RadioButton();
+            this.radioDefaultMode = new System.Windows.Forms.RadioButton();
             this.groupBox7 = new System.Windows.Forms.GroupBox();
-            this.textBox3 = new System.Windows.Forms.TextBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.chkShowPassword = new System.Windows.Forms.CheckBox();
             this.txtPassword = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
-            this.label7 = new System.Windows.Forms.Label();
             this.splitContainer3 = new System.Windows.Forms.SplitContainer();
-            this.textBox2 = new System.Windows.Forms.TextBox();
-            this.button4 = new System.Windows.Forms.Button();
+            this.txtPackageLocation = new System.Windows.Forms.TextBox();
+            this.btnPackageExplore = new System.Windows.Forms.Button();
             this.label8 = new System.Windows.Forms.Label();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.comboBox1 = new System.Windows.Forms.ComboBox();
-            this.label3 = new System.Windows.Forms.Label();
             this.splitContainer4 = new System.Windows.Forms.SplitContainer();
-            this.textBox1 = new System.Windows.Forms.TextBox();
-            this.button3 = new System.Windows.Forms.Button();
+            this.txtAssetFolder = new System.Windows.Forms.TextBox();
+            this.btnAssetExplore = new System.Windows.Forms.Button();
             this.label2 = new System.Windows.Forms.Label();
             this.tabControl2 = new System.Windows.Forms.TabControl();
             this.tabPage3 = new System.Windows.Forms.TabPage();
-            this.groupBox6 = new System.Windows.Forms.GroupBox();
+            this.splitContainer5 = new System.Windows.Forms.SplitContainer();
+            this.toolStrip1 = new System.Windows.Forms.ToolStrip();
+            this.toolStripLabel1 = new System.Windows.Forms.ToolStripLabel();
+            this.toolStripButton1 = new System.Windows.Forms.ToolStripButton();
+            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+            this.toolStripLabel2 = new System.Windows.Forms.ToolStripLabel();
+            this.grpBoxItemSelector = new System.Windows.Forms.GroupBox();
             this.tabPage4 = new System.Windows.Forms.TabPage();
             this.groupBox5 = new System.Windows.Forms.GroupBox();
             this.richTextBox1 = new System.Windows.Forms.RichTextBox();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
             this.progressBar1 = new System.Windows.Forms.ProgressBar();
             this.panel2 = new System.Windows.Forms.Panel();
-            this.button2 = new System.Windows.Forms.Button();
+            this.btnCancel = new System.Windows.Forms.Button();
             this.panel1 = new System.Windows.Forms.Panel();
-            this.button1 = new System.Windows.Forms.Button();
+            this.btnCreate = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -92,6 +94,11 @@
             this.splitContainer4.SuspendLayout();
             this.tabControl2.SuspendLayout();
             this.tabPage3.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer5)).BeginInit();
+            this.splitContainer5.Panel1.SuspendLayout();
+            this.splitContainer5.Panel2.SuspendLayout();
+            this.splitContainer5.SuspendLayout();
+            this.toolStrip1.SuspendLayout();
             this.tabPage4.SuspendLayout();
             this.groupBox5.SuspendLayout();
             this.groupBox4.SuspendLayout();
@@ -116,14 +123,13 @@
             // 
             this.splitContainer1.Panel2.Controls.Add(this.panel2);
             this.splitContainer1.Panel2.Controls.Add(this.panel1);
-            this.splitContainer1.Size = new System.Drawing.Size(1092, 718);
+            this.splitContainer1.Size = new System.Drawing.Size(1162, 718);
             this.splitContainer1.SplitterDistance = 665;
             this.splitContainer1.TabIndex = 0;
             // 
             // splitContainer2
             // 
             this.splitContainer2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.splitContainer2.FixedPanel = System.Windows.Forms.FixedPanel.Panel1;
             this.splitContainer2.Location = new System.Drawing.Point(0, 0);
             this.splitContainer2.Name = "splitContainer2";
             // 
@@ -138,8 +144,8 @@
             this.splitContainer2.Panel2.Controls.Add(this.tabControl2);
             this.splitContainer2.Panel2.Padding = new System.Windows.Forms.Padding(0, 3, 3, 0);
             this.splitContainer2.Panel2MinSize = 435;
-            this.splitContainer2.Size = new System.Drawing.Size(1092, 665);
-            this.splitContainer2.SplitterDistance = 440;
+            this.splitContainer2.Size = new System.Drawing.Size(1162, 665);
+            this.splitContainer2.SplitterDistance = 521;
             this.splitContainer2.TabIndex = 0;
             // 
             // tabControl1
@@ -149,7 +155,7 @@
             this.tabControl1.Location = new System.Drawing.Point(3, 3);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(437, 662);
+            this.tabControl1.Size = new System.Drawing.Size(518, 662);
             this.tabControl1.TabIndex = 0;
             // 
             // tabPage1
@@ -160,7 +166,7 @@
             this.tabPage1.Location = new System.Drawing.Point(4, 29);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(429, 629);
+            this.tabPage1.Size = new System.Drawing.Size(510, 629);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "Configuration";
             this.tabPage1.UseVisualStyleBackColor = true;
@@ -170,13 +176,12 @@
             this.groupBox3.Controls.Add(this.label5);
             this.groupBox3.Controls.Add(this.label6);
             this.groupBox3.Controls.Add(this.label4);
-            this.groupBox3.Controls.Add(this.radioButton2);
-            this.groupBox3.Controls.Add(this.radioButton1);
+            this.groupBox3.Controls.Add(this.radioRepackMode);
+            this.groupBox3.Controls.Add(this.radioDefaultMode);
             this.groupBox3.Dock = System.Windows.Forms.DockStyle.Top;
-            this.groupBox3.Location = new System.Drawing.Point(3, 460);
-            this.groupBox3.MaximumSize = new System.Drawing.Size(0, 150);
+            this.groupBox3.Location = new System.Drawing.Point(3, 336);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(423, 150);
+            this.groupBox3.Size = new System.Drawing.Size(504, 144);
             this.groupBox3.TabIndex = 2;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Mode";
@@ -186,7 +191,7 @@
             this.label5.AutoSize = true;
             this.label5.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.label5.Font = new System.Drawing.Font("Segoe UI", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.label5.Location = new System.Drawing.Point(3, 101);
+            this.label5.Location = new System.Drawing.Point(3, 95);
             this.label5.Name = "label5";
             this.label5.Padding = new System.Windows.Forms.Padding(6);
             this.label5.Size = new System.Drawing.Size(338, 46);
@@ -198,9 +203,10 @@
             // 
             this.label6.AutoSize = true;
             this.label6.Font = new System.Drawing.Font("Segoe UI", 6F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.label6.Location = new System.Drawing.Point(82, 60);
+            this.label6.Location = new System.Drawing.Point(82, 59);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(10, 12);
+            this.label6.Padding = new System.Windows.Forms.Padding(0, 6, 0, 0);
+            this.label6.Size = new System.Drawing.Size(10, 18);
             this.label6.TabIndex = 3;
             this.label6.Text = "2";
             // 
@@ -208,61 +214,54 @@
             // 
             this.label4.AutoSize = true;
             this.label4.Font = new System.Drawing.Font("Segoe UI", 6F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.label4.Location = new System.Drawing.Point(82, 26);
+            this.label4.Location = new System.Drawing.Point(82, 23);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(10, 12);
+            this.label4.Padding = new System.Windows.Forms.Padding(0, 6, 0, 0);
+            this.label4.Size = new System.Drawing.Size(10, 18);
             this.label4.TabIndex = 2;
             this.label4.Text = "1";
             // 
-            // radioButton2
+            // radioRepackMode
             // 
-            this.radioButton2.AutoSize = true;
-            this.radioButton2.Location = new System.Drawing.Point(6, 60);
-            this.radioButton2.Name = "radioButton2";
-            this.radioButton2.Padding = new System.Windows.Forms.Padding(2, 0, 0, 1);
-            this.radioButton2.Size = new System.Drawing.Size(80, 25);
-            this.radioButton2.TabIndex = 1;
-            this.radioButton2.Text = "Repack";
-            this.radioButton2.UseVisualStyleBackColor = true;
+            this.radioRepackMode.AutoSize = true;
+            this.radioRepackMode.Dock = System.Windows.Forms.DockStyle.Top;
+            this.radioRepackMode.Location = new System.Drawing.Point(3, 59);
+            this.radioRepackMode.Name = "radioRepackMode";
+            this.radioRepackMode.Padding = new System.Windows.Forms.Padding(6);
+            this.radioRepackMode.Size = new System.Drawing.Size(498, 36);
+            this.radioRepackMode.TabIndex = 1;
+            this.radioRepackMode.Text = "Repack";
+            this.radioRepackMode.UseVisualStyleBackColor = true;
             // 
-            // radioButton1
+            // radioDefaultMode
             // 
-            this.radioButton1.AutoSize = true;
-            this.radioButton1.Checked = true;
-            this.radioButton1.Location = new System.Drawing.Point(6, 26);
-            this.radioButton1.Name = "radioButton1";
-            this.radioButton1.Padding = new System.Windows.Forms.Padding(2, 0, 0, 1);
-            this.radioButton1.Size = new System.Drawing.Size(81, 25);
-            this.radioButton1.TabIndex = 0;
-            this.radioButton1.TabStop = true;
-            this.radioButton1.Text = "Default";
-            this.radioButton1.UseVisualStyleBackColor = true;
+            this.radioDefaultMode.AutoSize = true;
+            this.radioDefaultMode.Checked = true;
+            this.radioDefaultMode.Dock = System.Windows.Forms.DockStyle.Top;
+            this.radioDefaultMode.Location = new System.Drawing.Point(3, 23);
+            this.radioDefaultMode.Name = "radioDefaultMode";
+            this.radioDefaultMode.Padding = new System.Windows.Forms.Padding(6);
+            this.radioDefaultMode.Size = new System.Drawing.Size(498, 36);
+            this.radioDefaultMode.TabIndex = 0;
+            this.radioDefaultMode.TabStop = true;
+            this.radioDefaultMode.Text = "Default";
+            this.radioDefaultMode.UseVisualStyleBackColor = true;
             // 
             // groupBox7
             // 
-            this.groupBox7.Controls.Add(this.textBox3);
             this.groupBox7.Controls.Add(this.groupBox2);
-            this.groupBox7.Controls.Add(this.label7);
             this.groupBox7.Controls.Add(this.splitContainer3);
             this.groupBox7.Controls.Add(this.label8);
             this.groupBox7.Dock = System.Windows.Forms.DockStyle.Top;
             this.groupBox7.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.groupBox7.Location = new System.Drawing.Point(3, 168);
+            this.groupBox7.Location = new System.Drawing.Point(3, 98);
             this.groupBox7.MaximumSize = new System.Drawing.Size(0, 350);
             this.groupBox7.Name = "groupBox7";
             this.groupBox7.Padding = new System.Windows.Forms.Padding(6);
-            this.groupBox7.Size = new System.Drawing.Size(423, 292);
+            this.groupBox7.Size = new System.Drawing.Size(504, 238);
             this.groupBox7.TabIndex = 1;
             this.groupBox7.TabStop = false;
             this.groupBox7.Text = "Resource package";
-            // 
-            // textBox3
-            // 
-            this.textBox3.Dock = System.Windows.Forms.DockStyle.Top;
-            this.textBox3.Location = new System.Drawing.Point(6, 119);
-            this.textBox3.Name = "textBox3";
-            this.textBox3.Size = new System.Drawing.Size(411, 27);
-            this.textBox3.TabIndex = 4;
             // 
             // groupBox2
             // 
@@ -270,10 +269,10 @@
             this.groupBox2.Controls.Add(this.txtPassword);
             this.groupBox2.Controls.Add(this.label1);
             this.groupBox2.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.groupBox2.Location = new System.Drawing.Point(6, 156);
+            this.groupBox2.Location = new System.Drawing.Point(6, 102);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Padding = new System.Windows.Forms.Padding(6);
-            this.groupBox2.Size = new System.Drawing.Size(411, 130);
+            this.groupBox2.Size = new System.Drawing.Size(492, 130);
             this.groupBox2.TabIndex = 1;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Encryption";
@@ -290,6 +289,7 @@
             this.chkShowPassword.TabIndex = 7;
             this.chkShowPassword.Text = "Show password";
             this.chkShowPassword.UseVisualStyleBackColor = true;
+            this.chkShowPassword.CheckedChanged += new System.EventHandler(this.ChkShowPassword_CheckedChanged);
             // 
             // txtPassword
             // 
@@ -297,9 +297,8 @@
             this.txtPassword.Location = new System.Drawing.Point(6, 55);
             this.txtPassword.Margin = new System.Windows.Forms.Padding(6);
             this.txtPassword.Name = "txtPassword";
-            this.txtPassword.Size = new System.Drawing.Size(399, 27);
+            this.txtPassword.Size = new System.Drawing.Size(480, 27);
             this.txtPassword.TabIndex = 6;
-            this.txtPassword.UseSystemPasswordChar = true;
             // 
             // label1
             // 
@@ -312,17 +311,6 @@
             this.label1.TabIndex = 5;
             this.label1.Text = "Enter password:";
             // 
-            // label7
-            // 
-            this.label7.AutoSize = true;
-            this.label7.Dock = System.Windows.Forms.DockStyle.Top;
-            this.label7.Location = new System.Drawing.Point(6, 90);
-            this.label7.Name = "label7";
-            this.label7.Padding = new System.Windows.Forms.Padding(3, 3, 3, 6);
-            this.label7.Size = new System.Drawing.Size(113, 29);
-            this.label7.TabIndex = 3;
-            this.label7.Text = "Package name:";
-            // 
             // splitContainer3
             // 
             this.splitContainer3.Dock = System.Windows.Forms.DockStyle.Top;
@@ -333,37 +321,38 @@
             // 
             // splitContainer3.Panel1
             // 
-            this.splitContainer3.Panel1.Controls.Add(this.textBox2);
+            this.splitContainer3.Panel1.Controls.Add(this.txtPackageLocation);
             // 
             // splitContainer3.Panel2
             // 
-            this.splitContainer3.Panel2.Controls.Add(this.button4);
+            this.splitContainer3.Panel2.Controls.Add(this.btnPackageExplore);
             this.splitContainer3.Panel2.Padding = new System.Windows.Forms.Padding(3, 0, 3, 6);
-            this.splitContainer3.Size = new System.Drawing.Size(411, 35);
-            this.splitContainer3.SplitterDistance = 308;
+            this.splitContainer3.Size = new System.Drawing.Size(492, 35);
+            this.splitContainer3.SplitterDistance = 389;
             this.splitContainer3.TabIndex = 1;
             // 
-            // textBox2
+            // txtPackageLocation
             // 
-            this.textBox2.Dock = System.Windows.Forms.DockStyle.Top;
-            this.textBox2.Location = new System.Drawing.Point(0, 0);
-            this.textBox2.Name = "textBox2";
-            this.textBox2.ReadOnly = true;
-            this.textBox2.Size = new System.Drawing.Size(308, 27);
-            this.textBox2.TabIndex = 0;
+            this.txtPackageLocation.Dock = System.Windows.Forms.DockStyle.Top;
+            this.txtPackageLocation.Location = new System.Drawing.Point(0, 0);
+            this.txtPackageLocation.Name = "txtPackageLocation";
+            this.txtPackageLocation.ReadOnly = true;
+            this.txtPackageLocation.Size = new System.Drawing.Size(389, 27);
+            this.txtPackageLocation.TabIndex = 0;
             // 
-            // button4
+            // btnPackageExplore
             // 
-            this.button4.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.button4.Image = global::ResourcePacker.Properties.Images.folder_explore;
-            this.button4.Location = new System.Drawing.Point(3, 0);
-            this.button4.Name = "button4";
-            this.button4.Padding = new System.Windows.Forms.Padding(3, 0, 0, 0);
-            this.button4.Size = new System.Drawing.Size(93, 29);
-            this.button4.TabIndex = 0;
-            this.button4.Text = "Explore";
-            this.button4.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
-            this.button4.UseVisualStyleBackColor = true;
+            this.btnPackageExplore.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.btnPackageExplore.Image = global::ResourcePacker.Properties.Images.folder_explore;
+            this.btnPackageExplore.Location = new System.Drawing.Point(3, 0);
+            this.btnPackageExplore.Name = "btnPackageExplore";
+            this.btnPackageExplore.Padding = new System.Windows.Forms.Padding(3, 0, 0, 0);
+            this.btnPackageExplore.Size = new System.Drawing.Size(93, 29);
+            this.btnPackageExplore.TabIndex = 0;
+            this.btnPackageExplore.Text = "Explore";
+            this.btnPackageExplore.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
+            this.btnPackageExplore.UseVisualStyleBackColor = true;
+            this.btnPackageExplore.Click += new System.EventHandler(this.BtnPackageExplore_Click);
             // 
             // label8
             // 
@@ -372,14 +361,12 @@
             this.label8.Location = new System.Drawing.Point(6, 26);
             this.label8.Name = "label8";
             this.label8.Padding = new System.Windows.Forms.Padding(3, 3, 3, 6);
-            this.label8.Size = new System.Drawing.Size(108, 29);
+            this.label8.Size = new System.Drawing.Size(75, 29);
             this.label8.TabIndex = 0;
-            this.label8.Text = "Output folder:";
+            this.label8.Text = "Location:";
             // 
             // groupBox1
             // 
-            this.groupBox1.Controls.Add(this.comboBox1);
-            this.groupBox1.Controls.Add(this.label3);
             this.groupBox1.Controls.Add(this.splitContainer4);
             this.groupBox1.Controls.Add(this.label2);
             this.groupBox1.Dock = System.Windows.Forms.DockStyle.Top;
@@ -388,30 +375,10 @@
             this.groupBox1.MaximumSize = new System.Drawing.Size(0, 350);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Padding = new System.Windows.Forms.Padding(6);
-            this.groupBox1.Size = new System.Drawing.Size(423, 165);
+            this.groupBox1.Size = new System.Drawing.Size(504, 95);
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Source";
-            // 
-            // comboBox1
-            // 
-            this.comboBox1.Dock = System.Windows.Forms.DockStyle.Top;
-            this.comboBox1.FormattingEnabled = true;
-            this.comboBox1.Location = new System.Drawing.Point(6, 119);
-            this.comboBox1.Name = "comboBox1";
-            this.comboBox1.Size = new System.Drawing.Size(411, 28);
-            this.comboBox1.TabIndex = 3;
-            // 
-            // label3
-            // 
-            this.label3.AutoSize = true;
-            this.label3.Dock = System.Windows.Forms.DockStyle.Top;
-            this.label3.Location = new System.Drawing.Point(6, 90);
-            this.label3.Name = "label3";
-            this.label3.Padding = new System.Windows.Forms.Padding(3, 3, 3, 6);
-            this.label3.Size = new System.Drawing.Size(94, 29);
-            this.label3.TabIndex = 2;
-            this.label3.Text = "Root folder:";
             // 
             // splitContainer4
             // 
@@ -423,37 +390,38 @@
             // 
             // splitContainer4.Panel1
             // 
-            this.splitContainer4.Panel1.Controls.Add(this.textBox1);
+            this.splitContainer4.Panel1.Controls.Add(this.txtAssetFolder);
             // 
             // splitContainer4.Panel2
             // 
-            this.splitContainer4.Panel2.Controls.Add(this.button3);
+            this.splitContainer4.Panel2.Controls.Add(this.btnAssetExplore);
             this.splitContainer4.Panel2.Padding = new System.Windows.Forms.Padding(3, 0, 3, 6);
-            this.splitContainer4.Size = new System.Drawing.Size(411, 35);
-            this.splitContainer4.SplitterDistance = 308;
+            this.splitContainer4.Size = new System.Drawing.Size(492, 35);
+            this.splitContainer4.SplitterDistance = 389;
             this.splitContainer4.TabIndex = 1;
             // 
-            // textBox1
+            // txtAssetFolder
             // 
-            this.textBox1.Dock = System.Windows.Forms.DockStyle.Top;
-            this.textBox1.Location = new System.Drawing.Point(0, 0);
-            this.textBox1.Name = "textBox1";
-            this.textBox1.ReadOnly = true;
-            this.textBox1.Size = new System.Drawing.Size(308, 27);
-            this.textBox1.TabIndex = 0;
+            this.txtAssetFolder.Dock = System.Windows.Forms.DockStyle.Top;
+            this.txtAssetFolder.Location = new System.Drawing.Point(0, 0);
+            this.txtAssetFolder.Name = "txtAssetFolder";
+            this.txtAssetFolder.ReadOnly = true;
+            this.txtAssetFolder.Size = new System.Drawing.Size(389, 27);
+            this.txtAssetFolder.TabIndex = 0;
             // 
-            // button3
+            // btnAssetExplore
             // 
-            this.button3.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.button3.Image = global::ResourcePacker.Properties.Images.folder_explore;
-            this.button3.Location = new System.Drawing.Point(3, 0);
-            this.button3.Name = "button3";
-            this.button3.Padding = new System.Windows.Forms.Padding(3, 0, 0, 0);
-            this.button3.Size = new System.Drawing.Size(93, 29);
-            this.button3.TabIndex = 0;
-            this.button3.Text = "Explore";
-            this.button3.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
-            this.button3.UseVisualStyleBackColor = true;
+            this.btnAssetExplore.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.btnAssetExplore.Image = global::ResourcePacker.Properties.Images.folder_explore;
+            this.btnAssetExplore.Location = new System.Drawing.Point(3, 0);
+            this.btnAssetExplore.Name = "btnAssetExplore";
+            this.btnAssetExplore.Padding = new System.Windows.Forms.Padding(3, 0, 0, 0);
+            this.btnAssetExplore.Size = new System.Drawing.Size(93, 29);
+            this.btnAssetExplore.TabIndex = 0;
+            this.btnAssetExplore.Text = "Explore";
+            this.btnAssetExplore.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
+            this.btnAssetExplore.UseVisualStyleBackColor = true;
+            this.btnAssetExplore.Click += new System.EventHandler(this.BtnAssetExplore_Click);
             // 
             // label2
             // 
@@ -474,31 +442,100 @@
             this.tabControl2.Location = new System.Drawing.Point(0, 3);
             this.tabControl2.Name = "tabControl2";
             this.tabControl2.SelectedIndex = 0;
-            this.tabControl2.Size = new System.Drawing.Size(645, 662);
+            this.tabControl2.Size = new System.Drawing.Size(634, 662);
             this.tabControl2.TabIndex = 0;
             // 
             // tabPage3
             // 
-            this.tabPage3.Controls.Add(this.groupBox6);
+            this.tabPage3.Controls.Add(this.splitContainer5);
             this.tabPage3.Location = new System.Drawing.Point(4, 29);
             this.tabPage3.Name = "tabPage3";
             this.tabPage3.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage3.Size = new System.Drawing.Size(637, 629);
+            this.tabPage3.Size = new System.Drawing.Size(626, 629);
             this.tabPage3.TabIndex = 0;
             this.tabPage3.Text = "Package";
             this.tabPage3.UseVisualStyleBackColor = true;
             // 
-            // groupBox6
+            // splitContainer5
             // 
-            this.groupBox6.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.groupBox6.Location = new System.Drawing.Point(3, 3);
-            this.groupBox6.Name = "groupBox6";
-            this.groupBox6.Padding = new System.Windows.Forms.Padding(9);
-            this.groupBox6.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            this.groupBox6.Size = new System.Drawing.Size(631, 623);
-            this.groupBox6.TabIndex = 3;
-            this.groupBox6.TabStop = false;
-            this.groupBox6.Text = "Items to pack";
+            this.splitContainer5.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.splitContainer5.FixedPanel = System.Windows.Forms.FixedPanel.Panel1;
+            this.splitContainer5.IsSplitterFixed = true;
+            this.splitContainer5.Location = new System.Drawing.Point(3, 3);
+            this.splitContainer5.Name = "splitContainer5";
+            this.splitContainer5.Orientation = System.Windows.Forms.Orientation.Horizontal;
+            // 
+            // splitContainer5.Panel1
+            // 
+            this.splitContainer5.Panel1.Controls.Add(this.toolStrip1);
+            // 
+            // splitContainer5.Panel2
+            // 
+            this.splitContainer5.Panel2.Controls.Add(this.grpBoxItemSelector);
+            this.splitContainer5.Size = new System.Drawing.Size(620, 623);
+            this.splitContainer5.SplitterDistance = 32;
+            this.splitContainer5.TabIndex = 4;
+            // 
+            // toolStrip1
+            // 
+            this.toolStrip1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.toolStrip1.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
+            this.toolStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
+            this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripLabel1,
+            this.toolStripButton1,
+            this.toolStripSeparator1,
+            this.toolStripLabel2});
+            this.toolStrip1.Location = new System.Drawing.Point(0, 0);
+            this.toolStrip1.Name = "toolStrip1";
+            this.toolStrip1.Padding = new System.Windows.Forms.Padding(0, 2, 6, 2);
+            this.toolStrip1.Size = new System.Drawing.Size(620, 32);
+            this.toolStrip1.TabIndex = 0;
+            this.toolStrip1.Text = "toolStrip1";
+            // 
+            // toolStripLabel1
+            // 
+            this.toolStripLabel1.Name = "toolStripLabel1";
+            this.toolStripLabel1.Padding = new System.Windows.Forms.Padding(3);
+            this.toolStripLabel1.Size = new System.Drawing.Size(132, 25);
+            this.toolStripLabel1.Text = "Available items: 0";
+            // 
+            // toolStripButton1
+            // 
+            this.toolStripButton1.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
+            this.toolStripButton1.Enabled = false;
+            this.toolStripButton1.Image = global::ResourcePacker.Properties.Images.arrow_refresh;
+            this.toolStripButton1.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolStripButton1.Name = "toolStripButton1";
+            this.toolStripButton1.Padding = new System.Windows.Forms.Padding(3);
+            this.toolStripButton1.RightToLeft = System.Windows.Forms.RightToLeft.No;
+            this.toolStripButton1.RightToLeftAutoMirrorImage = true;
+            this.toolStripButton1.Size = new System.Drawing.Size(88, 25);
+            this.toolStripButton1.Text = "Refresh";
+            // 
+            // toolStripSeparator1
+            // 
+            this.toolStripSeparator1.Name = "toolStripSeparator1";
+            this.toolStripSeparator1.Size = new System.Drawing.Size(6, 28);
+            // 
+            // toolStripLabel2
+            // 
+            this.toolStripLabel2.Name = "toolStripLabel2";
+            this.toolStripLabel2.Padding = new System.Windows.Forms.Padding(3);
+            this.toolStripLabel2.Size = new System.Drawing.Size(127, 25);
+            this.toolStripLabel2.Text = "Selected items: 0";
+            // 
+            // grpBoxItemSelector
+            // 
+            this.grpBoxItemSelector.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.grpBoxItemSelector.Location = new System.Drawing.Point(0, 0);
+            this.grpBoxItemSelector.Name = "grpBoxItemSelector";
+            this.grpBoxItemSelector.Padding = new System.Windows.Forms.Padding(9);
+            this.grpBoxItemSelector.RightToLeft = System.Windows.Forms.RightToLeft.No;
+            this.grpBoxItemSelector.Size = new System.Drawing.Size(620, 587);
+            this.grpBoxItemSelector.TabIndex = 3;
+            this.grpBoxItemSelector.TabStop = false;
+            this.grpBoxItemSelector.Text = "Items to pack";
             // 
             // tabPage4
             // 
@@ -507,7 +544,7 @@
             this.tabPage4.Location = new System.Drawing.Point(4, 29);
             this.tabPage4.Name = "tabPage4";
             this.tabPage4.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage4.Size = new System.Drawing.Size(636, 632);
+            this.tabPage4.Size = new System.Drawing.Size(626, 629);
             this.tabPage4.TabIndex = 1;
             this.tabPage4.Text = "Status";
             this.tabPage4.UseVisualStyleBackColor = true;
@@ -519,7 +556,7 @@
             this.groupBox5.Location = new System.Drawing.Point(3, 68);
             this.groupBox5.Name = "groupBox5";
             this.groupBox5.Padding = new System.Windows.Forms.Padding(9);
-            this.groupBox5.Size = new System.Drawing.Size(630, 561);
+            this.groupBox5.Size = new System.Drawing.Size(620, 558);
             this.groupBox5.TabIndex = 1;
             this.groupBox5.TabStop = false;
             this.groupBox5.Text = "Output";
@@ -529,7 +566,7 @@
             this.richTextBox1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.richTextBox1.Location = new System.Drawing.Point(9, 29);
             this.richTextBox1.Name = "richTextBox1";
-            this.richTextBox1.Size = new System.Drawing.Size(612, 523);
+            this.richTextBox1.Size = new System.Drawing.Size(602, 520);
             this.richTextBox1.TabIndex = 0;
             this.richTextBox1.Text = "";
             // 
@@ -540,7 +577,7 @@
             this.groupBox4.Location = new System.Drawing.Point(3, 3);
             this.groupBox4.Name = "groupBox4";
             this.groupBox4.Padding = new System.Windows.Forms.Padding(9);
-            this.groupBox4.Size = new System.Drawing.Size(630, 65);
+            this.groupBox4.Size = new System.Drawing.Size(620, 65);
             this.groupBox4.TabIndex = 0;
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "Progress";
@@ -550,62 +587,63 @@
             this.progressBar1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.progressBar1.Location = new System.Drawing.Point(9, 29);
             this.progressBar1.Name = "progressBar1";
-            this.progressBar1.Size = new System.Drawing.Size(612, 27);
+            this.progressBar1.Size = new System.Drawing.Size(602, 27);
             this.progressBar1.TabIndex = 0;
             // 
             // panel2
             // 
-            this.panel2.Controls.Add(this.button2);
+            this.panel2.Controls.Add(this.btnCancel);
             this.panel2.Dock = System.Windows.Forms.DockStyle.Right;
-            this.panel2.Location = new System.Drawing.Point(852, 0);
+            this.panel2.Location = new System.Drawing.Point(922, 0);
             this.panel2.Name = "panel2";
             this.panel2.Padding = new System.Windows.Forms.Padding(6, 6, 3, 9);
             this.panel2.Size = new System.Drawing.Size(120, 49);
             this.panel2.TabIndex = 1;
             // 
-            // button2
+            // btnCancel
             // 
-            this.button2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.button2.Location = new System.Drawing.Point(6, 6);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(111, 34);
-            this.button2.TabIndex = 0;
-            this.button2.Text = "Cancel";
-            this.button2.UseVisualStyleBackColor = true;
+            this.btnCancel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.btnCancel.Location = new System.Drawing.Point(6, 6);
+            this.btnCancel.Name = "btnCancel";
+            this.btnCancel.Size = new System.Drawing.Size(111, 34);
+            this.btnCancel.TabIndex = 0;
+            this.btnCancel.Text = "Cancel";
+            this.btnCancel.UseVisualStyleBackColor = true;
             // 
             // panel1
             // 
-            this.panel1.Controls.Add(this.button1);
+            this.panel1.Controls.Add(this.btnCreate);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Right;
-            this.panel1.Location = new System.Drawing.Point(972, 0);
+            this.panel1.Location = new System.Drawing.Point(1042, 0);
             this.panel1.Name = "panel1";
             this.panel1.Padding = new System.Windows.Forms.Padding(3, 6, 9, 9);
             this.panel1.Size = new System.Drawing.Size(120, 49);
             this.panel1.TabIndex = 0;
             // 
-            // button1
+            // btnCreate
             // 
-            this.button1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.button1.Location = new System.Drawing.Point(3, 6);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(108, 34);
-            this.button1.TabIndex = 0;
-            this.button1.Text = "Create";
-            this.button1.UseVisualStyleBackColor = true;
+            this.btnCreate.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.btnCreate.Enabled = false;
+            this.btnCreate.Location = new System.Drawing.Point(3, 6);
+            this.btnCreate.Name = "btnCreate";
+            this.btnCreate.Size = new System.Drawing.Size(108, 34);
+            this.btnCreate.TabIndex = 0;
+            this.btnCreate.Text = "Create";
+            this.btnCreate.UseVisualStyleBackColor = true;
             // 
             // CreateForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1092, 718);
+            this.ClientSize = new System.Drawing.Size(1162, 718);
             this.Controls.Add(this.splitContainer1);
+            this.MaximizeBox = false;
             this.MinimizeBox = false;
-            this.MinimumSize = new System.Drawing.Size(955, 755);
+            this.MinimumSize = new System.Drawing.Size(980, 755);
             this.Name = "CreateForm";
             this.ShowIcon = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Create new resource package";
-            this.SizeChanged += new System.EventHandler(this.CreateForm_SizeChanged);
             this.splitContainer1.Panel1.ResumeLayout(false);
             this.splitContainer1.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
@@ -636,6 +674,13 @@
             this.splitContainer4.ResumeLayout(false);
             this.tabControl2.ResumeLayout(false);
             this.tabPage3.ResumeLayout(false);
+            this.splitContainer5.Panel1.ResumeLayout(false);
+            this.splitContainer5.Panel1.PerformLayout();
+            this.splitContainer5.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer5)).EndInit();
+            this.splitContainer5.ResumeLayout(false);
+            this.toolStrip1.ResumeLayout(false);
+            this.toolStrip1.PerformLayout();
             this.tabPage4.ResumeLayout(false);
             this.groupBox5.ResumeLayout(false);
             this.groupBox4.ResumeLayout(false);
@@ -650,25 +695,20 @@
         private SplitContainer splitContainer1;
         private SplitContainer splitContainer2;
         private Panel panel1;
-        private Button button1;
+        private Button btnCreate;
         private Panel panel2;
-        private Button button2;
+        private Button btnCancel;
         private TabControl tabControl1;
         private TabPage tabPage1;
         private TabControl tabControl2;
         private TabPage tabPage3;
         private TabPage tabPage4;
-        private GroupBox groupBox1;
-        private Label label2;
-        private SplitContainer splitContainer4;
-        private TextBox textBox1;
-        private Button button3;
         private GroupBox groupBox3;
         private Label label5;
         private Label label6;
         private Label label4;
-        private RadioButton radioButton2;
-        private RadioButton radioButton1;
+        private RadioButton radioRepackMode;
+        private RadioButton radioDefaultMode;
         private GroupBox groupBox2;
         private CheckBox chkShowPassword;
         private TextBox txtPassword;
@@ -677,15 +717,22 @@
         private RichTextBox richTextBox1;
         private GroupBox groupBox4;
         private ProgressBar progressBar1;
-        private GroupBox groupBox6;
+        private GroupBox grpBoxItemSelector;
         private GroupBox groupBox7;
-        private TextBox textBox3;
-        private Label label7;
         private SplitContainer splitContainer3;
-        private TextBox textBox2;
-        private Button button4;
+        private TextBox txtPackageLocation;
+        private Button btnPackageExplore;
         private Label label8;
-        private ComboBox comboBox1;
-        private Label label3;
+        private GroupBox groupBox1;
+        private SplitContainer splitContainer4;
+        private TextBox txtAssetFolder;
+        private Button btnAssetExplore;
+        private Label label2;
+        private SplitContainer splitContainer5;
+        private ToolStrip toolStrip1;
+        private ToolStripLabel toolStripLabel1;
+        private ToolStripButton toolStripButton1;
+        private ToolStripSeparator toolStripSeparator1;
+        private ToolStripLabel toolStripLabel2;
     }
 }

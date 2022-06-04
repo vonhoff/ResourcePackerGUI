@@ -15,6 +15,7 @@ using Serilog.Events;
 using Serilog.Sinks.RichTextBoxForms.Themes;
 using Winista.Mime;
 
+
 namespace ResourcePacker.Forms
 {
     public partial class MainForm : Form

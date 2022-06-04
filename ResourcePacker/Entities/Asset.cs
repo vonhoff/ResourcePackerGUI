@@ -1,4 +1,6 @@
-﻿using Winista.Mime;
+﻿
+
+using Winista.Mime;
 
 namespace ResourcePacker.Entities
 {
