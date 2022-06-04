@@ -1,12 +1,31 @@
-﻿using System.IO;
+﻿#region GNU General Public License
+
+/* Copyright 2022 Simon Vonhoff
+ *
+ * This file is part of ResourcePackerGUI.
+ *
+ * ResourcePackerGUI is free software: you can redistribute it and/or modify it under the terms of the
+ * GNU General Public License as published by the Free Software Foundation, either version 3 of the License,
+ * or (at your option) any later version.
+ *
+ * ResourcePackerGUI is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with ResourcePackerGUI.
+ * If not, see <https://www.gnu.org/licenses/>.
+ */
+
+#endregion
+
 using System.Text;
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 using Force.Crc32;
+using HeyRed.Mime;
 using ResourcePacker.Entities;
 using Serilog;
 using Winista.Mime;
-using HeyRed.Mime;
 
 namespace ResourcePacker.Helpers
 {
@@ -111,7 +130,7 @@ namespace ResourcePacker.Helpers
             {
                 if (definitionDictionary.TryGetValue(asset.Entry.Id, out var filePath))
                 {
-                    // If the media type has not been found before, 
+                    // If the media type has not been found before,
                     // try to find the media type by the file extension.
                     if (asset.MimeType == null)
                     {
@@ -121,7 +140,7 @@ namespace ResourcePacker.Helpers
                             asset.MimeType = MimeTypes.Value.ForName(typeMap);
                         }
                     }
-                    
+
                     asset.Name = filePath;
                     matches++;
                 }
