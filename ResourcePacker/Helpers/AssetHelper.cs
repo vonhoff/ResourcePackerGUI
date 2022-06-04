@@ -132,7 +132,7 @@ namespace ResourcePacker.Helpers
                 }
 
                 Log.Debug("Updated asset: {@asset}",
-                    new { asset.Entry.Id, asset.Name, MediaType = asset.MimeType?.Name });
+                    new { asset.Entry.Id, asset.Name });
             }
 
             if (matches == source.Count)

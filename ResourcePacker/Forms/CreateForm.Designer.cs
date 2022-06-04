@@ -56,11 +56,12 @@
             this.tabPage3 = new System.Windows.Forms.TabPage();
             this.splitContainer5 = new System.Windows.Forms.SplitContainer();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
-            this.toolStripLabel1 = new System.Windows.Forms.ToolStripLabel();
+            this.lblAvailableItems = new System.Windows.Forms.ToolStripLabel();
             this.toolStripButton1 = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
-            this.toolStripLabel2 = new System.Windows.Forms.ToolStripLabel();
+            this.lblSelectedItems = new System.Windows.Forms.ToolStripLabel();
             this.grpBoxItemSelector = new System.Windows.Forms.GroupBox();
+            this.explorerTreeView = new ResourcePacker.Controls.TriStateTreeView();
             this.tabPage4 = new System.Windows.Forms.TabPage();
             this.groupBox5 = new System.Windows.Forms.GroupBox();
             this.richTextBox1 = new System.Windows.Forms.RichTextBox();
@@ -99,6 +100,7 @@
             this.splitContainer5.Panel2.SuspendLayout();
             this.splitContainer5.SuspendLayout();
             this.toolStrip1.SuspendLayout();
+            this.grpBoxItemSelector.SuspendLayout();
             this.tabPage4.SuspendLayout();
             this.groupBox5.SuspendLayout();
             this.groupBox4.SuspendLayout();
@@ -194,10 +196,10 @@
             this.label5.Location = new System.Drawing.Point(3, 95);
             this.label5.Name = "label5";
             this.label5.Padding = new System.Windows.Forms.Padding(6);
-            this.label5.Size = new System.Drawing.Size(338, 46);
+            this.label5.Size = new System.Drawing.Size(337, 46);
             this.label5.TabIndex = 4;
-            this.label5.Text = "1. Create a new resource package with a definition file.\r\n2. Repack with the file" +
-    " names as the name hash.";
+            this.label5.Text = "1. Create a new resource package and a definition file.\r\n2. Repack with the file " +
+    "names as the hash of the name.";
             // 
             // label6
             // 
@@ -482,10 +484,10 @@
             this.toolStrip1.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
             this.toolStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.toolStripLabel1,
+            this.lblAvailableItems,
             this.toolStripButton1,
             this.toolStripSeparator1,
-            this.toolStripLabel2});
+            this.lblSelectedItems});
             this.toolStrip1.Location = new System.Drawing.Point(0, 0);
             this.toolStrip1.Name = "toolStrip1";
             this.toolStrip1.Padding = new System.Windows.Forms.Padding(0, 2, 6, 2);
@@ -493,12 +495,12 @@
             this.toolStrip1.TabIndex = 0;
             this.toolStrip1.Text = "toolStrip1";
             // 
-            // toolStripLabel1
+            // lblAvailableItems
             // 
-            this.toolStripLabel1.Name = "toolStripLabel1";
-            this.toolStripLabel1.Padding = new System.Windows.Forms.Padding(3);
-            this.toolStripLabel1.Size = new System.Drawing.Size(132, 25);
-            this.toolStripLabel1.Text = "Available items: 0";
+            this.lblAvailableItems.Name = "lblAvailableItems";
+            this.lblAvailableItems.Padding = new System.Windows.Forms.Padding(3);
+            this.lblAvailableItems.Size = new System.Drawing.Size(132, 25);
+            this.lblAvailableItems.Text = "Available items: 0";
             // 
             // toolStripButton1
             // 
@@ -518,15 +520,16 @@
             this.toolStripSeparator1.Name = "toolStripSeparator1";
             this.toolStripSeparator1.Size = new System.Drawing.Size(6, 28);
             // 
-            // toolStripLabel2
+            // lblSelectedItems
             // 
-            this.toolStripLabel2.Name = "toolStripLabel2";
-            this.toolStripLabel2.Padding = new System.Windows.Forms.Padding(3);
-            this.toolStripLabel2.Size = new System.Drawing.Size(127, 25);
-            this.toolStripLabel2.Text = "Selected items: 0";
+            this.lblSelectedItems.Name = "lblSelectedItems";
+            this.lblSelectedItems.Padding = new System.Windows.Forms.Padding(3);
+            this.lblSelectedItems.Size = new System.Drawing.Size(127, 25);
+            this.lblSelectedItems.Text = "Selected items: 0";
             // 
             // grpBoxItemSelector
             // 
+            this.grpBoxItemSelector.Controls.Add(this.explorerTreeView);
             this.grpBoxItemSelector.Dock = System.Windows.Forms.DockStyle.Fill;
             this.grpBoxItemSelector.Location = new System.Drawing.Point(0, 0);
             this.grpBoxItemSelector.Name = "grpBoxItemSelector";
@@ -536,6 +539,15 @@
             this.grpBoxItemSelector.TabIndex = 3;
             this.grpBoxItemSelector.TabStop = false;
             this.grpBoxItemSelector.Text = "Items to pack";
+            // 
+            // explorerTreeView
+            // 
+            this.explorerTreeView.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.explorerTreeView.Location = new System.Drawing.Point(9, 29);
+            this.explorerTreeView.Name = "explorerTreeView";
+            this.explorerTreeView.Size = new System.Drawing.Size(602, 549);
+            this.explorerTreeView.TabIndex = 0;
+            this.explorerTreeView.TriStateStyleProperty = ResourcePacker.Controls.TriStateTreeView.TriStateStyles.Installer;
             // 
             // tabPage4
             // 
@@ -681,6 +693,7 @@
             this.splitContainer5.ResumeLayout(false);
             this.toolStrip1.ResumeLayout(false);
             this.toolStrip1.PerformLayout();
+            this.grpBoxItemSelector.ResumeLayout(false);
             this.tabPage4.ResumeLayout(false);
             this.groupBox5.ResumeLayout(false);
             this.groupBox4.ResumeLayout(false);
@@ -730,9 +743,10 @@
         private Label label2;
         private SplitContainer splitContainer5;
         private ToolStrip toolStrip1;
-        private ToolStripLabel toolStripLabel1;
+        private ToolStripLabel lblAvailableItems;
         private ToolStripButton toolStripButton1;
         private ToolStripSeparator toolStripSeparator1;
-        private ToolStripLabel toolStripLabel2;
+        private ToolStripLabel lblSelectedItems;
+        private Controls.TriStateTreeView explorerTreeView;
     }
 }

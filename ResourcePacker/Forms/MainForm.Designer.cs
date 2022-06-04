@@ -386,9 +386,9 @@
             // btnToggleDebugMessages
             // 
             this.btnToggleDebugMessages.Image = global::ResourcePacker.Properties.Images.checkbox_checked;
-            resources.ApplyResources(this.btnToggleDebugMessages, "btnToggleDebugMessages");
             this.btnToggleDebugMessages.Name = "btnToggleDebugMessages";
             this.btnToggleDebugMessages.Padding = new System.Windows.Forms.Padding(3);
+            resources.ApplyResources(this.btnToggleDebugMessages, "btnToggleDebugMessages");
             this.btnToggleDebugMessages.Click += new System.EventHandler(this.BtnToggleDebugMessages_Click);
             // 
             // toolStrip
@@ -417,9 +417,9 @@
             // btnFormattedText
             // 
             this.btnFormattedText.Image = global::ResourcePacker.Properties.Images.checkbox_checked;
-            resources.ApplyResources(this.btnFormattedText, "btnFormattedText");
             this.btnFormattedText.Name = "btnFormattedText";
             this.btnFormattedText.Padding = new System.Windows.Forms.Padding(3);
+            resources.ApplyResources(this.btnFormattedText, "btnFormattedText");
             this.btnFormattedText.Click += new System.EventHandler(this.BtnFormattedText_Click);
             // 
             // MainForm

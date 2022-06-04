@@ -5,15 +5,9 @@ namespace ResourcePacker.Forms
 {
     public partial class CreateForm : Form
     {
-        private readonly TriStateTreeView _explorerTreeView;
-
         public CreateForm()
         {
             InitializeComponent();
-
-            _explorerTreeView = new TriStateTreeView();
-            _explorerTreeView.Dock = DockStyle.Fill;
-            grpBoxItemSelector.Controls.Add(_explorerTreeView);
         }
 
         private void ChkShowPassword_CheckedChanged(object sender, EventArgs e)
@@ -40,8 +34,12 @@ namespace ResourcePacker.Forms
                 StateImageIndex = 1
             };
 
-            foreach (var path in Directory.GetFiles(browserDialog.SelectedPath,
-                         string.Empty, SearchOption.AllDirectories))
+            var files = Directory.GetFiles(browserDialog.SelectedPath,
+                string.Empty, SearchOption.AllDirectories);
+
+            lblAvailableItems.Text = $"Available items: {files.Length}";
+
+            foreach (var path in files)
             {
                 var currentNode = rootNode;
                 var pathNodes = path.Replace(@"\", "/").Split('/');
@@ -66,17 +64,17 @@ namespace ResourcePacker.Forms
                 }
             }
 
-            _explorerTreeView.Invoke(() =>
+            explorerTreeView.Invoke(() =>
             {
-                _explorerTreeView.Nodes.Clear();
+                explorerTreeView.Nodes.Clear();
                 if (rootNode.GetNodeCount(true) < 1)
                 {
                     return;
                 }
 
-                _explorerTreeView.Nodes.Add(rootNode);
-                _explorerTreeView.ExpandAll();
-                _explorerTreeView.Nodes[0].EnsureVisible();
+                explorerTreeView.Nodes.Add(rootNode);
+                explorerTreeView.ExpandAll();
+                explorerTreeView.Nodes[0].EnsureVisible();
             });
         }
 
