@@ -19,6 +19,7 @@
 #endregion
 
 using System.Runtime.InteropServices;
+using System.Runtime.InteropServices.ComTypes;
 
 namespace ResourcePacker.Helpers
 {
@@ -79,9 +80,9 @@ namespace ResourcePacker.Helpers
         private struct Win32FindData
         {
             private readonly uint dwFileAttributes;
-            private readonly System.Runtime.InteropServices.ComTypes.FILETIME ftCreationTime;
-            private readonly System.Runtime.InteropServices.ComTypes.FILETIME ftLastAccessTime;
-            private readonly System.Runtime.InteropServices.ComTypes.FILETIME ftLastWriteTime;
+            private readonly FILETIME ftCreationTime;
+            private readonly FILETIME ftLastAccessTime;
+            private readonly FILETIME ftLastWriteTime;
             private readonly uint nFileSizeHigh;
             private readonly uint nFileSizeLow;
             private readonly uint dwReserved0;
