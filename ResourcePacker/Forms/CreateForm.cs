@@ -18,10 +18,18 @@
 
 #endregion
 
+using ResourcePacker.Helpers;
+using Serilog;
+
 namespace ResourcePacker.Forms
 {
     public partial class CreateForm : Form
     {
+        private readonly HashSet<string> _assetsToInclude = new();
+        private DateTime _progressLastUpdated = DateTime.UtcNow;
+        private readonly TimeSpan _progressTimeInterval = TimeSpan.FromMilliseconds(32);
+        private CancellationTokenSource _cancellationTokenSource;
+
         public CreateForm()
         {
             InitializeComponent();
@@ -42,25 +50,102 @@ namespace ResourcePacker.Forms
                 return;
             }
 
-            txtAssetFolder.Text = browserDialog.SelectedPath;
+            var selectedPath = browserDialog.SelectedPath;
 
-            var assetPathNodes = browserDialog.SelectedPath.Replace(@"\", "/").Split('/');
+            // Check if the specified directory is empty.
+            if (DirectoryHelper.CheckDirectoryEmpty(selectedPath))
+            {
+                MessageBox.Show("The specified directory does not contain any files.", "Error",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            txtAssetFolder.Text = selectedPath;
+
+            var assetPathNodes = selectedPath.Replace(@"\", "/").Split('/');
+            var relativeDepth = assetPathNodes.Length;
             var rootNode = new TreeNode(assetPathNodes.Last() + " (root)")
             {
                 Checked = true,
                 StateImageIndex = 1
             };
 
-            var files = Directory.GetFiles(browserDialog.SelectedPath,
-                string.Empty, SearchOption.AllDirectories);
-
-            lblAvailableItems.Text = $"Available items: {files.Length}";
-
-            foreach (var path in files)
+            var progress = new Progress<(int percentage, string path)>(progress =>
             {
+                if (_progressLastUpdated >= DateTime.UtcNow)
+                {
+                    return;
+                }
+
+                if (progressBar.Style == ProgressBarStyle.Marquee)
+                {
+                    progressBar.Style = ProgressBarStyle.Blocks;
+                    lblStatus.Text = "Creating tree nodes...";
+                    lblStatus.Refresh();
+                }
+
+                _progressLastUpdated = DateTime.UtcNow + _progressTimeInterval;
+
+                progressBar.Value = progress.percentage;
+                lblPercentage.Text = $"{progress.percentage}%";
+                lblPercentage.Refresh();
+                lblStatusFile.Text = progress.path;
+                lblStatusFile.Refresh();
+            });
+
+            lblStatus.Text = "Collecting file paths...";
+            progressBar.Style = ProgressBarStyle.Marquee;
+            _cancellationTokenSource = new CancellationTokenSource();
+
+            Task.Run(() =>
+                {
+                    var files = GetAllFiles(selectedPath, string.Empty).ToArray();
+                    if (files.Length == 0)
+                    {
+                        _cancellationTokenSource.Cancel();
+                    }
+
+                    PopulateAssetTreeView(files, rootNode, relativeDepth, progress);
+                }, _cancellationTokenSource.Token)
+                .ContinueWith(_ =>
+                {
+                    Invoke(() =>
+                    {
+                        lblStatusFile.Text = string.Empty;
+                        lblStatusFile.Refresh();
+
+                        lblStatus.Text = "Updating tree view...";
+                        lblStatus.Refresh();
+
+                        explorerTreeView.BeginUpdate();
+                        explorerTreeView.Nodes.Clear();
+                        explorerTreeView.Nodes.Add(rootNode);
+                        explorerTreeView.ExpandAll();
+                        explorerTreeView.Nodes[0].EnsureVisible();
+                        explorerTreeView.EndUpdate();
+
+                        progressBar.Value = 100;
+                        lblStatus.Text = "Ready";
+                        lblPercentage.Text = "100%";
+
+                        btnCreate.Enabled = true;
+                        btnCreate.Focus();
+                    });
+                }, _cancellationTokenSource.Token);
+        }
+
+        private void PopulateAssetTreeView(IReadOnlyList<string> files, TreeNode rootNode, 
+            int relativeDepth, IProgress<(int percentage, string path)> progress)
+        {
+            _assetsToInclude.Clear();
+            lblAvailableItems.Text = $"Available items: {files.Count}";
+
+            for (var i = 0; i < files.Count; i++)
+            {
+                var filePath = files[i];
                 var currentNode = rootNode;
-                var pathNodes = path.Replace(@"\", "/").Split('/');
-                for (var j = assetPathNodes.Length; j < pathNodes.Length; j++)
+                var pathNodes = filePath.Replace(@"\", "/").Split('/');
+                for (var j = relativeDepth; j < pathNodes.Length; j++)
                 {
                     var item = pathNodes[j];
                     var folder = currentNode.Nodes.Cast<TreeNode>().FirstOrDefault(x => x.Text.Equals(item));
@@ -75,24 +160,33 @@ namespace ResourcePacker.Forms
 
                         if (j == pathNodes.Length - 1)
                         {
-                            currentNode.Tag = path;
+                            currentNode.Tag = filePath;
+                            _assetsToInclude.Add(filePath);
                         }
                     }
                 }
+
+                progress.Report(((int)((double)(i + 1) / files.Count * 100), filePath));
             }
 
-            explorerTreeView.Invoke(() =>
-            {
-                explorerTreeView.Nodes.Clear();
-                if (rootNode.GetNodeCount(true) < 1)
-                {
-                    return;
-                }
+            lblSelectedItems.Text = $"Selected items: {_assetsToInclude.Count}";
+        }
 
-                explorerTreeView.Nodes.Add(rootNode);
-                explorerTreeView.ExpandAll();
-                explorerTreeView.Nodes[0].EnsureVisible();
-            });
+        private static IEnumerable<string> GetAllFiles(string path, string searchPattern)
+        {
+            return Directory.EnumerateFiles(path, searchPattern).Union(
+                Directory.EnumerateDirectories(path).SelectMany(d =>
+                {
+                    try
+                    {
+                        return GetAllFiles(d, searchPattern);
+                    }
+                    catch (UnauthorizedAccessException ex)
+                    {
+                        Log.Warning(ex, "Could not access directory: {path}", d);
+                        return Enumerable.Empty<string>();
+                    }
+                }));
         }
 
         private void BtnPackageExplore_Click(object sender, EventArgs e)
@@ -107,6 +201,51 @@ namespace ResourcePacker.Forms
             }
 
             txtPackageLocation.Text = saveFileDialog.FileName;
+        }
+
+        private void ExplorerTreeView_NodeStateChanged(object sender, TreeViewEventArgs e)
+        {
+            var node = e.Node;
+            if (node is not { Tag: string })
+            {
+                return;
+            }
+
+            var path = node.Tag.ToString();
+            if (string.IsNullOrEmpty(path))
+            {
+                return;
+            }
+
+            var hasItem = _assetsToInclude.Contains(path);
+            if (node.Checked)
+            {
+                if (!hasItem)
+                {
+                    _assetsToInclude.Add(path);
+                }
+            }
+            else if (hasItem)
+            {
+                _assetsToInclude.Remove(path);
+            }
+
+            lblSelectedItems.Text = $"Selected items: {_assetsToInclude.Count}";
+        }
+
+        private void ExplorerTreeView_AfterStateChanged(object sender, TreeViewEventArgs e)
+        {
+            btnCreate.Enabled = _assetsToInclude.Count != 0;
+        }
+
+        private void CreateForm_ResizeBegin(object sender, EventArgs e)
+        {
+            SuspendLayout();
+        }
+
+        private void CreateForm_ResizeEnd(object sender, EventArgs e)
+        {
+            ResumeLayout(true);
         }
     }
 }

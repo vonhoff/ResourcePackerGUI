@@ -34,6 +34,10 @@ namespace ResourcePacker.Controls
             InitializeCheckboxGraphics();
         }
 
+        public event EventHandler<TreeViewEventArgs>? NodeStateChanged;
+
+        public event EventHandler<TreeViewEventArgs>? AfterStateChanged;
+
         /// <summary>
         /// CheckedState is an enum of all allowable nodes states.
         /// </summary>
@@ -75,11 +79,19 @@ namespace ResourcePacker.Controls
         }
 
         /// <summary>
-        /// Collapses all the tree nodes.
+        /// Disables any redrawing of the tree view.
         /// </summary>
-        public void CollapseAll()
+        public void BeginUpdate()
         {
-            treeView.CollapseAll();
+            treeView.BeginUpdate();
+        }
+
+        /// <summary>
+        /// Enables the redrawing of the tree view.
+        /// </summary>
+        public void EndUpdate()
+        {
+            treeView.EndUpdate();
         }
 
         private static void UpdateChildState(TreeNodeCollection nodes, int treeNodeStateImageIndex,
@@ -104,6 +116,8 @@ namespace ResourcePacker.Controls
 
         private void AfterCheck(object sender, TreeViewEventArgs e)
         {
+            NodeStateChanged?.Invoke(sender, new TreeViewEventArgs(e.Node));
+
             if (_ignoreClickAction > 0)
             {
                 return;
@@ -134,6 +148,7 @@ namespace ResourcePacker.Controls
             }
 
             _ignoreClickAction--;
+            AfterStateChanged?.Invoke(sender, e);
         }
 
         private void AfterExpand(object sender, TreeViewEventArgs e)
@@ -208,7 +223,7 @@ namespace ResourcePacker.Controls
                 return;
             }
 
-            // Toggle the node's checked status.This will then fire OnAfterCheck.
+            // Toggle the node's checked status. This will then fire OnAfterCheck.
             var treeNode = e.Node;
             treeNode.Checked = !treeNode.Checked;
         }
@@ -283,7 +298,7 @@ namespace ResourcePacker.Controls
 
                 if (origStateImageIndex != treeNode.StateImageIndex && treeNode.Parent != null)
                 {
-                    // Parent's state has changed, notify the parent's parent
+                    // Parent's state has changed, notify the parent's parent.
                     treeNode = treeNode.Parent;
                     continue;
                 }

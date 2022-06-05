@@ -39,7 +39,6 @@ namespace ResourcePacker.Forms
     public partial class MainForm : Form
     {
         private readonly LoggingLevelSwitch _loggingLevelSwitch = new(LogEventLevel.Debug);
-        private readonly ActionDebouncer _outputScrollDebouncer;
         private readonly ActionDebouncer _searchDebouncer;
         private List<Asset>? _assets;
         private PackageHeader _packageHeader;
@@ -53,7 +52,6 @@ namespace ResourcePacker.Forms
         public MainForm()
         {
             InitializeComponent();
-            _outputScrollDebouncer = new ActionDebouncer(ScrollOutputToEnd, TimeSpan.FromSeconds(0.25));
             _searchDebouncer = new ActionDebouncer(RefreshFileTree, TimeSpan.FromSeconds(0.35));
         }
 
@@ -459,11 +457,6 @@ namespace ResourcePacker.Forms
                 .CreateLogger();
         }
 
-        private void MainForm_SizeChanged(object sender, EventArgs e)
-        {
-            _outputScrollDebouncer.Invoke();
-        }
-
         private void PreviewTabs_Selecting(object sender, TabControlCancelEventArgs e)
         {
             ReloadPreviewTab(e.TabPage);
@@ -477,7 +470,7 @@ namespace ResourcePacker.Forms
 
         private void SplitContainer2_SplitterMoved(object sender, SplitterEventArgs e)
         {
-            _outputScrollDebouncer.Invoke();
+            ScrollOutputToEnd();
         }
 
         #endregion Component events
@@ -485,6 +478,17 @@ namespace ResourcePacker.Forms
         private void BtnCreate_Click(object sender, EventArgs e)
         {
             var createDialogResult = new CreateForm().ShowDialog();
+        }
+
+        private void MainForm_ResizeBegin(object sender, EventArgs e)
+        {
+            SuspendLayout();
+        }
+
+        private void MainForm_ResizeEnd(object sender, EventArgs e)
+        {
+            ScrollOutputToEnd();
+            ResumeLayout(true);
         }
     }
 }
