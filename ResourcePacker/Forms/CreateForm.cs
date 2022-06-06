@@ -168,9 +168,6 @@ namespace ResourcePacker.Forms
                             _assetsToInclude.Clear();
                         }
 
-                        lblAvailableItems.Text = $"Available items: {_assetsToInclude.Count}";
-                        lblSelectedItems.Text = $"Selected items: {_assetsToInclude.Count}";
-
                         lblStatusFile.Text = string.Empty;
                         lblStatusFile.Refresh();
 
@@ -189,6 +186,9 @@ namespace ResourcePacker.Forms
                             explorerTreeView.EndUpdate();
                             Cursor.Current = Cursors.Default;
                         }
+
+                        lblAvailableItems.Text = $"Available items: {_assetsToInclude.Count}";
+                        lblSelectedItems.Text = $"Selected items: {_assetsToInclude.Count}";
 
                         progressBar.Style = ProgressBarStyle.Blocks;
                         lblStatus.Text = "Ready";
