@@ -18,6 +18,7 @@
 
 #endregion
 
+using System.Runtime.InteropServices;
 using ResourcePacker.Helpers;
 using Serilog;
 
@@ -28,11 +29,14 @@ namespace ResourcePacker.Forms
         private readonly HashSet<string> _assetsToInclude = new();
         private DateTime _progressLastUpdated = DateTime.UtcNow;
         private readonly TimeSpan _progressTimeInterval = TimeSpan.FromMilliseconds(32);
-        private CancellationTokenSource _cancellationTokenSource = new();
+        private CancellationTokenSource _cancellationTokenSource;
 
         public CreateForm()
         {
             InitializeComponent();
+
+            _cancellationTokenSource = new CancellationTokenSource();
+            _cancellationTokenSource.Cancel();
         }
 
         private void ChkShowPassword_CheckedChanged(object sender, EventArgs e)
@@ -93,7 +97,8 @@ namespace ResourcePacker.Forms
                 lblStatusFile.Refresh();
             });
 
-            lblStatus.Text = "Collecting file paths...";
+            lblPercentage.Text = "0%";
+            lblStatus.Text = "Collecting available files...";
             progressBar.Style = ProgressBarStyle.Marquee;
             _cancellationTokenSource = new CancellationTokenSource();
 
@@ -148,7 +153,9 @@ namespace ResourcePacker.Forms
                         }
                     }
 
-                    progress.Report(((int)((double)(i + 1) / files.Length * 100), filePath));
+                    // Use the last 2 percent for updating the tree view.
+                    progress.Report(((int)((double)(i + 1) / files.Length * 98), 
+                        string.Join("/", pathNodes[relativeDepth..])));
                 }
             }, _cancellationTokenSource.Token)
                 .ContinueWith(_ =>
@@ -171,6 +178,7 @@ namespace ResourcePacker.Forms
 
                         if (!_cancellationTokenSource.IsCancellationRequested)
                         {
+                            Cursor.Current = Cursors.WaitCursor;
                             lblStatus.Text = "Updating tree view...";
                             lblStatus.Refresh();
 
@@ -179,6 +187,7 @@ namespace ResourcePacker.Forms
                             explorerTreeView.ExpandAll();
                             explorerTreeView.Nodes[0].EnsureVisible();
                             explorerTreeView.EndUpdate();
+                            Cursor.Current = Cursors.Default;
                         }
 
                         progressBar.Style = ProgressBarStyle.Blocks;
@@ -189,7 +198,7 @@ namespace ResourcePacker.Forms
                             lblPercentage.Text = "0%";
                             progressBar.Value = 0;
                             btnCreate.Enabled = false;
-                            MessageBox.Show("The current operation has been cancelled.",
+                            MessageBox.Show("The operation has been cancelled.",
                                 "Operation cancelled", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         }
                         else
@@ -198,6 +207,7 @@ namespace ResourcePacker.Forms
                             progressBar.Value = 100;
                             btnCreate.Enabled = true;
                             btnCreate.Focus();
+                            _cancellationTokenSource.Cancel();
                         }
                     });
                 });
@@ -297,6 +307,16 @@ namespace ResourcePacker.Forms
             }
 
             _cancellationTokenSource.Cancel();
+        }
+
+        protected override CreateParams CreateParams
+        {
+            get
+            {
+                var cp = base.CreateParams;
+                cp.ExStyle |= 0x02000000;
+                return cp;
+            }
         }
     }
 }
