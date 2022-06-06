@@ -26,7 +26,7 @@ namespace ResourcePacker.Forms
     public partial class CreateForm : Form
     {
         private readonly HashSet<string> _assetsToInclude = new();
-        private readonly TimeSpan _progressTimeInterval = TimeSpan.FromMilliseconds(16);
+        private readonly TimeSpan _progressTimeInterval = TimeSpan.FromMilliseconds(32);
         private CancellationTokenSource _cancellationTokenSource;
         private DateTime _progressLastUpdated = DateTime.UtcNow;
 
@@ -86,7 +86,8 @@ namespace ResourcePacker.Forms
 
             txtAssetFolder.Text = selectedPath;
 
-            var assetPathNodes = selectedPath.Replace(@"\", "/").Split('/');
+            var assetPathNodes = selectedPath.Replace(@"\", "/")
+                .Split('/').Where(n => n.Length > 0).ToArray();
             var relativeDepth = assetPathNodes.Length;
             var rootNode = new TreeNode(assetPathNodes.Last() + " (root)")
             {
@@ -97,11 +98,7 @@ namespace ResourcePacker.Forms
             IProgress<(int percentage, string path)> progress =
                 new Progress<(int percentage, string path)>(UpdateFileCollectionProgress);
 
-            lblPercentage.Text = "0%";
-            lblStatus.Text = "Collecting available files...";
-            progressBar.Style = ProgressBarStyle.Marquee;
             _cancellationTokenSource = new CancellationTokenSource();
-
             Task.Run(() => FileCollectionTask(selectedPath, rootNode, relativeDepth, progress));
         }
 
@@ -189,7 +186,15 @@ namespace ResourcePacker.Forms
 
         private void FileCollectionTask(string selectedPath, TreeNode rootNode, int relativeDepth, IProgress<(int percentage, string path)> progress)
         {
+            var hideCancelNotification = false;
             var files = Array.Empty<string>();
+
+            Invoke(() =>
+            {
+                lblPercentage.Text = "0%";
+                lblStatus.Text = "Collecting available files...";
+                progressBar.Style = ProgressBarStyle.Marquee;
+            });
 
             try
             {
@@ -208,11 +213,18 @@ namespace ResourcePacker.Forms
             if (files.Length == 0 && !_cancellationTokenSource.IsCancellationRequested)
             {
                 _cancellationTokenSource.Cancel();
+                hideCancelNotification = true;
                 MessageBox.Show("The specified directory does not contain any files.", "Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
             }
 
+            Invoke(() =>
+            {
+                selectorTreeView.Nodes.Clear();
+                progressBar.Style = ProgressBarStyle.Blocks;
+                lblStatus.Text = "Creating tree nodes...";
+            });
+            
             _assetsToInclude.Clear();
             for (var i = 0; i < files.Length; i++)
             {
@@ -245,17 +257,12 @@ namespace ResourcePacker.Forms
                     }
                 }
 
-                // Use the last 2 percent for updating the tree view.
-                progress.Report(((int)((double)(i + 1) / files.Length * 98),
+                // Use the last 1 percent for updating the tree view.
+                progress.Report(((int)((double)(i + 1) / files.Length * 99),
                     string.Join("/", pathNodes[relativeDepth..])));
             }
 
-            Invoke(() =>
-            {
-                progressBar.Style = ProgressBarStyle.Blocks;
-                lblStatusFile.Text = string.Empty;
-                selectorTreeView.Nodes.Clear();
-            });
+            Invoke(() => lblStatusFile.Text = string.Empty);
 
             if (_cancellationTokenSource.IsCancellationRequested)
             {
@@ -270,8 +277,11 @@ namespace ResourcePacker.Forms
                     btnCreate.Enabled = false;
                 });
 
-                MessageBox.Show("The operation has been cancelled.", "Operation cancelled",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                if (!hideCancelNotification)
+                {
+                    MessageBox.Show("The operation has been cancelled.", "Operation cancelled",
+                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
             }
             else
             {
@@ -286,15 +296,16 @@ namespace ResourcePacker.Forms
                     selectorTreeView.ExpandAll();
                     selectorTreeView.Nodes[0].EnsureVisible();
                     selectorTreeView.EndUpdate();
-                    Cursor.Current = Cursors.Default;
-
+                    
                     lblStatus.Text = "Ready";
                     lblPercentage.Text = "100%";
                     progressBar.Value = 100;
                     btnCreate.Enabled = true;
                     btnCreate.Focus();
+                    Cursor.Current = Cursors.Default;
                 });
 
+               
                 _cancellationTokenSource.Cancel();
             }
 
@@ -310,13 +321,6 @@ namespace ResourcePacker.Forms
             if (_progressLastUpdated >= DateTime.UtcNow)
             {
                 return;
-            }
-
-            if (progressBar.Style == ProgressBarStyle.Marquee)
-            {
-                progressBar.Style = ProgressBarStyle.Blocks;
-                lblStatus.Text = "Creating tree nodes...";
-                lblStatus.Refresh();
             }
 
             _progressLastUpdated = DateTime.UtcNow + _progressTimeInterval;

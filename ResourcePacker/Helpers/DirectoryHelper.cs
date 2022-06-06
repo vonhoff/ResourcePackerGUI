@@ -25,9 +25,6 @@ namespace ResourcePacker.Helpers
 {
     public static class DirectoryHelper
     {
-        private const uint FileAttributeDirectory = 16;
-        private const uint FileAttributeNormal = 128;
-
         public static bool CheckDirectoryEmpty(string path)
         {
             if (string.IsNullOrEmpty(path))
@@ -56,9 +53,7 @@ namespace ResourcePacker.Helpers
                 var empty = true;
                 do
                 {
-                    if (findData.cFileName != "." &&
-                        findData.cFileName != ".." &&
-                        findData.dwFileAttributes is FileAttributeDirectory or FileAttributeNormal)
+                    if (findData.cFileName != "." && findData.cFileName != "..")
                     {
                         empty = false;
                     }

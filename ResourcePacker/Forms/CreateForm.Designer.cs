@@ -163,7 +163,7 @@ namespace ResourcePacker.Forms
             this.splitContainer2.Panel2.Padding = new System.Windows.Forms.Padding(0, 3, 3, 0);
             this.splitContainer2.Panel2MinSize = 435;
             this.splitContainer2.Size = new System.Drawing.Size(1433, 725);
-            this.splitContainer2.SplitterDistance = 664;
+            this.splitContainer2.SplitterDistance = 535;
             this.splitContainer2.TabIndex = 0;
             // 
             // tabControl1
@@ -173,7 +173,7 @@ namespace ResourcePacker.Forms
             this.tabControl1.Location = new System.Drawing.Point(3, 3);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(661, 722);
+            this.tabControl1.Size = new System.Drawing.Size(532, 722);
             this.tabControl1.TabIndex = 0;
             // 
             // tabPage1
@@ -184,7 +184,7 @@ namespace ResourcePacker.Forms
             this.tabPage1.Location = new System.Drawing.Point(4, 29);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(653, 689);
+            this.tabPage1.Size = new System.Drawing.Size(524, 689);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "Configuration";
             this.tabPage1.UseVisualStyleBackColor = true;
@@ -198,7 +198,7 @@ namespace ResourcePacker.Forms
             this.groupBox4.Location = new System.Drawing.Point(3, 336);
             this.groupBox4.Name = "groupBox4";
             this.groupBox4.Padding = new System.Windows.Forms.Padding(9);
-            this.groupBox4.Size = new System.Drawing.Size(647, 120);
+            this.groupBox4.Size = new System.Drawing.Size(518, 120);
             this.groupBox4.TabIndex = 3;
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "Progress";
@@ -209,7 +209,7 @@ namespace ResourcePacker.Forms
             this.lblStatusFile.Dock = System.Windows.Forms.DockStyle.Top;
             this.lblStatusFile.Location = new System.Drawing.Point(9, 77);
             this.lblStatusFile.Name = "lblStatusFile";
-            this.lblStatusFile.Size = new System.Drawing.Size(629, 20);
+            this.lblStatusFile.Size = new System.Drawing.Size(500, 20);
             this.lblStatusFile.TabIndex = 10;
             // 
             // progressBar
@@ -218,7 +218,7 @@ namespace ResourcePacker.Forms
             this.progressBar.Location = new System.Drawing.Point(9, 54);
             this.progressBar.MarqueeAnimationSpeed = 75;
             this.progressBar.Name = "progressBar";
-            this.progressBar.Size = new System.Drawing.Size(629, 23);
+            this.progressBar.Size = new System.Drawing.Size(500, 23);
             this.progressBar.TabIndex = 9;
             // 
             // splitContainer6
@@ -236,8 +236,8 @@ namespace ResourcePacker.Forms
             // splitContainer6.Panel2
             // 
             this.splitContainer6.Panel2.Controls.Add(this.lblPercentage);
-            this.splitContainer6.Size = new System.Drawing.Size(629, 25);
-            this.splitContainer6.SplitterDistance = 526;
+            this.splitContainer6.Size = new System.Drawing.Size(500, 25);
+            this.splitContainer6.SplitterDistance = 397;
             this.splitContainer6.TabIndex = 8;
             // 
             // lblStatus
@@ -273,7 +273,7 @@ namespace ResourcePacker.Forms
             this.groupBox7.MaximumSize = new System.Drawing.Size(0, 350);
             this.groupBox7.Name = "groupBox7";
             this.groupBox7.Padding = new System.Windows.Forms.Padding(6);
-            this.groupBox7.Size = new System.Drawing.Size(647, 238);
+            this.groupBox7.Size = new System.Drawing.Size(518, 238);
             this.groupBox7.TabIndex = 1;
             this.groupBox7.TabStop = false;
             this.groupBox7.Text = "Resource package";
@@ -287,7 +287,7 @@ namespace ResourcePacker.Forms
             this.groupBox2.Location = new System.Drawing.Point(6, 102);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Padding = new System.Windows.Forms.Padding(6);
-            this.groupBox2.Size = new System.Drawing.Size(635, 130);
+            this.groupBox2.Size = new System.Drawing.Size(506, 130);
             this.groupBox2.TabIndex = 1;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Encryption";
@@ -312,7 +312,7 @@ namespace ResourcePacker.Forms
             this.txtPassword.Location = new System.Drawing.Point(6, 55);
             this.txtPassword.Margin = new System.Windows.Forms.Padding(6);
             this.txtPassword.Name = "txtPassword";
-            this.txtPassword.Size = new System.Drawing.Size(623, 27);
+            this.txtPassword.Size = new System.Drawing.Size(494, 27);
             this.txtPassword.TabIndex = 6;
             // 
             // label1
@@ -342,8 +342,8 @@ namespace ResourcePacker.Forms
             // 
             this.splitContainer3.Panel2.Controls.Add(this.btnPackageExplore);
             this.splitContainer3.Panel2.Padding = new System.Windows.Forms.Padding(3, 0, 3, 6);
-            this.splitContainer3.Size = new System.Drawing.Size(635, 35);
-            this.splitContainer3.SplitterDistance = 532;
+            this.splitContainer3.Size = new System.Drawing.Size(506, 35);
+            this.splitContainer3.SplitterDistance = 403;
             this.splitContainer3.TabIndex = 1;
             // 
             // txtPackageLocation
@@ -352,7 +352,7 @@ namespace ResourcePacker.Forms
             this.txtPackageLocation.Location = new System.Drawing.Point(0, 0);
             this.txtPackageLocation.Name = "txtPackageLocation";
             this.txtPackageLocation.ReadOnly = true;
-            this.txtPackageLocation.Size = new System.Drawing.Size(532, 27);
+            this.txtPackageLocation.Size = new System.Drawing.Size(403, 27);
             this.txtPackageLocation.TabIndex = 0;
             // 
             // btnPackageExplore
@@ -390,7 +390,7 @@ namespace ResourcePacker.Forms
             this.groupBox1.MaximumSize = new System.Drawing.Size(0, 350);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Padding = new System.Windows.Forms.Padding(6);
-            this.groupBox1.Size = new System.Drawing.Size(647, 95);
+            this.groupBox1.Size = new System.Drawing.Size(518, 95);
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Source";
@@ -411,8 +411,8 @@ namespace ResourcePacker.Forms
             // 
             this.splitContainer4.Panel2.Controls.Add(this.btnAssetExplore);
             this.splitContainer4.Panel2.Padding = new System.Windows.Forms.Padding(3, 0, 3, 6);
-            this.splitContainer4.Size = new System.Drawing.Size(635, 35);
-            this.splitContainer4.SplitterDistance = 532;
+            this.splitContainer4.Size = new System.Drawing.Size(506, 35);
+            this.splitContainer4.SplitterDistance = 403;
             this.splitContainer4.TabIndex = 1;
             // 
             // txtAssetFolder
@@ -421,7 +421,7 @@ namespace ResourcePacker.Forms
             this.txtAssetFolder.Location = new System.Drawing.Point(0, 0);
             this.txtAssetFolder.Name = "txtAssetFolder";
             this.txtAssetFolder.ReadOnly = true;
-            this.txtAssetFolder.Size = new System.Drawing.Size(532, 27);
+            this.txtAssetFolder.Size = new System.Drawing.Size(403, 27);
             this.txtAssetFolder.TabIndex = 0;
             // 
             // btnAssetExplore
@@ -456,7 +456,7 @@ namespace ResourcePacker.Forms
             this.tabControl2.Location = new System.Drawing.Point(0, 3);
             this.tabControl2.Name = "tabControl2";
             this.tabControl2.SelectedIndex = 0;
-            this.tabControl2.Size = new System.Drawing.Size(762, 722);
+            this.tabControl2.Size = new System.Drawing.Size(891, 722);
             this.tabControl2.TabIndex = 0;
             // 
             // tabPage3
@@ -465,7 +465,7 @@ namespace ResourcePacker.Forms
             this.tabPage3.Location = new System.Drawing.Point(4, 29);
             this.tabPage3.Name = "tabPage3";
             this.tabPage3.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage3.Size = new System.Drawing.Size(754, 689);
+            this.tabPage3.Size = new System.Drawing.Size(883, 689);
             this.tabPage3.TabIndex = 0;
             this.tabPage3.Text = "Package";
             this.tabPage3.UseVisualStyleBackColor = true;
@@ -486,7 +486,7 @@ namespace ResourcePacker.Forms
             // splitContainer5.Panel2
             // 
             this.splitContainer5.Panel2.Controls.Add(this.grpBoxItemSelector);
-            this.splitContainer5.Size = new System.Drawing.Size(748, 683);
+            this.splitContainer5.Size = new System.Drawing.Size(877, 683);
             this.splitContainer5.SplitterDistance = 32;
             this.splitContainer5.TabIndex = 4;
             // 
@@ -502,7 +502,7 @@ namespace ResourcePacker.Forms
             this.toolStrip1.Location = new System.Drawing.Point(0, 0);
             this.toolStrip1.Name = "toolStrip1";
             this.toolStrip1.Padding = new System.Windows.Forms.Padding(0, 2, 6, 2);
-            this.toolStrip1.Size = new System.Drawing.Size(748, 32);
+            this.toolStrip1.Size = new System.Drawing.Size(877, 32);
             this.toolStrip1.TabIndex = 0;
             this.toolStrip1.Text = "toolStrip1";
             // 
@@ -533,7 +533,7 @@ namespace ResourcePacker.Forms
             this.grpBoxItemSelector.Name = "grpBoxItemSelector";
             this.grpBoxItemSelector.Padding = new System.Windows.Forms.Padding(9);
             this.grpBoxItemSelector.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            this.grpBoxItemSelector.Size = new System.Drawing.Size(748, 647);
+            this.grpBoxItemSelector.Size = new System.Drawing.Size(877, 647);
             this.grpBoxItemSelector.TabIndex = 3;
             this.grpBoxItemSelector.TabStop = false;
             this.grpBoxItemSelector.Text = "Items to pack";
@@ -545,7 +545,7 @@ namespace ResourcePacker.Forms
             this.selectorTreeView.Dock = System.Windows.Forms.DockStyle.Fill;
             this.selectorTreeView.Location = new System.Drawing.Point(9, 29);
             this.selectorTreeView.Name = "selectorTreeView";
-            this.selectorTreeView.Size = new System.Drawing.Size(730, 609);
+            this.selectorTreeView.Size = new System.Drawing.Size(859, 609);
             this.selectorTreeView.TabIndex = 1;
             this.selectorTreeView.TriStateStyleProperty = ResourcePacker.Controls.TriStateTreeView.TriStateStyles.Installer;
             this.selectorTreeView.NodeStateChanged += new System.EventHandler<System.Windows.Forms.TreeViewEventArgs>(this.ExplorerTreeView_NodeStateChanged);

@@ -490,5 +490,10 @@ namespace ResourcePacker.Forms
             ScrollOutputToEnd();
             ResumeLayout(true);
         }
+
+        private void MainForm_SizeChanged(object sender, EventArgs e)
+        {
+            ScrollOutputToEnd();
+        }
     }
 }
