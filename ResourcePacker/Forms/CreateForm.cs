@@ -26,7 +26,7 @@ namespace ResourcePacker.Forms
     public partial class CreateForm : Form
     {
         private readonly HashSet<string> _assetsToInclude = new();
-        private readonly TimeSpan _progressTimeInterval = TimeSpan.FromMilliseconds(32);
+        private readonly TimeSpan _progressTimeInterval = TimeSpan.FromMilliseconds(20);
         private CancellationTokenSource _cancellationTokenSource;
         private DateTime _progressLastUpdated = DateTime.UtcNow;
 
@@ -132,6 +132,11 @@ namespace ResourcePacker.Forms
             txtPassword.UseSystemPasswordChar = !chkShowPassword.Checked;
         }
 
+        private void CreateForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            _cancellationTokenSource.Cancel();
+        }
+
         private void CreateForm_ResizeBegin(object sender, EventArgs e)
         {
             SuspendLayout();
@@ -218,14 +223,24 @@ namespace ResourcePacker.Forms
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
 
+            _assetsToInclude.Clear();
+
             Invoke(() =>
             {
                 selectorTreeView.Nodes.Clear();
+
+                lblAvailableItems.Text = "Available items: 0";
+                lblSelectedItems.Text = "Selected items: 0";
                 progressBar.Style = ProgressBarStyle.Blocks;
                 lblStatus.Text = "Creating tree nodes...";
             });
-            
-            _assetsToInclude.Clear();
+
+            PopulateSelectorRootNode(rootNode, relativeDepth, progress, files);
+            UpdateSelectorComponents(rootNode, hideCancelNotification);
+        }
+
+        private void PopulateSelectorRootNode(TreeNode rootNode, int relativeDepth, IProgress<(int percentage, string path)> progress, string[] files)
+        {
             for (var i = 0; i < files.Length; i++)
             {
                 if (_cancellationTokenSource.IsCancellationRequested)
@@ -261,9 +276,28 @@ namespace ResourcePacker.Forms
                 progress.Report(((int)((double)(i + 1) / files.Length * 99),
                     string.Join("/", pathNodes[relativeDepth..])));
             }
+        }
 
-            Invoke(() => lblStatusFile.Text = string.Empty);
+        private void UpdateFileCollectionProgress((int percentage, string path) progress)
+        {
+            if (_progressLastUpdated >= DateTime.UtcNow)
+            {
+                return;
+            }
 
+            _progressLastUpdated = DateTime.UtcNow + _progressTimeInterval;
+
+            var (percentage, path) = progress;
+            progressBar.Value = percentage;
+            lblPercentage.Text = $"{percentage}%";
+            lblPercentage.Refresh();
+            lblStatusFile.Text = path;
+            lblStatusFile.Refresh();
+        }
+
+        private void UpdateSelectorComponents(TreeNode rootNode, bool hideCancelNotification)
+        {
+            lblStatusFile?.Invoke(() => lblStatusFile.Text = string.Empty);
             if (_cancellationTokenSource.IsCancellationRequested)
             {
                 _assetsToInclude.Clear();
@@ -296,7 +330,7 @@ namespace ResourcePacker.Forms
                     selectorTreeView.ExpandAll();
                     selectorTreeView.Nodes[0].EnsureVisible();
                     selectorTreeView.EndUpdate();
-                    
+
                     lblStatus.Text = "Ready";
                     lblPercentage.Text = "100%";
                     progressBar.Value = 100;
@@ -305,7 +339,6 @@ namespace ResourcePacker.Forms
                     Cursor.Current = Cursors.Default;
                 });
 
-               
                 _cancellationTokenSource.Cancel();
             }
 
@@ -314,23 +347,6 @@ namespace ResourcePacker.Forms
                 lblAvailableItems.Text = $"Available items: {_assetsToInclude.Count}";
                 lblSelectedItems.Text = $"Selected items: {_assetsToInclude.Count}";
             });
-        }
-
-        private void UpdateFileCollectionProgress((int percentage, string path) progress)
-        {
-            if (_progressLastUpdated >= DateTime.UtcNow)
-            {
-                return;
-            }
-
-            _progressLastUpdated = DateTime.UtcNow + _progressTimeInterval;
-
-            var (percentage, path) = progress;
-            progressBar.Value = percentage;
-            lblPercentage.Text = $"{percentage}%";
-            lblPercentage.Refresh();
-            lblStatusFile.Text = path;
-            lblStatusFile.Refresh();
         }
     }
 }

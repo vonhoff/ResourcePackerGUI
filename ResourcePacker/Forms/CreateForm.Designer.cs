@@ -607,6 +607,7 @@ namespace ResourcePacker.Forms
             this.ShowIcon = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Create new resource package";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.CreateForm_FormClosing);
             this.ResizeBegin += new System.EventHandler(this.CreateForm_ResizeBegin);
             this.ResizeEnd += new System.EventHandler(this.CreateForm_ResizeEnd);
             this.SizeChanged += new System.EventHandler(this.CreateForm_SizeChanged);
