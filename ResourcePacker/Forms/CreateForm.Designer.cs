@@ -83,7 +83,6 @@ namespace ResourcePacker.Forms
             this.splitContainer5 = new System.Windows.Forms.SplitContainer();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
             this.lblAvailableItems = new System.Windows.Forms.ToolStripLabel();
-            this.toolStripButton1 = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.lblSelectedItems = new System.Windows.Forms.ToolStripLabel();
             this.grpBoxItemSelector = new System.Windows.Forms.GroupBox();
@@ -155,6 +154,7 @@ namespace ResourcePacker.Forms
             // splitContainer2
             // 
             this.splitContainer2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.splitContainer2.FixedPanel = System.Windows.Forms.FixedPanel.Panel1;
             this.splitContainer2.Location = new System.Drawing.Point(0, 0);
             this.splitContainer2.Name = "splitContainer2";
             // 
@@ -581,7 +581,6 @@ namespace ResourcePacker.Forms
             this.toolStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.lblAvailableItems,
-            this.toolStripButton1,
             this.toolStripSeparator1,
             this.lblSelectedItems});
             this.toolStrip1.Location = new System.Drawing.Point(0, 0);
@@ -597,19 +596,6 @@ namespace ResourcePacker.Forms
             this.lblAvailableItems.Padding = new System.Windows.Forms.Padding(3);
             this.lblAvailableItems.Size = new System.Drawing.Size(132, 25);
             this.lblAvailableItems.Text = "Available items: 0";
-            // 
-            // toolStripButton1
-            // 
-            this.toolStripButton1.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
-            this.toolStripButton1.Enabled = false;
-            this.toolStripButton1.Image = global::ResourcePacker.Properties.Images.arrow_refresh;
-            this.toolStripButton1.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.toolStripButton1.Name = "toolStripButton1";
-            this.toolStripButton1.Padding = new System.Windows.Forms.Padding(3);
-            this.toolStripButton1.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            this.toolStripButton1.RightToLeftAutoMirrorImage = true;
-            this.toolStripButton1.Size = new System.Drawing.Size(88, 25);
-            this.toolStripButton1.Text = "Refresh";
             // 
             // toolStripSeparator1
             // 
@@ -668,6 +654,7 @@ namespace ResourcePacker.Forms
             this.btnCancel.TabIndex = 0;
             this.btnCancel.Text = "Cancel";
             this.btnCancel.UseVisualStyleBackColor = true;
+            this.btnCancel.Click += new System.EventHandler(this.BtnCancel_Click);
             // 
             // panel1
             // 
@@ -697,13 +684,14 @@ namespace ResourcePacker.Forms
             this.ClientSize = new System.Drawing.Size(1162, 718);
             this.Controls.Add(this.splitContainer1);
             this.MinimizeBox = false;
-            this.MinimumSize = new System.Drawing.Size(980, 755);
+            this.MinimumSize = new System.Drawing.Size(955, 755);
             this.Name = "CreateForm";
             this.ShowIcon = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Create new resource package";
             this.ResizeBegin += new System.EventHandler(this.CreateForm_ResizeBegin);
             this.ResizeEnd += new System.EventHandler(this.CreateForm_ResizeEnd);
+            this.SizeChanged += new System.EventHandler(this.CreateForm_SizeChanged);
             this.splitContainer1.Panel1.ResumeLayout(false);
             this.splitContainer1.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
@@ -791,7 +779,6 @@ namespace ResourcePacker.Forms
         private SplitContainer splitContainer5;
         private ToolStrip toolStrip1;
         private ToolStripLabel lblAvailableItems;
-        private ToolStripButton toolStripButton1;
         private ToolStripSeparator toolStripSeparator1;
         private ToolStripLabel lblSelectedItems;
         private Controls.TriStateTreeView explorerTreeView;

@@ -28,7 +28,7 @@ namespace ResourcePacker.Forms
         private readonly HashSet<string> _assetsToInclude = new();
         private DateTime _progressLastUpdated = DateTime.UtcNow;
         private readonly TimeSpan _progressTimeInterval = TimeSpan.FromMilliseconds(32);
-        private CancellationTokenSource _cancellationTokenSource;
+        private CancellationTokenSource _cancellationTokenSource = new();
 
         public CreateForm()
         {
@@ -70,7 +70,7 @@ namespace ResourcePacker.Forms
                 StateImageIndex = 1
             };
 
-            var progress = new Progress<(int percentage, string path)>(progress =>
+            IProgress<(int percentage, string path)> progress = new Progress<(int percentage, string path)>(progress =>
             {
                 if (_progressLastUpdated >= DateTime.UtcNow)
                 {
@@ -98,88 +98,121 @@ namespace ResourcePacker.Forms
             _cancellationTokenSource = new CancellationTokenSource();
 
             Task.Run(() =>
+            {
+                string[] files;
+
+                try
                 {
-                    var files = GetAllFiles(selectedPath, string.Empty).ToArray();
-                    if (files.Length == 0)
+                    files = GetAllFiles(selectedPath, string.Empty, _cancellationTokenSource.Token).ToArray();
+                }
+                catch
+                {
+                    return;
+                }
+
+                if (files.Length == 0)
+                {
+                    return;
+                }
+
+                _assetsToInclude.Clear();
+
+                for (var i = 0; i < files.Length; i++)
+                {
+                    if (_cancellationTokenSource.IsCancellationRequested)
                     {
-                        _cancellationTokenSource.Cancel();
+                        return;
                     }
 
-                    PopulateAssetTreeView(files, rootNode, relativeDepth, progress);
-                }, _cancellationTokenSource.Token)
+                    var filePath = files[i];
+                    var currentNode = rootNode;
+                    var pathNodes = filePath.Replace(@"\", "/").Split('/');
+                    for (var j = relativeDepth; j < pathNodes.Length; j++)
+                    {
+                        var item = pathNodes[j];
+                        var folder = currentNode.Nodes.Cast<TreeNode>().FirstOrDefault(x => x.Text.Equals(item));
+
+                        if (folder != null)
+                        {
+                            currentNode = folder;
+                        }
+                        else
+                        {
+                            currentNode = currentNode.Nodes.Add(item);
+
+                            if (j == pathNodes.Length - 1)
+                            {
+                                currentNode.Tag = filePath;
+                                _assetsToInclude.Add(filePath);
+                            }
+                        }
+                    }
+
+                    progress.Report(((int)((double)(i + 1) / files.Length * 100), filePath));
+                }
+            }, _cancellationTokenSource.Token)
                 .ContinueWith(_ =>
                 {
                     Invoke(() =>
                     {
+                        if (_cancellationTokenSource.IsCancellationRequested)
+                        {
+                            txtAssetFolder.Text = string.Empty;
+                            _assetsToInclude.Clear();
+                        }
+
+                        lblAvailableItems.Text = $"Available items: {_assetsToInclude.Count}";
+                        lblSelectedItems.Text = $"Selected items: {_assetsToInclude.Count}";
+
                         lblStatusFile.Text = string.Empty;
                         lblStatusFile.Refresh();
 
-                        lblStatus.Text = "Updating tree view...";
-                        lblStatus.Refresh();
-
-                        explorerTreeView.BeginUpdate();
                         explorerTreeView.Nodes.Clear();
-                        explorerTreeView.Nodes.Add(rootNode);
-                        explorerTreeView.ExpandAll();
-                        explorerTreeView.Nodes[0].EnsureVisible();
-                        explorerTreeView.EndUpdate();
 
-                        progressBar.Value = 100;
-                        lblStatus.Text = "Ready";
-                        lblPercentage.Text = "100%";
-
-                        btnCreate.Enabled = true;
-                        btnCreate.Focus();
-                    });
-                }, _cancellationTokenSource.Token);
-        }
-
-        private void PopulateAssetTreeView(IReadOnlyList<string> files, TreeNode rootNode, 
-            int relativeDepth, IProgress<(int percentage, string path)> progress)
-        {
-            _assetsToInclude.Clear();
-            lblAvailableItems.Text = $"Available items: {files.Count}";
-
-            for (var i = 0; i < files.Count; i++)
-            {
-                var filePath = files[i];
-                var currentNode = rootNode;
-                var pathNodes = filePath.Replace(@"\", "/").Split('/');
-                for (var j = relativeDepth; j < pathNodes.Length; j++)
-                {
-                    var item = pathNodes[j];
-                    var folder = currentNode.Nodes.Cast<TreeNode>().FirstOrDefault(x => x.Text.Equals(item));
-
-                    if (folder != null)
-                    {
-                        currentNode = folder;
-                    }
-                    else
-                    {
-                        currentNode = currentNode.Nodes.Add(item);
-
-                        if (j == pathNodes.Length - 1)
+                        if (!_cancellationTokenSource.IsCancellationRequested)
                         {
-                            currentNode.Tag = filePath;
-                            _assetsToInclude.Add(filePath);
+                            lblStatus.Text = "Updating tree view...";
+                            lblStatus.Refresh();
+
+                            explorerTreeView.BeginUpdate();
+                            explorerTreeView.Nodes.Add(rootNode);
+                            explorerTreeView.ExpandAll();
+                            explorerTreeView.Nodes[0].EnsureVisible();
+                            explorerTreeView.EndUpdate();
                         }
-                    }
-                }
 
-                progress.Report(((int)((double)(i + 1) / files.Count * 100), filePath));
-            }
+                        progressBar.Style = ProgressBarStyle.Blocks;
+                        lblStatus.Text = "Ready";
 
-            lblSelectedItems.Text = $"Selected items: {_assetsToInclude.Count}";
+                        if (_cancellationTokenSource.IsCancellationRequested)
+                        {
+                            lblPercentage.Text = "0%";
+                            progressBar.Value = 0;
+                            btnCreate.Enabled = false;
+                            MessageBox.Show("The current operation has been cancelled.",
+                                "Operation cancelled", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        }
+                        else
+                        {
+                            lblPercentage.Text = "100%";
+                            progressBar.Value = 100;
+                            btnCreate.Enabled = true;
+                            btnCreate.Focus();
+                        }
+                    });
+                });
         }
 
-        private static IEnumerable<string> GetAllFiles(string path, string searchPattern)
+
+        private static IEnumerable<string> GetAllFiles(string path, string searchPattern, CancellationToken cancellationToken)
         {
             return Directory.EnumerateFiles(path, searchPattern).Union(
                 Directory.EnumerateDirectories(path).SelectMany(d =>
                 {
                     try
                     {
-                        return GetAllFiles(d, searchPattern);
+                        cancellationToken.ThrowIfCancellationRequested();
+                        return GetAllFiles(d, searchPattern, cancellationToken);
                     }
                     catch (UnauthorizedAccessException ex)
                     {
@@ -246,6 +279,24 @@ namespace ResourcePacker.Forms
         private void CreateForm_ResizeEnd(object sender, EventArgs e)
         {
             ResumeLayout(true);
+        }
+
+        private void CreateForm_SizeChanged(object sender, EventArgs e)
+        {
+            splitContainer2.SplitterDistance =
+                Math.Min(splitContainer2.SplitterDistance,
+                    splitContainer2.Width - splitContainer2.Panel2MinSize);
+        }
+
+        private void BtnCancel_Click(object sender, EventArgs e)
+        {
+            if (_cancellationTokenSource.IsCancellationRequested)
+            {
+                Close();
+                return;
+            }
+
+            _cancellationTokenSource.Cancel();
         }
     }
 }
