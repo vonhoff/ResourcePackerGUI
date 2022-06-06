@@ -25,6 +25,9 @@ namespace ResourcePacker.Helpers
 {
     public static class DirectoryHelper
     {
+        private const uint FileAttributeDirectory = 16;
+        private const uint FileAttributeNormal = 128;
+
         public static bool CheckDirectoryEmpty(string path)
         {
             if (string.IsNullOrEmpty(path))
@@ -53,7 +56,9 @@ namespace ResourcePacker.Helpers
                 var empty = true;
                 do
                 {
-                    if (findData.cFileName != "." && findData.cFileName != "..")
+                    if (findData.cFileName != "." &&
+                        findData.cFileName != ".." &&
+                        findData.dwFileAttributes is FileAttributeDirectory or FileAttributeNormal)
                     {
                         empty = false;
                     }
@@ -79,7 +84,7 @@ namespace ResourcePacker.Helpers
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
         private struct Win32FindData
         {
-            private readonly uint dwFileAttributes;
+            public readonly uint dwFileAttributes;
             private readonly FILETIME ftCreationTime;
             private readonly FILETIME ftLastAccessTime;
             private readonly FILETIME ftLastWriteTime;
