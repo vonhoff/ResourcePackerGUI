@@ -86,8 +86,12 @@ namespace ResourcePacker.Forms
 
             txtAssetFolder.Text = selectedPath;
 
-            var assetPathNodes = selectedPath.Replace(@"\", "/")
-                .Split('/').Where(n => n.Length > 0).ToArray();
+            var assetPathNodes = selectedPath
+                .Replace(@"\", "/")
+                .Split('/')
+                .Where(n => n.Length > 0)
+                .ToArray();
+
             var relativeDepth = assetPathNodes.Length;
             var rootNode = new TreeNode(assetPathNodes.Last() + " (root)")
             {
@@ -99,7 +103,47 @@ namespace ResourcePacker.Forms
                 new Progress<(int percentage, string path)>(UpdateFileCollectionProgress);
 
             _cancellationTokenSource = new CancellationTokenSource();
-            Task.Run(() => FileCollectionTask(selectedPath, rootNode, relativeDepth, progress));
+            Task.Run(() =>
+            {
+                string[]? files = null;
+
+                try
+                {
+                    files = CollectFiles(selectedPath);
+                    CreateSelectorNodes(rootNode, relativeDepth, progress, files);
+                    UpdateSelectorComponents(rootNode);
+                }
+                catch (OperationCanceledException ex)
+                {
+                    if (files is { Length: 0 })
+                    {
+                        MessageBox.Show("The specified directory does not contain any files.", "Error",
+                            MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                    else
+                    {
+                        MessageBox.Show(ex.Message, "Operation canceled",
+                            MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+
+                    if (!IsDisposed)
+                    {
+                        _assetsToInclude.Clear();
+                        Invoke(() =>
+                        {
+                            lblStatusFile.Text = string.Empty;
+                            txtAssetFolder.Text = string.Empty;
+                            lblPercentage.Text = "0%";
+                            lblStatus.Text = "Ready";
+                            progressBar.Style = ProgressBarStyle.Blocks;
+                            progressBar.Value = 0;
+                            btnCreate.Enabled = false;
+                        });
+                    }
+                }
+
+                _cancellationTokenSource.Cancel();
+            });
         }
 
         private void BtnCancel_Click(object sender, EventArgs e)
@@ -115,8 +159,11 @@ namespace ResourcePacker.Forms
 
         private void BtnPackageExplore_Click(object sender, EventArgs e)
         {
-            var saveFileDialog = new SaveFileDialog();
-            saveFileDialog.Filter = "ResourcePack (*.dat)|*.dat";
+            var saveFileDialog = new SaveFileDialog
+            {
+                Filter = "ResourcePack (*.dat)|*.dat"
+            };
+
             var result = saveFileDialog.ShowDialog();
 
             if (result != DialogResult.OK || string.IsNullOrEmpty(saveFileDialog.FileName))
@@ -132,8 +179,39 @@ namespace ResourcePacker.Forms
             txtPassword.UseSystemPasswordChar = !chkShowPassword.Checked;
         }
 
+        private string[] CollectFiles(string selectedPath)
+        {
+            Invoke(() =>
+            {
+                lblPercentage.Text = "0%";
+                lblStatus.Text = "Collecting available files...";
+                progressBar.Style = ProgressBarStyle.Marquee;
+            });
+
+            var files = GetAllFiles(selectedPath, string.Empty, _cancellationTokenSource.Token).ToArray();
+
+            if (files.Length == 0)
+            {
+                throw new OperationCanceledException();
+            }
+
+            _assetsToInclude.Clear();
+
+            Invoke(() =>
+            {
+                selectorTreeView.Nodes.Clear();
+                lblAvailableItems.Text = "Available items: 0";
+                lblSelectedItems.Text = "Selected items: 0";
+                progressBar.Style = ProgressBarStyle.Blocks;
+                lblStatus.Text = "Creating tree nodes...";
+            });
+
+            return files;
+        }
+
         private void CreateForm_FormClosing(object sender, FormClosingEventArgs e)
         {
+            Dispose();
             _cancellationTokenSource.Cancel();
         }
 
@@ -145,13 +223,6 @@ namespace ResourcePacker.Forms
         private void CreateForm_ResizeEnd(object sender, EventArgs e)
         {
             ResumeLayout(true);
-        }
-
-        private void CreateForm_SizeChanged(object sender, EventArgs e)
-        {
-            splitContainer2.SplitterDistance =
-                Math.Min(splitContainer2.SplitterDistance,
-                    splitContainer2.Width - splitContainer2.Panel2MinSize);
         }
 
         private void ExplorerTreeView_AfterStateChanged(object sender, TreeViewEventArgs e)
@@ -189,64 +260,12 @@ namespace ResourcePacker.Forms
             lblSelectedItems.Text = $"Selected items: {_assetsToInclude.Count}";
         }
 
-        private void FileCollectionTask(string selectedPath, TreeNode rootNode, int relativeDepth, IProgress<(int percentage, string path)> progress)
+        private void CreateSelectorNodes(TreeNode rootNode, int relativeDepth,
+            IProgress<(int percentage, string path)> progress, IReadOnlyList<string> files)
         {
-            var hideCancelNotification = false;
-            var files = Array.Empty<string>();
-
-            Invoke(() =>
+            for (var i = 0; i < files.Count; i++)
             {
-                lblPercentage.Text = "0%";
-                lblStatus.Text = "Collecting available files...";
-                progressBar.Style = ProgressBarStyle.Marquee;
-            });
-
-            try
-            {
-                files = GetAllFiles(selectedPath, string.Empty, _cancellationTokenSource.Token).ToArray();
-            }
-            catch (OperationCanceledException ex)
-            {
-                Log.Debug(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                Log.Error(ex, "An exception occurred during file collection.");
-                return;
-            }
-
-            if (files.Length == 0 && !_cancellationTokenSource.IsCancellationRequested)
-            {
-                _cancellationTokenSource.Cancel();
-                hideCancelNotification = true;
-                MessageBox.Show("The specified directory does not contain any files.", "Error",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-
-            _assetsToInclude.Clear();
-
-            Invoke(() =>
-            {
-                selectorTreeView.Nodes.Clear();
-
-                lblAvailableItems.Text = "Available items: 0";
-                lblSelectedItems.Text = "Selected items: 0";
-                progressBar.Style = ProgressBarStyle.Blocks;
-                lblStatus.Text = "Creating tree nodes...";
-            });
-
-            PopulateSelectorRootNode(rootNode, relativeDepth, progress, files);
-            UpdateSelectorComponents(rootNode, hideCancelNotification);
-        }
-
-        private void PopulateSelectorRootNode(TreeNode rootNode, int relativeDepth, IProgress<(int percentage, string path)> progress, string[] files)
-        {
-            for (var i = 0; i < files.Length; i++)
-            {
-                if (_cancellationTokenSource.IsCancellationRequested)
-                {
-                    break;
-                }
+                _cancellationTokenSource.Token.ThrowIfCancellationRequested();
 
                 var filePath = files[i];
                 var currentNode = rootNode;
@@ -272,8 +291,8 @@ namespace ResourcePacker.Forms
                     }
                 }
 
-                // Use the last 1 percent for updating the tree view.
-                progress.Report(((int)((double)(i + 1) / files.Length * 99),
+                // Use the last percent for updating the tree view.
+                progress.Report(((int)((double)(i + 1) / files.Count * 99),
                     string.Join("/", pathNodes[relativeDepth..])));
             }
         }
@@ -295,55 +314,30 @@ namespace ResourcePacker.Forms
             lblStatusFile.Refresh();
         }
 
-        private void UpdateSelectorComponents(TreeNode rootNode, bool hideCancelNotification)
+        private void UpdateSelectorComponents(TreeNode rootNode)
         {
-            lblStatusFile?.Invoke(() => lblStatusFile.Text = string.Empty);
-            if (_cancellationTokenSource.IsCancellationRequested)
-            {
-                _assetsToInclude.Clear();
-
-                Invoke(() =>
-                {
-                    txtAssetFolder.Text = string.Empty;
-                    lblPercentage.Text = "0%";
-                    lblStatus.Text = "Ready";
-                    progressBar.Value = 0;
-                    btnCreate.Enabled = false;
-                });
-
-                if (!hideCancelNotification)
-                {
-                    MessageBox.Show("The operation has been cancelled.", "Operation cancelled",
-                        MessageBoxButtons.OK, MessageBoxIcon.Information);
-                }
-            }
-            else
-            {
-                Invoke(() =>
-                {
-                    Cursor.Current = Cursors.WaitCursor;
-                    lblStatus.Text = "Updating tree view...";
-                    lblStatus.Refresh();
-
-                    selectorTreeView.BeginUpdate();
-                    selectorTreeView.Nodes.Add(rootNode);
-                    selectorTreeView.ExpandAll();
-                    selectorTreeView.Nodes[0].EnsureVisible();
-                    selectorTreeView.EndUpdate();
-
-                    lblStatus.Text = "Ready";
-                    lblPercentage.Text = "100%";
-                    progressBar.Value = 100;
-                    btnCreate.Enabled = true;
-                    btnCreate.Focus();
-                    Cursor.Current = Cursors.Default;
-                });
-
-                _cancellationTokenSource.Cancel();
-            }
+            _cancellationTokenSource.Token.ThrowIfCancellationRequested();
 
             Invoke(() =>
             {
+                lblStatusFile.Text = string.Empty;
+                Cursor.Current = Cursors.WaitCursor;
+                lblStatus.Text = "Updating tree view...";
+                lblStatus.Refresh();
+
+                selectorTreeView.BeginUpdate();
+                selectorTreeView.Nodes.Add(rootNode);
+                selectorTreeView.ExpandAll();
+                selectorTreeView.Nodes[0].EnsureVisible();
+                selectorTreeView.EndUpdate();
+
+                lblStatus.Text = "Ready";
+                lblPercentage.Text = "100%";
+                progressBar.Value = 100;
+                btnCreate.Enabled = true;
+                btnCreate.Focus();
+                Cursor.Current = Cursors.Default;
+           
                 lblAvailableItems.Text = $"Available items: {_assetsToInclude.Count}";
                 lblSelectedItems.Text = $"Selected items: {_assetsToInclude.Count}";
             });
