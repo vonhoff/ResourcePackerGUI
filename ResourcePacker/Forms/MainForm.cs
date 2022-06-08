@@ -18,6 +18,7 @@
 
 #endregion
 
+using System.Diagnostics;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -38,8 +39,11 @@ namespace ResourcePacker.Forms
 {
     public partial class MainForm : Form
     {
+        private readonly TimeSpan _progressTimeInterval = TimeSpan.FromMilliseconds(20);
         private readonly LoggingLevelSwitch _loggingLevelSwitch = new(LogEventLevel.Debug);
+        private readonly IProgress<(int percentage, int amount)> _progress;
         private readonly ActionDebouncer _searchDebouncer;
+        private CancellationTokenSource _cancellationTokenSource;
         private List<Asset>? _assets;
         private PackageHeader _packageHeader;
         private Asset? _selectedPreviewAsset;
@@ -48,11 +52,15 @@ namespace ResourcePacker.Forms
         private string _password = string.Empty;
         private bool _formatPreviewText = true;
         private bool _showDebugMessages = true;
+        private DateTime _progressLastUpdated;
 
         public MainForm()
         {
             InitializeComponent();
             _searchDebouncer = new ActionDebouncer(RefreshFileTree, TimeSpan.FromSeconds(0.35));
+            _progress = new Progress<(int percentage, int amount)>(UpdateLoadProgress);
+            _cancellationTokenSource = new CancellationTokenSource();
+            _cancellationTokenSource.Cancel();
         }
 
         #region Custom methods
@@ -277,7 +285,7 @@ namespace ResourcePacker.Forms
                 }
             }
 
-            explorerTreeView.Invoke(() =>
+            Invoke(() =>
             {
                 explorerTreeView.Nodes.Clear();
                 if (rootNode.GetNodeCount(true) < 1)
@@ -323,6 +331,20 @@ namespace ResourcePacker.Forms
             }
         }
 
+        private void UpdateLoadProgress((int percentage, int amount) progress)
+        {
+            if (_progressLastUpdated >= DateTime.UtcNow)
+            {
+                return;
+            }
+
+            _progressLastUpdated = DateTime.UtcNow + _progressTimeInterval;
+
+            var (percentage, amount) = progress;
+            progressBar.Value = percentage;
+            lblResultCount.Text = $"{amount} Entries";
+        }
+
         private void BtnLoadDefinitions_Click(object sender, EventArgs e)
         {
             if (_assets == null)
@@ -333,7 +355,7 @@ namespace ResourcePacker.Forms
             }
 
             using var openFileDialog = new OpenFileDialog();
-            openFileDialog.Filter = "Definition file (*.txt)|*.txt";
+            openFileDialog.Filter = "Text file (*.txt)|*.txt";
             openFileDialog.RestoreDirectory = true;
 
             if (openFileDialog.ShowDialog() == DialogResult.OK)
@@ -360,14 +382,21 @@ namespace ResourcePacker.Forms
                 return;
             }
 
-            try
-            {
-                using (var stream = openFileDialog.OpenFile())
-                {
-                    _packageHeader = PackageHelper.GetHeader(stream);
-                    Log.Information("ResourcePackage: {@info}",
-                        new { _packageHeader.Id, _packageHeader.NumberOfEntries });
+            var stream = openFileDialog.OpenFile();
+            _packageHeader = PackageHelper.GetHeader(stream);
+            Log.Information("ResourcePackage: {@info}",
+                new { _packageHeader.Id, _packageHeader.NumberOfEntries });
 
+            _packagePath = openFileDialog.FileName;
+            lblStatus.Text = _packagePath;
+            lblElapsed.Text = "00:00:00.0000";
+
+            _cancellationTokenSource = new CancellationTokenSource();
+            var stopwatch = Stopwatch.StartNew();
+            Task.Run(() =>
+            {
+                try
+                {
                     var entries = PackageHelper.LoadAllEntryInformation(_packageHeader, stream);
                     _password = string.Empty;
 
@@ -383,25 +412,57 @@ namespace ResourcePacker.Forms
                         _password = passwordDialog.Password;
                         if (!AssetHelper.LoadSingleFromPackage(stream, entries[0], out _, _password))
                         {
-                            throw new Exception("The password entered is incorrect.");
+                            throw new Exception("The password is incorrect.");
                         }
                     }
 
-                    _assets = AssetHelper.LoadAllFromPackage(entries, stream, _password);
+                    Invoke(() =>
+                    {
+                        btnCancel.Visible = true;
+                        btnCreate.Visible = false;
+                        btnOpen.Visible = false;
+                    });
+                    
+                    _assets = AssetHelper.LoadAllFromPackage(entries, stream, _password, 
+                        _progress, _cancellationTokenSource.Token);
+
+                    stopwatch.Stop();
+                    RefreshFileTree();
+                
+                    Invoke(() =>
+                    {
+                        lblStatus.Text = string.Empty;
+                        lblElapsed.Text = stopwatch.Elapsed.ToString(@"hh\:mm\:ss\.ffff");
+                    });
+                }
+                catch (OperationCanceledException ex)
+                {
+                    Invoke(() =>
+                    {
+                        lblResultCount.Text = "0 Entries";
+                        lblElapsed.Text = "00:00:00.0000";
+                    });
+
+                    MessageBox.Show(ex.Message,
+                        "Operation canceled", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Could not open resource package. {ex.Message}",
+                        "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
 
-                _packagePath = openFileDialog.FileName;
-                RefreshFileTree();
-                lblResultCount.Text = $"{_packageHeader.NumberOfEntries} Entries";
+                Invoke(() =>
+                {
+                    progressBar.Value = 0;
+                    btnLoadDefinitions.Enabled = true;
+                    btnExtract.Enabled = true;
 
-                btnLoadDefinitions.Enabled = true;
-                btnExtract.Enabled = true;
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Could not open resource package. {ex.Message}", "Error",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+                    btnCancel.Visible = false;
+                    btnCreate.Visible = true;
+                    btnOpen.Visible = true;
+                });
+            });
         }
 
         private void BtnToggleDebugMessages_Click(object sender, EventArgs e)
@@ -477,7 +538,8 @@ namespace ResourcePacker.Forms
 
         private void BtnCreate_Click(object sender, EventArgs e)
         {
-            var createDialogResult = new CreateForm().ShowDialog();
+            var createForm = new CreateForm();
+            var createDialogResult = createForm.ShowDialog();
         }
 
         private void MainForm_ResizeBegin(object sender, EventArgs e)
@@ -487,13 +549,13 @@ namespace ResourcePacker.Forms
 
         private void MainForm_ResizeEnd(object sender, EventArgs e)
         {
-            ScrollOutputToEnd();
             ResumeLayout(true);
+            ScrollOutputToEnd();
         }
 
-        private void MainForm_SizeChanged(object sender, EventArgs e)
+        private void BtnCancel_Click(object sender, EventArgs e)
         {
-            ScrollOutputToEnd();
+            _cancellationTokenSource.Cancel();
         }
     }
 }

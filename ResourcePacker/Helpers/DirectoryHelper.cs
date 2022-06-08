@@ -79,7 +79,7 @@ namespace ResourcePacker.Helpers
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
         private struct Win32FindData
         {
-            public readonly uint dwFileAttributes;
+            private readonly uint dwFileAttributes;
             private readonly FILETIME ftCreationTime;
             private readonly FILETIME ftLastAccessTime;
             private readonly FILETIME ftLastWriteTime;

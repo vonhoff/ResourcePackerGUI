@@ -29,6 +29,15 @@ namespace ResourcePacker.Helpers
     {
         public static string PackHeaderId => "ResPack";
 
+        public static void Build(HashSet<string> items, int relativeDepth, string packageOutput, 
+            string password, string definitionOutput = "", IProgress<(int percentage, string path)>? progress = null)
+        {
+            var relativePaths = DefinitionHelper.CreateDefinitions(items, relativeDepth,
+                definitionOutput, progress, 20);
+
+            
+        }
+
         /// <summary>
         /// Gets the header of the provided file stream.
         /// </summary>

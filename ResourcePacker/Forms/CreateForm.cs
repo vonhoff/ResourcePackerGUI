@@ -26,14 +26,20 @@ namespace ResourcePacker.Forms
     public partial class CreateForm : Form
     {
         private readonly HashSet<string> _assetsToInclude = new();
+        private readonly IProgress<(int percentage, string path)> _progress;
         private readonly TimeSpan _progressTimeInterval = TimeSpan.FromMilliseconds(20);
         private CancellationTokenSource _cancellationTokenSource;
+        private string _packageLocation = string.Empty;
         private DateTime _progressLastUpdated = DateTime.UtcNow;
+        private int _relativePackageLocationDepth;
+        private string _definitionsLocation = string.Empty;
+        private bool _createDefinitionFile = true;
+        private bool _automaticDefinitionFile = true;
 
         public CreateForm()
         {
             InitializeComponent();
-
+            _progress = new Progress<(int percentage, string path)>(UpdateFileCollectionProgress);
             _cancellationTokenSource = new CancellationTokenSource();
             _cancellationTokenSource.Cancel();
         }
@@ -92,15 +98,12 @@ namespace ResourcePacker.Forms
                 .Where(n => n.Length > 0)
                 .ToArray();
 
-            var relativeDepth = assetPathNodes.Length;
+            _relativePackageLocationDepth = assetPathNodes.Length;
             var rootNode = new TreeNode(assetPathNodes.Last() + " (root)")
             {
                 Checked = true,
                 StateImageIndex = 1
             };
-
-            IProgress<(int percentage, string path)> progress =
-                new Progress<(int percentage, string path)>(UpdateFileCollectionProgress);
 
             _cancellationTokenSource = new CancellationTokenSource();
             Task.Run(() =>
@@ -110,7 +113,7 @@ namespace ResourcePacker.Forms
                 try
                 {
                     files = CollectFiles(selectedPath);
-                    CreateSelectorNodes(rootNode, relativeDepth, progress, files);
+                    CreateSelectorNodes(rootNode, _relativePackageLocationDepth, files);
                     UpdateSelectorComponents(rootNode);
                 }
                 catch (OperationCanceledException ex)
@@ -157,6 +160,16 @@ namespace ResourcePacker.Forms
             _cancellationTokenSource.Cancel();
         }
 
+        private void BtnCreate_Click(object sender, EventArgs e)
+        {
+            Task.Run(() =>
+            {
+                var definitionsLocation = _createDefinitionFile ? _definitionsLocation : string.Empty;
+                PackageHelper.Build(_assetsToInclude, _relativePackageLocationDepth, _packageLocation,
+                    txtPassword.Text, definitionsLocation, _progress);
+            });
+        }
+
         private void BtnPackageExplore_Click(object sender, EventArgs e)
         {
             var saveFileDialog = new SaveFileDialog
@@ -165,13 +178,20 @@ namespace ResourcePacker.Forms
             };
 
             var result = saveFileDialog.ShowDialog();
-
             if (result != DialogResult.OK || string.IsNullOrEmpty(saveFileDialog.FileName))
             {
                 return;
             }
 
             txtPackageLocation.Text = saveFileDialog.FileName;
+            btnCreate.Enabled = _assetsToInclude.Count > 0;
+
+            _packageLocation = saveFileDialog.FileName;
+            if (_createDefinitionFile && _automaticDefinitionFile)
+            {
+                _definitionsLocation = _packageLocation + ".txt";
+                txtDefinitionsLocation.Text = _definitionsLocation;
+            }
         }
 
         private void ChkShowPassword_CheckedChanged(object sender, EventArgs e)
@@ -225,43 +245,7 @@ namespace ResourcePacker.Forms
             ResumeLayout(true);
         }
 
-        private void ExplorerTreeView_AfterStateChanged(object sender, TreeViewEventArgs e)
-        {
-            btnCreate.Enabled = _assetsToInclude.Count != 0;
-        }
-
-        private void ExplorerTreeView_NodeStateChanged(object sender, TreeViewEventArgs e)
-        {
-            var node = e.Node;
-            if (node is not { Tag: string })
-            {
-                return;
-            }
-
-            var path = node.Tag.ToString();
-            if (string.IsNullOrEmpty(path))
-            {
-                return;
-            }
-
-            var hasItem = _assetsToInclude.Contains(path);
-            if (node.Checked)
-            {
-                if (!hasItem)
-                {
-                    _assetsToInclude.Add(path);
-                }
-            }
-            else if (hasItem)
-            {
-                _assetsToInclude.Remove(path);
-            }
-
-            lblSelectedItems.Text = $"Selected items: {_assetsToInclude.Count}";
-        }
-
-        private void CreateSelectorNodes(TreeNode rootNode, int relativeDepth,
-            IProgress<(int percentage, string path)> progress, IReadOnlyList<string> files)
+        private void CreateSelectorNodes(TreeNode rootNode, int relativeDepth, IReadOnlyList<string> files)
         {
             for (var i = 0; i < files.Count; i++)
             {
@@ -292,9 +276,44 @@ namespace ResourcePacker.Forms
                 }
 
                 // Use the last percent for updating the tree view.
-                progress.Report(((int)((double)(i + 1) / files.Count * 99),
+                _progress.Report(((int)((double)(i + 1) / files.Count * 99),
                     string.Join("/", pathNodes[relativeDepth..])));
             }
+        }
+
+        private void ExplorerTreeView_AfterStateChanged(object sender, TreeViewEventArgs e)
+        {
+            btnCreate.Enabled = _assetsToInclude.Count != 0 && _packageLocation != string.Empty;
+        }
+
+        private void ExplorerTreeView_NodeStateChanged(object sender, TreeViewEventArgs e)
+        {
+            var node = e.Node;
+            if (node is not { Tag: string })
+            {
+                return;
+            }
+
+            var path = node.Tag.ToString();
+            if (string.IsNullOrEmpty(path))
+            {
+                return;
+            }
+
+            var hasItem = _assetsToInclude.Contains(path);
+            if (node.Checked)
+            {
+                if (!hasItem)
+                {
+                    _assetsToInclude.Add(path);
+                }
+            }
+            else if (hasItem)
+            {
+                _assetsToInclude.Remove(path);
+            }
+
+            lblSelectedItems.Text = $"Selected items: {_assetsToInclude.Count}";
         }
 
         private void UpdateFileCollectionProgress((int percentage, string path) progress)
@@ -334,13 +353,35 @@ namespace ResourcePacker.Forms
                 lblStatus.Text = "Ready";
                 lblPercentage.Text = "100%";
                 progressBar.Value = 100;
-                btnCreate.Enabled = true;
-                btnCreate.Focus();
+                btnCreate.Enabled = _packageLocation != string.Empty;
                 Cursor.Current = Cursors.Default;
-           
+
                 lblAvailableItems.Text = $"Available items: {_assetsToInclude.Count}";
                 lblSelectedItems.Text = $"Selected items: {_assetsToInclude.Count}";
             });
+        }
+
+        private void ChkCreateDefinitionFile_CheckedChanged(object sender, EventArgs e)
+        {
+            _createDefinitionFile = chkCreateDefinitionFile.Checked;
+            splitContainerDefinitionFile.Enabled = _createDefinitionFile;
+            txtDefinitionsLocation.Text = _createDefinitionFile ? _definitionsLocation : string.Empty;
+        }
+
+        private void BtnDefinitionsExplore_Click(object sender, EventArgs e)
+        {
+            var saveFileDialog = new SaveFileDialog
+            {
+                Filter = "Text file (*.txt)|*.txt"
+            };
+
+            var result = saveFileDialog.ShowDialog();
+            if (result == DialogResult.OK && !string.IsNullOrEmpty(saveFileDialog.FileName))
+            {
+                _automaticDefinitionFile = false;
+                _definitionsLocation = saveFileDialog.FileName;
+                txtDefinitionsLocation.Text = saveFileDialog.FileName;
+            }
         }
     }
 }

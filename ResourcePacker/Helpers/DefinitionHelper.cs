@@ -18,6 +18,7 @@
 
 #endregion
 
+using System.Collections.Generic;
 using System.Text;
 using Force.Crc32;
 using Serilog;
@@ -61,6 +62,57 @@ namespace ResourcePacker.Helpers
 
             Log.Information("Created {definitionCount} definitions.", crcDictionary.Count);
             return crcDictionary;
+        }
+
+        /// <summary>
+        /// Creates definitions from a provided list of file names.
+        /// </summary>
+        /// <param name="items">The set of file paths.</param>
+        /// <param name="relativeDepth">The number of nodes to skip from a path.</param>
+        /// <param name="outputFile">An optional file location to write to.</param>
+        /// <param name="progress">An optional progress instance.</param>
+        /// <param name="maximumProgress">An optional maximum progress for <paramref name="progress"/>.</param>
+        /// <returns>A collection of definitions.</returns>
+        public static HashSet<string> CreateDefinitions(HashSet<string> items, int relativeDepth,
+            string outputFile = "", IProgress<(int percentage, string path)>? progress = null, int maximumProgress = 100)
+        {
+            var index = 0;
+            var processedItems = new HashSet<string>();
+
+            StreamWriter? file = null;
+            if (!string.IsNullOrWhiteSpace(outputFile))
+            {
+                file = new StreamWriter(outputFile);
+            }
+            
+            foreach (var absolutePath in items)
+            {
+                index++;
+
+                if (!File.Exists(absolutePath))
+                {
+                    Log.Warning("File does not exist: {path}", absolutePath);
+                    continue;
+                }
+
+                var pathNodes = absolutePath
+                    .Replace(@"\", "/")
+                    .Split('/', StringSplitOptions.RemoveEmptyEntries);
+
+                if (pathNodes.Length < relativeDepth)
+                {
+                    continue;
+                }
+
+                var relativePath = string.Join('/', pathNodes[relativeDepth..]).ToLowerInvariant();
+
+                file?.WriteLine(relativePath);
+                processedItems.Add(relativePath);
+                progress?.Report(((int)((double)(index + 1) / items.Count * maximumProgress), relativePath));
+            }
+
+            file?.Close();
+            return processedItems;
         }
     }
 }

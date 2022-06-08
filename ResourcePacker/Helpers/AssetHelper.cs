@@ -46,11 +46,15 @@ namespace ResourcePacker.Helpers
         /// <param name="fileStream"></param>
         /// <param name="password"></param>
         /// <returns>A list of all assets inside the package.</returns>
-        public static List<Asset> LoadAllFromPackage(Entry[] entries, Stream fileStream, string password = "")
+        public static List<Asset> LoadAllFromPackage(Entry[] entries, Stream fileStream, string password, 
+            IProgress<(int percentage, int amount)> progress, CancellationToken cancellationToken = default)
         {
             var assets = new List<Asset>();
-            foreach (var entry in entries)
+            for (var i = 0; i < entries.Length; i++)
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                var entry = entries[i];
                 if (!LoadSingleFromPackage(fileStream, entry, out var asset, password))
                 {
                     Log.Error("Integrity check failed for entry: {id}", new { entry.Id });
@@ -60,6 +64,7 @@ namespace ResourcePacker.Helpers
                 Log.Debug("Added asset: {@asset}",
                     new { asset.Name, MediaType = asset.MimeType?.Name });
                 assets.Add(asset);
+                progress.Report(((int)((double)(i + 1) / entries.Length * 100), i + 1));
             }
 
             if (assets.Count == entries.Length)

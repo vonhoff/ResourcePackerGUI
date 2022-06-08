@@ -78,7 +78,7 @@ namespace ResourcePacker.Forms
             this.statusStrip = new System.Windows.Forms.StatusStrip();
             this.lblStatus = new System.Windows.Forms.ToolStripStatusLabel();
             this.lblResultCount = new System.Windows.Forms.ToolStripStatusLabel();
-            this.prgRunning = new System.Windows.Forms.ToolStripProgressBar();
+            this.progressBar = new System.Windows.Forms.ToolStripProgressBar();
             this.lblElapsed = new System.Windows.Forms.ToolStripStatusLabel();
             this.btnCreate = new System.Windows.Forms.ToolStripButton();
             this.btnOpen = new System.Windows.Forms.ToolStripButton();
@@ -88,6 +88,7 @@ namespace ResourcePacker.Forms
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.btnToggleDebugMessages = new System.Windows.Forms.ToolStripButton();
             this.toolStrip = new System.Windows.Forms.ToolStrip();
+            this.btnCancel = new System.Windows.Forms.ToolStripButton();
             this.btnExtract = new System.Windows.Forms.ToolStripButton();
             this.btnFormattedText = new System.Windows.Forms.ToolStripButton();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
@@ -333,7 +334,7 @@ namespace ResourcePacker.Forms
             this.statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.lblStatus,
             this.lblResultCount,
-            this.prgRunning,
+            this.progressBar,
             this.lblElapsed});
             resources.ApplyResources(this.statusStrip, "statusStrip");
             this.statusStrip.Name = "statusStrip";
@@ -349,10 +350,10 @@ namespace ResourcePacker.Forms
             resources.ApplyResources(this.lblResultCount, "lblResultCount");
             this.lblResultCount.Name = "lblResultCount";
             // 
-            // prgRunning
+            // progressBar
             // 
-            this.prgRunning.Name = "prgRunning";
-            resources.ApplyResources(this.prgRunning, "prgRunning");
+            this.progressBar.Name = "progressBar";
+            resources.ApplyResources(this.progressBar, "progressBar");
             // 
             // lblElapsed
             // 
@@ -417,6 +418,7 @@ namespace ResourcePacker.Forms
             this.toolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.btnCreate,
             this.btnOpen,
+            this.btnCancel,
             this.btnAbout,
             this.toolStripSeparator2,
             this.btnLoadDefinitions,
@@ -426,6 +428,14 @@ namespace ResourcePacker.Forms
             this.btnFormattedText});
             resources.ApplyResources(this.toolStrip, "toolStrip");
             this.toolStrip.Name = "toolStrip";
+            // 
+            // btnCancel
+            // 
+            this.btnCancel.Image = global::ResourcePacker.Properties.Images.cross;
+            resources.ApplyResources(this.btnCancel, "btnCancel");
+            this.btnCancel.Name = "btnCancel";
+            this.btnCancel.Padding = new System.Windows.Forms.Padding(3);
+            this.btnCancel.Click += new System.EventHandler(this.BtnCancel_Click);
             // 
             // btnExtract
             // 
@@ -454,7 +464,6 @@ namespace ResourcePacker.Forms
             this.Load += new System.EventHandler(this.MainForm_Load);
             this.ResizeBegin += new System.EventHandler(this.MainForm_ResizeBegin);
             this.ResizeEnd += new System.EventHandler(this.MainForm_ResizeEnd);
-            this.SizeChanged += new System.EventHandler(this.MainForm_SizeChanged);
             this.splitContainer1.Panel1.ResumeLayout(false);
             this.splitContainer1.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
@@ -495,7 +504,6 @@ namespace ResourcePacker.Forms
         private StatusStrip statusStrip;
         private ToolStripStatusLabel lblStatus;
         private ToolStripStatusLabel lblResultCount;
-        private ToolStripProgressBar prgRunning;
         private ToolStripStatusLabel lblElapsed;
         private SplitContainer splitContainer1;
         private SplitContainer splitContainer2;
@@ -532,5 +540,7 @@ namespace ResourcePacker.Forms
         private ToolStrip toolStrip;
         private ToolStripButton btnFormattedText;
         private ToolStripButton btnExtract;
+        private ToolStripProgressBar progressBar;
+        private ToolStripButton btnCancel;
     }
 }

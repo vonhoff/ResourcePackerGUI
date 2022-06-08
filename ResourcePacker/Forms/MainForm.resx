@@ -167,7 +167,7 @@
         AAEAAAD/////AQAAAAAAAAAMAgAAAEZTeXN0ZW0uV2luZG93cy5Gb3JtcywgQ3VsdHVyZT1uZXV0cmFs
         LCBQdWJsaWNLZXlUb2tlbj1iNzdhNWM1NjE5MzRlMDg5BQEAAAAmU3lzdGVtLldpbmRvd3MuRm9ybXMu
         SW1hZ2VMaXN0U3RyZWFtZXIBAAAABERhdGEHAgIAAAAJAwAAAA8DAAAAchEAAAJNU0Z0AUkBTAIBAQkB
-        AAGgARkBoAEZARABAAEQAQAE/wEJAQAI/wFCAU0BNgEEBgABNgEEAgABKAMAAUADAAEwAwABAQEAAQgG
+        AAEgAR0BIAEdARABAAEQAQAE/wEJAQAI/wFCAU0BNgEEBgABNgEEAgABKAMAAUADAAEwAwABAQEAAQgG
         AAEMGAABgAIAAYADAAKAAQABgAMAAYABAAGAAQACgAIAA8ABAAHAAdwBwAEAAfABygGmAQABMwUAATMB
         AAEzAQABMwEAAjMCAAMWAQADHAEAAyIBAAMpAQADVQEAA00BAANCAQADOQEAAYABfAH/AQACUAH/AQAB
         kwEAAdYBAAH/AewBzAEAAcYB1gHvAQAB1gLnAQABkAGpAa0CAAH/ATMDAAFmAwABmQMAAcwCAAEzAwAC
@@ -251,7 +251,7 @@
     <value>0</value>
   </data>
   <data name="explorerTreeView.Size" type="System.Drawing.Size, System.Drawing">
-    <value>340, 666</value>
+    <value>340, 614</value>
   </data>
   <data name="explorerTreeView.TabIndex" type="System.Int32, mscorlib">
     <value>0</value>
@@ -281,7 +281,7 @@
     <value>1</value>
   </data>
   <data name="splitContainer3.Size" type="System.Drawing.Size, System.Drawing">
-    <value>340, 698</value>
+    <value>340, 646</value>
   </data>
   <data name="splitContainer3.SplitterDistance" type="System.Int32, mscorlib">
     <value>28</value>
@@ -309,7 +309,7 @@
     <value>3, 3, 3, 3</value>
   </data>
   <data name="tabPage3.Size" type="System.Drawing.Size, System.Drawing">
-    <value>346, 704</value>
+    <value>346, 652</value>
   </data>
   <data name="tabPage3.TabIndex" type="System.Int32, mscorlib">
     <value>0</value>
@@ -336,7 +336,7 @@
     <value>3, 3</value>
   </data>
   <data name="tabControl3.Size" type="System.Drawing.Size, System.Drawing">
-    <value>354, 737</value>
+    <value>354, 685</value>
   </data>
   <data name="tabControl3.TabIndex" type="System.Int32, mscorlib">
     <value>0</value>
@@ -390,7 +390,7 @@
     <value>0, 0</value>
   </data>
   <data name="previewHexBox.Size" type="System.Drawing.Size, System.Drawing">
-    <value>879, 362</value>
+    <value>879, 329</value>
   </data>
   <data name="previewHexBox.TabIndex" type="System.Int32, mscorlib">
     <value>0</value>
@@ -411,7 +411,7 @@
     <value>4, 29</value>
   </data>
   <data name="previewHexTab.Size" type="System.Drawing.Size, System.Drawing">
-    <value>879, 362</value>
+    <value>879, 329</value>
   </data>
   <data name="previewHexTab.TabIndex" type="System.Int32, mscorlib">
     <value>2</value>
@@ -441,7 +441,7 @@
     <value>3, 3</value>
   </data>
   <data name="previewTextBox.Size" type="System.Drawing.Size, System.Drawing">
-    <value>873, 356</value>
+    <value>873, 323</value>
   </data>
   <data name="previewTextBox.TabIndex" type="System.Int32, mscorlib">
     <value>0</value>
@@ -468,7 +468,7 @@
     <value>3, 3, 3, 3</value>
   </data>
   <data name="previewTextTab.Size" type="System.Drawing.Size, System.Drawing">
-    <value>879, 362</value>
+    <value>879, 329</value>
   </data>
   <data name="previewTextTab.TabIndex" type="System.Int32, mscorlib">
     <value>1</value>
@@ -495,7 +495,7 @@
     <value>3, 3</value>
   </data>
   <data name="previewImageBox.Size" type="System.Drawing.Size, System.Drawing">
-    <value>873, 356</value>
+    <value>873, 323</value>
   </data>
   <data name="previewImageBox.TabIndex" type="System.Int32, mscorlib">
     <value>0</value>
@@ -519,7 +519,7 @@
     <value>3, 3, 3, 3</value>
   </data>
   <data name="previewImageTab.Size" type="System.Drawing.Size, System.Drawing">
-    <value>879, 362</value>
+    <value>879, 329</value>
   </data>
   <data name="previewImageTab.TabIndex" type="System.Int32, mscorlib">
     <value>0</value>
@@ -546,7 +546,7 @@
     <value>3, 36</value>
   </data>
   <data name="previewTabs.Size" type="System.Drawing.Size, System.Drawing">
-    <value>887, 395</value>
+    <value>887, 362</value>
   </data>
   <data name="previewTabs.TabIndex" type="System.Int32, mscorlib">
     <value>1</value>
@@ -615,7 +615,7 @@
     <value>3, 3, 3, 3</value>
   </data>
   <data name="tabPage2.Size" type="System.Drawing.Size, System.Drawing">
-    <value>893, 434</value>
+    <value>893, 401</value>
   </data>
   <data name="tabPage2.TabIndex" type="System.Int32, mscorlib">
     <value>0</value>
@@ -642,7 +642,7 @@
     <value>0, 3</value>
   </data>
   <data name="tabControl2.Size" type="System.Drawing.Size, System.Drawing">
-    <value>901, 467</value>
+    <value>901, 434</value>
   </data>
   <data name="tabControl2.TabIndex" type="System.Int32, mscorlib">
     <value>0</value>
@@ -684,7 +684,7 @@
     <value>3, 3</value>
   </data>
   <data name="outputBox.Size" type="System.Drawing.Size, System.Drawing">
-    <value>887, 227</value>
+    <value>887, 208</value>
   </data>
   <data name="outputBox.TabIndex" type="System.Int32, mscorlib">
     <value>0</value>
@@ -711,7 +711,7 @@
     <value>3, 3, 3, 3</value>
   </data>
   <data name="tabPage1.Size" type="System.Drawing.Size, System.Drawing">
-    <value>893, 233</value>
+    <value>893, 214</value>
   </data>
   <data name="tabPage1.TabIndex" type="System.Int32, mscorlib">
     <value>0</value>
@@ -738,7 +738,7 @@
     <value>0, 0</value>
   </data>
   <data name="tabControl1.Size" type="System.Drawing.Size, System.Drawing">
-    <value>901, 266</value>
+    <value>901, 247</value>
   </data>
   <data name="tabControl1.TabIndex" type="System.Int32, mscorlib">
     <value>0</value>
@@ -768,10 +768,10 @@
     <value>1</value>
   </data>
   <data name="splitContainer2.Size" type="System.Drawing.Size, System.Drawing">
-    <value>901, 740</value>
+    <value>901, 688</value>
   </data>
   <data name="splitContainer2.SplitterDistance" type="System.Int32, mscorlib">
-    <value>470</value>
+    <value>437</value>
   </data>
   <data name="splitContainer2.TabIndex" type="System.Int32, mscorlib">
     <value>0</value>
@@ -804,7 +804,7 @@
     <value>400</value>
   </data>
   <data name="splitContainer1.Size" type="System.Drawing.Size, System.Drawing">
-    <value>1262, 740</value>
+    <value>1262, 688</value>
   </data>
   <data name="splitContainer1.SplitterDistance" type="System.Int32, mscorlib">
     <value>357</value>
@@ -828,7 +828,7 @@
     <value>132, 17</value>
   </metadata>
   <data name="lblStatus.Size" type="System.Drawing.Size, System.Drawing">
-    <value>850, 20</value>
+    <value>825, 22</value>
   </data>
   <data name="lblStatus.TextAlign" type="System.Drawing.ContentAlignment, System.Drawing">
     <value>MiddleLeft</value>
@@ -837,19 +837,19 @@
     <value>False</value>
   </data>
   <data name="lblResultCount.Size" type="System.Drawing.Size, System.Drawing">
-    <value>150, 20</value>
+    <value>150, 22</value>
   </data>
   <data name="lblResultCount.Text" xml:space="preserve">
     <value>0 Entries</value>
   </data>
-  <data name="prgRunning.Size" type="System.Drawing.Size, System.Drawing">
-    <value>135, 18</value>
+  <data name="progressBar.Size" type="System.Drawing.Size, System.Drawing">
+    <value>160, 20</value>
   </data>
   <data name="lblElapsed.AutoSize" type="System.Boolean, mscorlib">
     <value>False</value>
   </data>
   <data name="lblElapsed.Size" type="System.Drawing.Size, System.Drawing">
-    <value>110, 20</value>
+    <value>110, 22</value>
   </data>
   <data name="lblElapsed.Text" xml:space="preserve">
     <value>00:00:00.0000</value>
@@ -858,10 +858,10 @@
     <value>MiddleRight</value>
   </data>
   <data name="statusStrip.Location" type="System.Drawing.Point, System.Drawing">
-    <value>0, 777</value>
+    <value>0, 725</value>
   </data>
   <data name="statusStrip.Size" type="System.Drawing.Size, System.Drawing">
-    <value>1262, 26</value>
+    <value>1262, 28</value>
   </data>
   <data name="statusStrip.TabIndex" type="System.Int32, mscorlib">
     <value>1</value>
@@ -947,6 +947,18 @@
   <metadata name="toolStrip.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>17, 17</value>
   </metadata>
+  <data name="btnCancel.ImageTransparentColor" type="System.Drawing.Color, System.Drawing">
+    <value>Magenta</value>
+  </data>
+  <data name="btnCancel.Size" type="System.Drawing.Size, System.Drawing">
+    <value>83, 30</value>
+  </data>
+  <data name="btnCancel.Text" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="btnCancel.Visible" type="System.Boolean, mscorlib">
+    <value>False</value>
+  </data>
   <data name="btnExtract.Enabled" type="System.Boolean, mscorlib">
     <value>False</value>
   </data>
@@ -1009,7 +1021,7 @@ indentations in the preview panel</value>
     <value>8, 20</value>
   </data>
   <data name="$this.ClientSize" type="System.Drawing.Size, System.Drawing">
-    <value>1262, 803</value>
+    <value>1262, 753</value>
   </data>
   <data name="$this.Icon" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
@@ -2568,7 +2580,7 @@ indentations in the preview panel</value>
 </value>
   </data>
   <data name="$this.MinimumSize" type="System.Drawing.Size, System.Drawing">
-    <value>1120, 700</value>
+    <value>1024, 768</value>
   </data>
   <data name="$this.StartPosition" type="System.Windows.Forms.FormStartPosition, System.Windows.Forms">
     <value>CenterScreen</value>
@@ -2612,10 +2624,10 @@ indentations in the preview panel</value>
   <data name="&gt;&gt;lblResultCount.Type" xml:space="preserve">
     <value>System.Windows.Forms.ToolStripStatusLabel, System.Windows.Forms, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
-  <data name="&gt;&gt;prgRunning.Name" xml:space="preserve">
-    <value>prgRunning</value>
+  <data name="&gt;&gt;progressBar.Name" xml:space="preserve">
+    <value>progressBar</value>
   </data>
-  <data name="&gt;&gt;prgRunning.Type" xml:space="preserve">
+  <data name="&gt;&gt;progressBar.Type" xml:space="preserve">
     <value>System.Windows.Forms.ToolStripProgressBar, System.Windows.Forms, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;lblElapsed.Name" xml:space="preserve">
@@ -2664,6 +2676,12 @@ indentations in the preview panel</value>
     <value>btnToggleDebugMessages</value>
   </data>
   <data name="&gt;&gt;btnToggleDebugMessages.Type" xml:space="preserve">
+    <value>System.Windows.Forms.ToolStripButton, System.Windows.Forms, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;btnCancel.Name" xml:space="preserve">
+    <value>btnCancel</value>
+  </data>
+  <data name="&gt;&gt;btnCancel.Type" xml:space="preserve">
     <value>System.Windows.Forms.ToolStripButton, System.Windows.Forms, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;btnExtract.Name" xml:space="preserve">
