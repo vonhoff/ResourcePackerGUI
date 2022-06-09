@@ -18,7 +18,6 @@
 
 #endregion
 
-using System.Collections.Generic;
 using System.Text;
 using Force.Crc32;
 using Serilog;
@@ -65,7 +64,7 @@ namespace ResourcePacker.Helpers
         }
 
         /// <summary>
-        /// Creates definitions from a provided list of file names. 
+        /// Creates definitions from a provided list of file names.
         /// </summary>
         /// <param name="items">The set of file paths.</param>
         /// <param name="relativeDepth">The number of nodes to skip from a path.</param>
@@ -84,7 +83,7 @@ namespace ResourcePacker.Helpers
             {
                 file = new StreamWriter(outputFile);
             }
-            
+
             foreach (var absolutePath in items)
             {
                 index++;

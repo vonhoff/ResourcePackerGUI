@@ -23,11 +23,6 @@ namespace ResourcePacker.Helpers
     public static class AesEncryptionHelper
     {
         /// <summary>
-        /// Default IV when a custom value is not assigned.
-        /// </summary>
-        private static readonly byte[] Iv = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f };
-
-        /// <summary>
         /// AES operates on 16 bytes at a time.
         /// </summary>
         public const int BlockSize = 16;
@@ -188,6 +183,11 @@ namespace ResourcePacker.Helpers
         };
 
         /// <summary>
+        /// Default IV when a custom value is not assigned.
+        /// </summary>
+        private static readonly byte[] Iv = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f };
+
+        /// <summary>
         /// This is the specified AES SBox. To look up a substitution value, put the first
         /// nibble in the first index (row) and the second nibble in the second index (column).
         /// </summary>
@@ -210,7 +210,8 @@ namespace ResourcePacker.Helpers
             new byte[]{ 0x8C, 0xA1, 0x89, 0x0D, 0xBF, 0xE6, 0x42, 0x68, 0x41, 0x99, 0x2D, 0x0F, 0xB0, 0x54, 0xBB, 0x16}
         };
 
-        public static bool DecryptCbc(byte[] input, int inputLength, ref byte[] output, uint[] key, byte[]? iv = null)
+        public static bool DecryptCbc(byte[] input, int inputLength, ref byte[] output,
+            uint[] key, byte[]? iv = null, CancellationToken cancellationToken = default)
         {
             var inputBuffer = new byte[BlockSize];
             var outputBuffer = new byte[BlockSize];
@@ -227,6 +228,7 @@ namespace ResourcePacker.Helpers
 
             for (var index = 0; index < blocks; index++)
             {
+                cancellationToken.ThrowIfCancellationRequested();
                 Buffer.BlockCopy(input, index * BlockSize, inputBuffer, 0, BlockSize);
                 Decrypt(inputBuffer, ref outputBuffer, key);
                 XorBuf(ivBuffer, ref outputBuffer, BlockSize);
@@ -245,8 +247,10 @@ namespace ResourcePacker.Helpers
         /// <param name="output">Ciphertext, same length as plaintext.</param>
         /// <param name="key">From the key setup.</param>
         /// <param name="iv">IV, must be <see cref="BlockSize"/> bytes long.</param>
+        /// <param name="cancellationToken">A token to cancel the operation.</param>
         /// <returns><see langword="true"/> when succeeded, otherwise <see langword="false"/>.</returns>
-        public static bool EncryptCbc(byte[] input, int inputLength, ref byte[] output, uint[] key, byte[]? iv = null)
+        public static bool EncryptCbc(byte[] input, int inputLength, ref byte[] output,
+            uint[] key, byte[]? iv = null, CancellationToken cancellationToken = default)
         {
             var inputBuffer = new byte[BlockSize];
             var outputBuffer = new byte[BlockSize];
@@ -263,11 +267,12 @@ namespace ResourcePacker.Helpers
 
             for (var index = 0; index < blocks; index++)
             {
+                cancellationToken.ThrowIfCancellationRequested();
                 Buffer.BlockCopy(input, index * BlockSize, inputBuffer, 0, BlockSize);
                 XorBuf(ivBuffer, ref inputBuffer, BlockSize);
                 Encrypt(inputBuffer, ref outputBuffer, key);
                 Buffer.BlockCopy(outputBuffer, 0, output, index * BlockSize, BlockSize);
-                Buffer.BlockCopy(inputBuffer, 0, ivBuffer, 0, BlockSize);
+                Buffer.BlockCopy(outputBuffer, 0, ivBuffer, 0, BlockSize);
             }
 
             return true;

@@ -18,7 +18,6 @@
 
 #endregion
 
-using System.Diagnostics;
 using System.IO.Packaging;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -32,28 +31,31 @@ namespace ResourcePacker.Helpers
     {
         public static string PackHeaderId => "ResPack";
 
-        public static void Build(IReadOnlyList<string> items, int relativeDepth, string packageOutput,
-            string password, string definitionOutput = "", IProgress<(int percentage, string path)>? progress = null)
+        public static void BuildPackage(IReadOnlyDictionary<string, string> paths, string packageOutput,
+                    string password, IProgress<(int percentage, string path)>? progress = null,
+                    CancellationToken cancellationToken = default)
         {
-            var paths = DefinitionHelper.CreateDefinitionFile(items, relativeDepth,
-                definitionOutput, progress, 30);
-
             var header = new PackageHeader
             {
                 Id = PackHeaderId,
                 NumberOfEntries = paths.Count
             };
 
-            var outputStream = File.Open(packageOutput, FileMode.CreateNew);
+            var headerSize = Marshal.SizeOf(typeof(PackageHeader));
+            var entrySize = Marshal.SizeOf(typeof(Entry));
+
+            var outputStream = File.Open(packageOutput, FileMode.OpenOrCreate);
             var binaryWriter = new BinaryWriter(outputStream);
 
             var key = AesEncryptionHelper.KeySetup(password);
             var entries = new Entry[header.NumberOfEntries];
-            var offset = Marshal.SizeOf(typeof(PackageHeader)) + (header.NumberOfEntries * Marshal.SizeOf(typeof(Entry)));
+            var offset = headerSize + (header.NumberOfEntries * entrySize);
             var entryIndex = 0;
 
             foreach (var (absolutePath, relativePath) in paths)
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
                 byte[] fileContent;
                 try
                 {
@@ -65,6 +67,7 @@ namespace ResourcePacker.Helpers
                     continue;
                 }
 
+                cancellationToken.ThrowIfCancellationRequested();
                 var dataSize = fileContent.Length;
                 var nameBytes = Encoding.ASCII.GetBytes(relativePath);
                 var nameCrc = Crc32Algorithm.Compute(nameBytes);
@@ -81,7 +84,9 @@ namespace ResourcePacker.Helpers
 
                 if (key.Length > 0)
                 {
-                    var packSize = (dataSize + AesEncryptionHelper.BlockSize - 1) & ~(AesEncryptionHelper.BlockSize - 1);
+                    var packSize = (dataSize + AesEncryptionHelper.BlockSize - 1)
+                                   & ~(AesEncryptionHelper.BlockSize - 1);
+
                     if (packSize == dataSize)
                     {
                         packSize += AesEncryptionHelper.BlockSize;
@@ -94,7 +99,8 @@ namespace ResourcePacker.Helpers
                     var dataToEncrypt = fileContent.Concat(
                         Enumerable.Repeat((byte)pkcs7, pkcs7).ToArray()).ToArray();
 
-                    if (!AesEncryptionHelper.EncryptCbc(dataToEncrypt, packSize, ref output, key))
+                    if (!AesEncryptionHelper.EncryptCbc(dataToEncrypt, packSize, ref output, key,
+                            cancellationToken: cancellationToken))
                     {
                         continue;
                     }
@@ -104,11 +110,35 @@ namespace ResourcePacker.Helpers
 
                 binaryWriter.Seek(offset, SeekOrigin.Begin);
                 binaryWriter.Write(fileContent);
+
                 offset += entry.PackSize;
+                entries[entryIndex++] = entry;
             }
 
+            // Write header to file.
             binaryWriter.Seek(0, SeekOrigin.Begin);
-            binaryWriter.Write(header);
+
+            var buffer = new byte[headerSize];
+            var ptr = Marshal.AllocHGlobal(headerSize);
+
+            Marshal.StructureToPtr(header, ptr, true);
+            Marshal.Copy(ptr, buffer, 0, headerSize);
+            Marshal.FreeHGlobal(ptr);
+            binaryWriter.Write(buffer);
+
+            // Write entry metadata to file.
+            foreach (var entry in entries)
+            {
+                buffer = new byte[entrySize];
+                ptr = Marshal.AllocHGlobal(entrySize);
+
+                Marshal.StructureToPtr(entry, ptr, true);
+                Marshal.Copy(ptr, buffer, 0, entrySize);
+                Marshal.FreeHGlobal(ptr);
+                binaryWriter.Write(buffer);
+            }
+
+            outputStream.Close();
         }
 
         /// <summary>
@@ -189,6 +219,84 @@ namespace ResourcePacker.Helpers
             }
 
             return entries.ToArray();
+        }
+
+        /// <summary>
+        /// Attempts to load all assets from a collection of entries.
+        /// </summary>
+        /// <param name="entries"></param>
+        /// <param name="fileStream"></param>
+        /// <param name="password"></param>
+        /// <param name="progress"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns>A list of all assets inside the package.</returns>
+        public static List<Asset> LoadAssetsFromPackage(Entry[] entries, Stream fileStream, string password,
+            IProgress<(int percentage, int amount)> progress, CancellationToken cancellationToken = default)
+        {
+            var assets = new List<Asset>();
+            for (var i = 0; i < entries.Length; i++)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                var entry = entries[i];
+                if (!LoadSingleFromPackage(fileStream, entry, out var asset, password))
+                {
+                    Log.Error("Integrity check failed for entry: {id}", new { entry.Id });
+                    continue;
+                }
+
+                Log.Debug("Added asset: {@asset}",
+                    new { asset.Name, MediaType = asset.MimeType?.Name });
+                assets.Add(asset);
+                progress.Report(((int)((double)(i + 1) / entries.Length * 100), i + 1));
+            }
+
+            if (assets.Count == entries.Length)
+            {
+                Log.Information("Loaded {assetCount} assets.", assets.Count);
+            }
+            else
+            {
+                Log.Warning("Loaded {assetCount} out of {entryCount} assets.",
+                    assets.Count, entries.Length);
+            }
+
+            return assets;
+        }
+
+        /// <summary>
+        /// Attempts to load a specified asset from a provided stream.
+        /// </summary>
+        /// <param name="fileStream">The package stream.</param>
+        /// <param name="entry">Information about the entry.</param>
+        /// <param name="asset"></param>
+        /// <param name="password"></param>
+        /// <returns><see langword="true"/> when integrity check succeeded; otherwise, <see langword="false"/>.</returns>
+        public static bool LoadSingleFromPackage(Stream fileStream, Entry entry, out Asset asset, string password = "")
+        {
+            var binaryReader = new BinaryReader(fileStream);
+            binaryReader.BaseStream.Position = entry.Offset;
+            var buffer = binaryReader.ReadBytes(entry.PackSize);
+
+            if (!string.IsNullOrEmpty(password))
+            {
+                var key = AesEncryptionHelper.KeySetup(password);
+                var output = new byte[entry.PackSize];
+                AesEncryptionHelper.DecryptCbc(buffer, entry.PackSize, ref output, key);
+                buffer = output;
+            }
+
+            var crc = Crc32Algorithm.Compute(buffer, 0, entry.DataSize);
+            asset = new Asset(buffer);
+
+            if (entry.Crc != crc)
+            {
+                return false;
+            }
+
+            asset.MimeType = AssetHelper.GetMimeType(buffer);
+            asset.Entry = entry;
+            return true;
         }
     }
 }

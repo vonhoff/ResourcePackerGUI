@@ -352,6 +352,7 @@ namespace ResourcePacker.Forms
             // 
             // progressBar
             // 
+            this.progressBar.MarqueeAnimationSpeed = 75;
             this.progressBar.Name = "progressBar";
             resources.ApplyResources(this.progressBar, "progressBar");
             // 

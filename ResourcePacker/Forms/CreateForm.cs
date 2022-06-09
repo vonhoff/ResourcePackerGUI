@@ -54,24 +54,6 @@ namespace ResourcePacker.Forms
             }
         }
 
-        private static IEnumerable<string> GetAllFiles(string path, string searchPattern, CancellationToken cancellationToken)
-        {
-            return Directory.EnumerateFiles(path, searchPattern).Union(
-                Directory.EnumerateDirectories(path).SelectMany(d =>
-                {
-                    try
-                    {
-                        cancellationToken.ThrowIfCancellationRequested();
-                        return GetAllFiles(d, searchPattern, cancellationToken);
-                    }
-                    catch (UnauthorizedAccessException ex)
-                    {
-                        Log.Warning(ex, "Could not access directory: {path}", d);
-                        return Enumerable.Empty<string>();
-                    }
-                }));
-        }
-
         private void BtnAssetExplore_Click(object sender, EventArgs e)
         {
             using var browserDialog = new FolderBrowserDialog();
@@ -83,7 +65,7 @@ namespace ResourcePacker.Forms
             }
 
             var selectedPath = browserDialog.SelectedPath;
-            if (DirectoryHelper.CheckDirectoryEmpty(selectedPath))
+            if (DirectoryHelper.IsEmpty(selectedPath))
             {
                 MessageBox.Show("The specified directory does not contain any files.", "Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -165,8 +147,13 @@ namespace ResourcePacker.Forms
             Task.Run(() =>
             {
                 var definitionsLocation = _createDefinitionFile ? _definitionsLocation : string.Empty;
-                PackageHelper.Build(_assetsToInclude, _relativePackageLocationDepth, _packageLocation,
-                    txtPassword.Text, definitionsLocation, _progress);
+
+                Invoke(() => lblStatus.Text = "Creating definitions...");
+                var paths = 
+                    DefinitionHelper.CreateDefinitionFile(_assetsToInclude, _relativePackageLocationDepth,
+                        definitionsLocation, _progress, 30);
+
+                Invoke(() => lblStatus.Text = "Packing assets...");
             });
         }
 
@@ -213,7 +200,8 @@ namespace ResourcePacker.Forms
                 progressBar.Style = ProgressBarStyle.Marquee;
             });
 
-            var files = GetAllFiles(selectedPath, string.Empty, _cancellationTokenSource.Token).ToArray();
+            var files = DirectoryHelper.GetAllFiles(selectedPath, 
+                string.Empty, _cancellationTokenSource.Token).ToArray();
 
             if (files.Length == 0)
             {

@@ -342,7 +342,12 @@ namespace ResourcePacker.Forms
 
             var (percentage, amount) = progress;
             progressBar.Value = percentage;
-            lblResultCount.Text = $"{amount} Entries";
+            lblResultCount.Text = $"{amount} " + (amount > 1 ? "Assets" : "Asset");
+
+            if (progressBar.Style == ProgressBarStyle.Marquee)
+            {
+                progressBar.Style = ProgressBarStyle.Blocks;
+            }
         }
 
         private void BtnLoadDefinitions_Click(object sender, EventArgs e)
@@ -400,8 +405,11 @@ namespace ResourcePacker.Forms
                     var entries = PackageHelper.LoadAllEntryInformation(_packageHeader, stream);
                     _password = string.Empty;
 
-                    // Try to load the first asset to check whether the archive is encrypted.
-                    if (!AssetHelper.LoadSingleFromPackage(stream, entries[0], out _))
+                    // Get the smallest entry for fast integrity checking.
+                    var smallestEntry = entries.Aggregate((c, d) => c.PackSize < d.PackSize ? c : d);
+
+                    // Try to load the first asset to check whether the package is encrypted.
+                    if (!PackageHelper.LoadSingleFromPackage(stream, smallestEntry, out _))
                     {
                         var passwordDialog = new PasswordForm();
                         if (passwordDialog.ShowDialog() != DialogResult.OK)
@@ -410,7 +418,7 @@ namespace ResourcePacker.Forms
                         }
 
                         _password = passwordDialog.Password;
-                        if (!AssetHelper.LoadSingleFromPackage(stream, entries[0], out _, _password))
+                        if (!PackageHelper.LoadSingleFromPackage(stream, smallestEntry, out _, _password))
                         {
                             throw new Exception("The password is incorrect.");
                         }
@@ -421,9 +429,10 @@ namespace ResourcePacker.Forms
                         btnCancel.Visible = true;
                         btnCreate.Visible = false;
                         btnOpen.Visible = false;
+                        progressBar.Style = ProgressBarStyle.Marquee;
                     });
                     
-                    _assets = AssetHelper.LoadAllFromPackage(entries, stream, _password, 
+                    _assets = PackageHelper.LoadAssetsFromPackage(entries, stream, _password, 
                         _progress, _cancellationTokenSource.Token);
 
                     stopwatch.Stop();
@@ -431,6 +440,7 @@ namespace ResourcePacker.Forms
                 
                     Invoke(() =>
                     {
+                        lblResultCount.Text = $"{_assets.Count} " + (_assets.Count > 1 ? "Assets" : "Asset");
                         lblStatus.Text = string.Empty;
                         lblElapsed.Text = stopwatch.Elapsed.ToString(@"hh\:mm\:ss\.ffff");
                     });
@@ -439,7 +449,8 @@ namespace ResourcePacker.Forms
                 {
                     Invoke(() =>
                     {
-                        lblResultCount.Text = "0 Entries";
+                        lblStatus.Text = string.Empty;
+                        lblResultCount.Text = "0 Assets";
                         lblElapsed.Text = "00:00:00.0000";
                     });
 
@@ -454,6 +465,7 @@ namespace ResourcePacker.Forms
 
                 Invoke(() =>
                 {
+                    progressBar.Style = ProgressBarStyle.Blocks;
                     progressBar.Value = 0;
                     btnLoadDefinitions.Enabled = true;
                     btnExtract.Enabled = true;

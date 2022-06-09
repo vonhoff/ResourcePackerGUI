@@ -20,12 +20,31 @@
 
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
+using Serilog;
 
 namespace ResourcePacker.Helpers
 {
     public static class DirectoryHelper
     {
-        public static bool CheckDirectoryEmpty(string path)
+        public static IEnumerable<string> GetAllFiles(string path, string searchPattern, CancellationToken cancellationToken)
+        {
+            return Directory.EnumerateFiles(path, searchPattern).Union(
+                Directory.EnumerateDirectories(path).SelectMany(d =>
+                {
+                    try
+                    {
+                        cancellationToken.ThrowIfCancellationRequested();
+                        return GetAllFiles(d, searchPattern, cancellationToken);
+                    }
+                    catch (UnauthorizedAccessException ex)
+                    {
+                        Log.Warning(ex, "Could not access directory: {path}", d);
+                        return Enumerable.Empty<string>();
+                    }
+                }));
+        }
+
+        public static bool IsEmpty(string path)
         {
             if (string.IsNullOrEmpty(path))
             {
