@@ -29,6 +29,6 @@ namespace ResourcePacker.Entities
         public uint Crc;
         public int DataSize;
         public int PackSize;
-        public uint Offset;
+        public int Offset;
     }
 }

@@ -25,7 +25,7 @@ namespace ResourcePacker.Forms
 {
     public partial class CreateForm : Form
     {
-        private readonly HashSet<string> _assetsToInclude = new();
+        private readonly List<string> _assetsToInclude = new();
         private readonly IProgress<(int percentage, string path)> _progress;
         private readonly TimeSpan _progressTimeInterval = TimeSpan.FromMilliseconds(20);
         private CancellationTokenSource _cancellationTokenSource;
@@ -183,6 +183,11 @@ namespace ResourcePacker.Forms
                 return;
             }
 
+            if (Path.GetExtension(saveFileDialog.FileName) != ".dat")
+            {
+                saveFileDialog.FileName += ".dat";
+            }
+
             txtPackageLocation.Text = saveFileDialog.FileName;
             btnCreate.Enabled = _assetsToInclude.Count > 0;
 
@@ -275,8 +280,7 @@ namespace ResourcePacker.Forms
                     }
                 }
 
-                // Use the last percent for updating the tree view.
-                _progress.Report(((int)((double)(i + 1) / files.Count * 99),
+                _progress.Report(((int)((double)(i + 1) / files.Count * 100),
                     string.Join("/", pathNodes[relativeDepth..])));
             }
         }
@@ -351,8 +355,8 @@ namespace ResourcePacker.Forms
                 selectorTreeView.EndUpdate();
 
                 lblStatus.Text = "Ready";
-                lblPercentage.Text = "100%";
-                progressBar.Value = 100;
+                lblPercentage.Text = "0%";
+                progressBar.Value = 0;
                 btnCreate.Enabled = _packageLocation != string.Empty;
                 Cursor.Current = Cursors.Default;
 

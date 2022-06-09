@@ -65,7 +65,7 @@ namespace ResourcePacker.Helpers
         }
 
         /// <summary>
-        /// Creates definitions from a provided list of file names.
+        /// Creates definitions from a provided list of file names. 
         /// </summary>
         /// <param name="items">The set of file paths.</param>
         /// <param name="relativeDepth">The number of nodes to skip from a path.</param>
@@ -73,11 +73,11 @@ namespace ResourcePacker.Helpers
         /// <param name="progress">An optional progress instance.</param>
         /// <param name="maximumProgress">An optional maximum progress for <paramref name="progress"/>.</param>
         /// <returns>A collection of definitions.</returns>
-        public static HashSet<string> CreateDefinitions(HashSet<string> items, int relativeDepth,
-            string outputFile = "", IProgress<(int percentage, string path)>? progress = null, int maximumProgress = 100)
+        public static IReadOnlyDictionary<string, string> CreateDefinitionFile(IReadOnlyList<string> items, int relativeDepth,
+            string outputFile, IProgress<(int percentage, string path)>? progress = null, int maximumProgress = 100)
         {
             var index = 0;
-            var processedItems = new HashSet<string>();
+            var processedItems = new Dictionary<string, string>();
 
             StreamWriter? file = null;
             if (!string.IsNullOrWhiteSpace(outputFile))
@@ -107,7 +107,7 @@ namespace ResourcePacker.Helpers
                 var relativePath = string.Join('/', pathNodes[relativeDepth..]).ToLowerInvariant();
 
                 file?.WriteLine(relativePath);
-                processedItems.Add(relativePath);
+                processedItems.Add(absolutePath, relativePath);
                 progress?.Report(((int)((double)(index + 1) / items.Count * maximumProgress), relativePath));
             }
 

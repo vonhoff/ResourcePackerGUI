@@ -18,8 +18,11 @@
 
 #endregion
 
+using System.Diagnostics;
 using System.IO.Packaging;
 using System.Runtime.InteropServices;
+using System.Text;
+using Force.Crc32;
 using ResourcePacker.Entities;
 using Serilog;
 
@@ -29,13 +32,83 @@ namespace ResourcePacker.Helpers
     {
         public static string PackHeaderId => "ResPack";
 
-        public static void Build(HashSet<string> items, int relativeDepth, string packageOutput, 
+        public static void Build(IReadOnlyList<string> items, int relativeDepth, string packageOutput,
             string password, string definitionOutput = "", IProgress<(int percentage, string path)>? progress = null)
         {
-            var relativePaths = DefinitionHelper.CreateDefinitions(items, relativeDepth,
-                definitionOutput, progress, 20);
+            var paths = DefinitionHelper.CreateDefinitionFile(items, relativeDepth,
+                definitionOutput, progress, 30);
 
-            
+            var header = new PackageHeader
+            {
+                Id = PackHeaderId,
+                NumberOfEntries = paths.Count
+            };
+
+            var outputStream = File.Open(packageOutput, FileMode.CreateNew);
+            var binaryWriter = new BinaryWriter(outputStream);
+
+            var key = AesEncryptionHelper.KeySetup(password);
+            var entries = new Entry[header.NumberOfEntries];
+            var offset = Marshal.SizeOf(typeof(PackageHeader)) + (header.NumberOfEntries * Marshal.SizeOf(typeof(Entry)));
+            var entryIndex = 0;
+
+            foreach (var (absolutePath, relativePath) in paths)
+            {
+                byte[] fileContent;
+                try
+                {
+                    fileContent = File.ReadAllBytes(absolutePath);
+                }
+                catch (Exception ex)
+                {
+                    Log.Warning(ex, "Could not open file stream for {path}", absolutePath);
+                    continue;
+                }
+
+                var dataSize = fileContent.Length;
+                var nameBytes = Encoding.ASCII.GetBytes(relativePath);
+                var nameCrc = Crc32Algorithm.Compute(nameBytes);
+                var fileCrc = Crc32Algorithm.Compute(fileContent);
+
+                var entry = new Entry
+                {
+                    Id = nameCrc,
+                    Crc = fileCrc,
+                    Offset = offset,
+                    DataSize = dataSize,
+                    PackSize = dataSize
+                };
+
+                if (key.Length > 0)
+                {
+                    var packSize = (dataSize + AesEncryptionHelper.BlockSize - 1) & ~(AesEncryptionHelper.BlockSize - 1);
+                    if (packSize == dataSize)
+                    {
+                        packSize += AesEncryptionHelper.BlockSize;
+                    }
+
+                    entry.PackSize = packSize;
+
+                    var output = new byte[packSize];
+                    var pkcs7 = packSize - dataSize;
+                    var dataToEncrypt = fileContent.Concat(
+                        Enumerable.Repeat((byte)pkcs7, pkcs7).ToArray()).ToArray();
+
+                    if (!AesEncryptionHelper.EncryptCbc(dataToEncrypt, packSize, ref output, key))
+                    {
+                        continue;
+                    }
+
+                    fileContent = output;
+                }
+
+                binaryWriter.Seek(offset, SeekOrigin.Begin);
+                binaryWriter.Write(fileContent);
+                offset += entry.PackSize;
+            }
+
+            binaryWriter.Seek(0, SeekOrigin.Begin);
+            binaryWriter.Write(header);
         }
 
         /// <summary>

@@ -244,31 +244,30 @@ namespace ResourcePacker.Helpers
         /// <param name="inputLength">Must be a multiple of <see cref="BlockSize"/>.</param>
         /// <param name="output">Ciphertext, same length as plaintext.</param>
         /// <param name="key">From the key setup.</param>
-        /// <param name="keySize">Bit length of the key, 128, 192, or 256.</param>
         /// <param name="iv">IV, must be <see cref="BlockSize"/> bytes long.</param>
         /// <returns><see langword="true"/> when succeeded, otherwise <see langword="false"/>.</returns>
-        public static bool EncryptCbc(byte[] input, int inputLength, out byte[] output, uint[] key, int keySize, byte[] iv)
+        public static bool EncryptCbc(byte[] input, int inputLength, ref byte[] output, uint[] key, byte[]? iv = null)
         {
             var inputBuffer = new byte[BlockSize];
             var outputBuffer = new byte[BlockSize];
             var ivBuffer = new byte[BlockSize];
-            output = Array.Empty<byte>();
 
             if (inputLength % BlockSize != 0)
             {
                 return false;
             }
 
+            iv ??= Iv;
             var blocks = inputLength / BlockSize;
             Array.Copy(iv, ivBuffer, BlockSize);
 
             for (var index = 0; index < blocks; index++)
             {
-                Buffer.BlockCopy(input, 0, inputBuffer, index * BlockSize, BlockSize);
+                Buffer.BlockCopy(input, index * BlockSize, inputBuffer, 0, BlockSize);
                 XorBuf(ivBuffer, ref inputBuffer, BlockSize);
-                Encrypt(inputBuffer, ref outputBuffer, key, keySize);
+                Encrypt(inputBuffer, ref outputBuffer, key);
                 Buffer.BlockCopy(outputBuffer, 0, output, index * BlockSize, BlockSize);
-                Array.Copy(outputBuffer, ivBuffer, BlockSize);
+                Buffer.BlockCopy(inputBuffer, 0, ivBuffer, 0, BlockSize);
             }
 
             return true;
@@ -276,6 +275,11 @@ namespace ResourcePacker.Helpers
 
         public static uint[] KeySetup(string password)
         {
+            if (string.IsNullOrEmpty(password))
+            {
+                return Array.Empty<uint>();
+            }
+
             byte[] key;
             using (var md5 = System.Security.Cryptography.MD5.Create())
             {
@@ -412,7 +416,7 @@ namespace ResourcePacker.Helpers
             output[15] = state[3][3];
         }
 
-        private static void Encrypt(IReadOnlyList<byte> input, ref byte[] output, uint[] key, int keySize)
+        private static void Encrypt(IReadOnlyList<byte> input, ref byte[] output, uint[] key)
         {
             // Copy input array (should be 16 bytes long) to a matrix (sequential bytes are ordered
             // by row, not col) called "state" for processing.
@@ -451,25 +455,7 @@ namespace ResourcePacker.Helpers
             SubBytes(ref state); ShiftRows(ref state); MixColumns(ref state); AddRoundKey(ref state, key[28..]);
             SubBytes(ref state); ShiftRows(ref state); MixColumns(ref state); AddRoundKey(ref state, key[32..]);
             SubBytes(ref state); ShiftRows(ref state); MixColumns(ref state); AddRoundKey(ref state, key[36..]);
-            if (keySize != 128)
-            {
-                SubBytes(ref state); ShiftRows(ref state); MixColumns(ref state); AddRoundKey(ref state, key[40..]);
-                SubBytes(ref state); ShiftRows(ref state); MixColumns(ref state); AddRoundKey(ref state, key[44..]);
-                if (keySize != 192)
-                {
-                    SubBytes(ref state); ShiftRows(ref state); MixColumns(ref state); AddRoundKey(ref state, key[48..]);
-                    SubBytes(ref state); ShiftRows(ref state); MixColumns(ref state); AddRoundKey(ref state, key[52..]);
-                    SubBytes(ref state); ShiftRows(ref state); AddRoundKey(ref state, key[56..]);
-                }
-                else
-                {
-                    SubBytes(ref state); ShiftRows(ref state); AddRoundKey(ref state, key[48..]);
-                }
-            }
-            else
-            {
-                SubBytes(ref state); ShiftRows(ref state); AddRoundKey(ref state, key[40..]);
-            }
+            SubBytes(ref state); ShiftRows(ref state); AddRoundKey(ref state, key[40..]);
 
             // Copy the state to the output array.
             output[0] = state[0][0];
