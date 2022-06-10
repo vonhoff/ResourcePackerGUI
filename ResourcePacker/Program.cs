@@ -1,6 +1,6 @@
 #region GNU General Public License
 
-/* Copyright 2022 Simon Vonhoff
+/* Copyright 2022 Vonhoff, MaxtorCoder
  *
  * This file is part of ResourcePackerGUI.
  *

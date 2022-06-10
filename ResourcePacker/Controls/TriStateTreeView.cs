@@ -1,4 +1,4 @@
-﻿#region Copyright 2022 Simon Vonhoff
+﻿#region Copyright 2022 Vonhoff, MaxtorCoder
 
 /* This file is part of ResourcePackerGUI.
  *
