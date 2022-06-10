@@ -55,7 +55,7 @@ namespace ResourcePacker.Forms
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
             this.lblStatusFile = new System.Windows.Forms.Label();
-            this.progressBar = new System.Windows.Forms.ProgressBar();
+            this.progressBarPrimary = new System.Windows.Forms.ProgressBar();
             this.splitContainer6 = new System.Windows.Forms.SplitContainer();
             this.lblStatus = new System.Windows.Forms.Label();
             this.lblPercentage = new System.Windows.Forms.Label();
@@ -202,13 +202,13 @@ namespace ResourcePacker.Forms
             // groupBox4
             // 
             this.groupBox4.Controls.Add(this.lblStatusFile);
-            this.groupBox4.Controls.Add(this.progressBar);
+            this.groupBox4.Controls.Add(this.progressBarPrimary);
             this.groupBox4.Controls.Add(this.splitContainer6);
             this.groupBox4.Dock = System.Windows.Forms.DockStyle.Top;
             this.groupBox4.Location = new System.Drawing.Point(3, 433);
             this.groupBox4.Name = "groupBox4";
             this.groupBox4.Padding = new System.Windows.Forms.Padding(9);
-            this.groupBox4.Size = new System.Drawing.Size(528, 120);
+            this.groupBox4.Size = new System.Drawing.Size(528, 108);
             this.groupBox4.TabIndex = 3;
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "Progress";
@@ -220,16 +220,16 @@ namespace ResourcePacker.Forms
             this.lblStatusFile.Location = new System.Drawing.Point(9, 77);
             this.lblStatusFile.Name = "lblStatusFile";
             this.lblStatusFile.Size = new System.Drawing.Size(510, 20);
-            this.lblStatusFile.TabIndex = 10;
+            this.lblStatusFile.TabIndex = 15;
             // 
-            // progressBar
+            // progressBarPrimary
             // 
-            this.progressBar.Dock = System.Windows.Forms.DockStyle.Top;
-            this.progressBar.Location = new System.Drawing.Point(9, 54);
-            this.progressBar.MarqueeAnimationSpeed = 75;
-            this.progressBar.Name = "progressBar";
-            this.progressBar.Size = new System.Drawing.Size(510, 23);
-            this.progressBar.TabIndex = 9;
+            this.progressBarPrimary.Dock = System.Windows.Forms.DockStyle.Top;
+            this.progressBarPrimary.Location = new System.Drawing.Point(9, 54);
+            this.progressBarPrimary.MarqueeAnimationSpeed = 75;
+            this.progressBarPrimary.Name = "progressBarPrimary";
+            this.progressBarPrimary.Size = new System.Drawing.Size(510, 23);
+            this.progressBarPrimary.TabIndex = 9;
             // 
             // splitContainer6
             // 
@@ -774,11 +774,10 @@ namespace ResourcePacker.Forms
         private ToolStripLabel lblSelectedItems;
         private Controls.TriStateTreeView selectorTreeView;
         private GroupBox groupBox4;
-        private ProgressBar progressBar;
+        private ProgressBar progressBarPrimary;
         private SplitContainer splitContainer6;
         private Label lblStatus;
         private Label lblPercentage;
-        private Label lblStatusFile;
         private CheckBox chkCreateDefinitionFile;
         private SplitContainer splitContainerDefinitionFile;
         private TextBox txtDefinitionsLocation;
@@ -788,5 +787,6 @@ namespace ResourcePacker.Forms
         private TextBox txtPackageLocation;
         private Button btnPackageExplore;
         private Label label3;
+        private Label lblStatusFile;
     }
 }

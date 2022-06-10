@@ -32,7 +32,7 @@ namespace ResourcePacker.Helpers
         public static string PackHeaderId => "ResPack";
 
         public static void BuildPackage(IReadOnlyDictionary<string, string> paths, string packageOutput,
-                    string password, IProgress<(int percentage, string path)>? progress = null,
+                    string password, IProgress<(int percentage, string path)>? primaryProgress = null,
                     CancellationToken cancellationToken = default)
         {
             var header = new PackageHeader
@@ -48,14 +48,14 @@ namespace ResourcePacker.Helpers
             var binaryWriter = new BinaryWriter(outputStream);
 
             var key = AesEncryptionHelper.KeySetup(password);
-            var entries = new Entry[header.NumberOfEntries];
+            var entries = new List<Entry>();
             var offset = headerSize + (header.NumberOfEntries * entrySize);
-            var entryIndex = 0;
 
+            var expectedEntries = paths.Count;
             foreach (var (absolutePath, relativePath) in paths)
             {
+                primaryProgress?.Report(((int)((double)(entries.Count) / expectedEntries * 100), relativePath));
                 cancellationToken.ThrowIfCancellationRequested();
-
                 byte[] fileContent;
                 try
                 {
@@ -63,6 +63,7 @@ namespace ResourcePacker.Helpers
                 }
                 catch (Exception ex)
                 {
+                    expectedEntries--;
                     Log.Warning(ex, "Could not open file stream for {path}", absolutePath);
                     continue;
                 }
@@ -99,7 +100,7 @@ namespace ResourcePacker.Helpers
                     var dataToEncrypt = fileContent.Concat(
                         Enumerable.Repeat((byte)pkcs7, pkcs7).ToArray()).ToArray();
 
-                    if (!AesEncryptionHelper.EncryptCbc(dataToEncrypt, packSize, ref output, key,
+                    if (!AesEncryptionHelper.EncryptCbc(dataToEncrypt, packSize, ref output, key, 
                             cancellationToken: cancellationToken))
                     {
                         continue;
@@ -112,7 +113,7 @@ namespace ResourcePacker.Helpers
                 binaryWriter.Write(fileContent);
 
                 offset += entry.PackSize;
-                entries[entryIndex++] = entry;
+                entries.Add(entry);
             }
 
             // Write header to file.
@@ -129,6 +130,7 @@ namespace ResourcePacker.Helpers
             // Write entry metadata to file.
             foreach (var entry in entries)
             {
+                cancellationToken.ThrowIfCancellationRequested();
                 buffer = new byte[entrySize];
                 ptr = Marshal.AllocHGlobal(entrySize);
 
@@ -139,6 +141,7 @@ namespace ResourcePacker.Helpers
             }
 
             outputStream.Close();
+            MessageBox.Show("Done!");
         }
 
         /// <summary>

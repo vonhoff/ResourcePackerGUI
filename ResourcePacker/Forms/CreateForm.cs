@@ -26,11 +26,14 @@ namespace ResourcePacker.Forms
     public partial class CreateForm : Form
     {
         private readonly List<string> _assetsToInclude = new();
-        private readonly IProgress<(int percentage, string path)> _progress;
+
+        private readonly IProgress<(int percentage, string path)> _progressPrimary;
         private readonly TimeSpan _progressTimeInterval = TimeSpan.FromMilliseconds(20);
+        private DateTime _progressLastUpdatedPrimary = DateTime.UtcNow;
+        private DateTime _progressLastUpdatedSecondary = DateTime.UtcNow;
+
         private CancellationTokenSource _cancellationTokenSource;
         private string _packageLocation = string.Empty;
-        private DateTime _progressLastUpdated = DateTime.UtcNow;
         private int _relativePackageLocationDepth;
         private string _definitionsLocation = string.Empty;
         private bool _createDefinitionFile = true;
@@ -39,7 +42,7 @@ namespace ResourcePacker.Forms
         public CreateForm()
         {
             InitializeComponent();
-            _progress = new Progress<(int percentage, string path)>(UpdateFileCollectionProgress);
+            _progressPrimary = new Progress<(int percentage, string path)>(UpdateFileCollectionProgress);
             _cancellationTokenSource = new CancellationTokenSource();
             _cancellationTokenSource.Cancel();
         }
@@ -120,8 +123,8 @@ namespace ResourcePacker.Forms
                             txtAssetFolder.Text = string.Empty;
                             lblPercentage.Text = "0%";
                             lblStatus.Text = "Ready";
-                            progressBar.Style = ProgressBarStyle.Blocks;
-                            progressBar.Value = 0;
+                            progressBarPrimary.Style = ProgressBarStyle.Blocks;
+                            progressBarPrimary.Value = 0;
                             btnCreate.Enabled = false;
                         });
                     }
@@ -144,16 +147,34 @@ namespace ResourcePacker.Forms
 
         private void BtnCreate_Click(object sender, EventArgs e)
         {
+            _cancellationTokenSource = new CancellationTokenSource();
+
             Task.Run(() =>
             {
                 var definitionsLocation = _createDefinitionFile ? _definitionsLocation : string.Empty;
 
                 Invoke(() => lblStatus.Text = "Creating definitions...");
                 var paths = 
-                    DefinitionHelper.CreateDefinitionFile(_assetsToInclude, _relativePackageLocationDepth,
-                        definitionsLocation, _progress, 30);
+                    DefinitionHelper.CreateDefinitionFile(_assetsToInclude, _relativePackageLocationDepth, definitionsLocation);
 
                 Invoke(() => lblStatus.Text = "Packing assets...");
+                try
+                {
+                    PackageHelper.BuildPackage(paths, _packageLocation,
+                        txtPassword.Text, _progressPrimary, _cancellationTokenSource.Token);
+
+                    _cancellationTokenSource.Cancel();
+                }
+                catch (OperationCanceledException ex)
+                {
+                    MessageBox.Show(ex.Message, "Operation canceled", 
+                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Could not build resource package. {ex.Message}", "Error",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             });
         }
 
@@ -197,7 +218,7 @@ namespace ResourcePacker.Forms
             {
                 lblPercentage.Text = "0%";
                 lblStatus.Text = "Collecting available files...";
-                progressBar.Style = ProgressBarStyle.Marquee;
+                progressBarPrimary.Style = ProgressBarStyle.Marquee;
             });
 
             var files = DirectoryHelper.GetAllFiles(selectedPath, 
@@ -215,7 +236,7 @@ namespace ResourcePacker.Forms
                 selectorTreeView.Nodes.Clear();
                 lblAvailableItems.Text = "Available items: 0";
                 lblSelectedItems.Text = "Selected items: 0";
-                progressBar.Style = ProgressBarStyle.Blocks;
+                progressBarPrimary.Style = ProgressBarStyle.Blocks;
                 lblStatus.Text = "Creating tree nodes...";
             });
 
@@ -268,7 +289,7 @@ namespace ResourcePacker.Forms
                     }
                 }
 
-                _progress.Report(((int)((double)(i + 1) / files.Count * 100),
+                _progressPrimary.Report(((int)((double)(i + 1) / files.Count * 100),
                     string.Join("/", pathNodes[relativeDepth..])));
             }
         }
@@ -310,15 +331,15 @@ namespace ResourcePacker.Forms
 
         private void UpdateFileCollectionProgress((int percentage, string path) progress)
         {
-            if (_progressLastUpdated >= DateTime.UtcNow)
+            if (_progressLastUpdatedPrimary >= DateTime.UtcNow)
             {
                 return;
             }
 
-            _progressLastUpdated = DateTime.UtcNow + _progressTimeInterval;
+            _progressLastUpdatedPrimary = DateTime.UtcNow + _progressTimeInterval;
 
             var (percentage, path) = progress;
-            progressBar.Value = percentage;
+            progressBarPrimary.Value = percentage;
             lblPercentage.Text = $"{percentage}%";
             lblPercentage.Refresh();
             lblStatusFile.Text = path;
@@ -344,7 +365,7 @@ namespace ResourcePacker.Forms
 
                 lblStatus.Text = "Ready";
                 lblPercentage.Text = "0%";
-                progressBar.Value = 0;
+                progressBarPrimary.Value = 0;
                 btnCreate.Enabled = _packageLocation != string.Empty;
                 Cursor.Current = Cursors.Default;
 

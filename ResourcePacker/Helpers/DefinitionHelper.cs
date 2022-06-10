@@ -69,13 +69,10 @@ namespace ResourcePacker.Helpers
         /// <param name="items">The set of file paths.</param>
         /// <param name="relativeDepth">The number of nodes to skip from a path.</param>
         /// <param name="outputFile">An optional file location to write to.</param>
-        /// <param name="progress">An optional progress instance.</param>
-        /// <param name="maximumProgress">An optional maximum progress for <paramref name="progress"/>.</param>
         /// <returns>A collection of definitions.</returns>
-        public static IReadOnlyDictionary<string, string> CreateDefinitionFile(IReadOnlyList<string> items, int relativeDepth,
-            string outputFile, IProgress<(int percentage, string path)>? progress = null, int maximumProgress = 100)
+        public static IReadOnlyDictionary<string, string> CreateDefinitionFile(IReadOnlyList<string> items, 
+            int relativeDepth, string outputFile)
         {
-            var index = 0;
             var processedItems = new Dictionary<string, string>();
 
             StreamWriter? file = null;
@@ -86,8 +83,6 @@ namespace ResourcePacker.Helpers
 
             foreach (var absolutePath in items)
             {
-                index++;
-
                 if (!File.Exists(absolutePath))
                 {
                     Log.Warning("File does not exist: {path}", absolutePath);
@@ -107,7 +102,6 @@ namespace ResourcePacker.Helpers
 
                 file?.WriteLine(relativePath);
                 processedItems.Add(absolutePath, relativePath);
-                progress?.Report(((int)((double)(index + 1) / items.Count * maximumProgress), relativePath));
             }
 
             file?.Close();
