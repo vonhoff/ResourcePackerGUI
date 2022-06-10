@@ -68,7 +68,7 @@ namespace ResourcePacker.Forms
             }
 
             var selectedPath = browserDialog.SelectedPath;
-            if (DirectoryHelper.IsEmpty(selectedPath))
+            if (!Directory.EnumerateFiles(selectedPath, string.Empty, SearchOption.AllDirectories).Any())
             {
                 MessageBox.Show("The specified directory does not contain any files.", "Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
