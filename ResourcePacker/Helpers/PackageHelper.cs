@@ -42,8 +42,8 @@ namespace ResourcePacker.Helpers
                 NumberOfEntries = paths.Count
             };
 
-            var outputStream = File.Open(packageOutput, FileMode.OpenOrCreate);
-            var binaryWriter = new BinaryWriter(outputStream);
+            using var outputStream = File.Open(packageOutput, FileMode.OpenOrCreate);
+            using var binaryWriter = new BinaryWriter(outputStream);
 
             var key = AesEncryptionHelper.KeySetup(password);
             var entries = new List<Entry>();
@@ -138,7 +138,7 @@ namespace ResourcePacker.Helpers
         /// When the file stream is not a valid <see langword="ResPack"/> stream.</exception>
         public static PackageHeader GetHeader(Stream fileStream)
         {
-            var binaryReader = new BinaryReader(fileStream);
+            using var binaryReader = new BinaryReader(fileStream);
 
             var header = binaryReader.ReadStruct<PackageHeader>();
             if (header.Id != PackHeaderId || header.NumberOfEntries <= 0)
@@ -159,7 +159,7 @@ namespace ResourcePacker.Helpers
         /// <exception cref="InvalidDataException">When the provided file stream is corrupted.</exception>
         public static Entry[] LoadAllEntryInformation(PackageHeader header, Stream fileStream, CancellationToken cancellationToken = default)
         {
-            var binaryReader = new BinaryReader(fileStream);
+            using var binaryReader = new BinaryReader(fileStream);
 
             var entries = new List<Entry>();
             for (var i = 0; i < header.NumberOfEntries; i++)
@@ -245,7 +245,7 @@ namespace ResourcePacker.Helpers
         /// <returns><see langword="true"/> when integrity check succeeded; otherwise, <see langword="false"/>.</returns>
         public static bool LoadSingleFromPackage(Stream fileStream, Entry entry, out Asset asset, string password = "")
         {
-            var binaryReader = new BinaryReader(fileStream);
+            using var binaryReader = new BinaryReader(fileStream);
             binaryReader.BaseStream.Position = entry.Offset;
             var buffer = binaryReader.ReadBytes(entry.PackSize);
 
