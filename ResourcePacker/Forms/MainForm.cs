@@ -424,8 +424,9 @@ namespace ResourcePacker.Forms
                     _password = string.Empty;
 
                     // Get the smallest entry for fast integrity checking.
-                    var smallestEntry = entries.Aggregate((c, d) => c.PackSize < d.PackSize ? c : d);
-
+                    var smallestEntry = entries.Aggregate((c, d) => 
+                        (c.DataSize < d.DataSize && c.DataSize > 0) ? c : d);
+             
                     // Try to load the first asset to check whether the package is encrypted.
                     if (!PackageHelper.LoadSingleFromPackage(binaryReader, smallestEntry, out _))
                     {
