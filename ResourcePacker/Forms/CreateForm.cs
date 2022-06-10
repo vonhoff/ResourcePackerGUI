@@ -177,7 +177,7 @@ namespace ResourcePacker.Forms
                 Invoke(() => lblStatus.Text = "Creating definitions...");
                 var paths = DefinitionHelper.CreateDefinitionFile(
                     _assetsToInclude, _relativePackageLocationDepth, definitionsLocation,
-                    _progressSecondary);
+                    _packageLocation, _progressSecondary);
 
                 Invoke(() => lblStatus.Text = "Packing assets...");
                 try

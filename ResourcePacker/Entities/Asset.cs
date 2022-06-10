@@ -31,6 +31,11 @@ namespace ResourcePacker.Entities
             Data = data;
         }
 
+        public Asset()
+        {
+            Data = Array.Empty<byte>();
+        }
+
         public byte[] Data { get; init; }
 
         public Entry Entry { get; set; }

@@ -68,18 +68,26 @@ namespace ResourcePacker.Helpers
         /// </summary>
         /// <param name="items">The set of file paths.</param>
         /// <param name="relativeDepth">The number of nodes to skip from a path.</param>
-        /// <param name="outputFile">The file location to write to.</param>
+        /// <param name="definitionsLocation">The file location to write to.</param>
+        /// <param name="packageLocation"></param>
         /// <param name="progress"></param>
         /// <returns>A collection of definitions.</returns>
-        public static IReadOnlyDictionary<string, string> CreateDefinitionFile(IReadOnlyList<string> items, 
-            int relativeDepth, string outputFile, IProgress<int>? progress = null)
+        public static IReadOnlyDictionary<string, string> CreateDefinitionFile(IReadOnlyList<string> items,
+            int relativeDepth, string definitionsLocation, string packageLocation, IProgress<int>? progress = null)
         {
             var processedItems = new Dictionary<string, string>();
-            var file = new StreamWriter(outputFile);
-            var index = 1;
+            var file = new StreamWriter(definitionsLocation);
+            var index = 0;
             foreach (var absolutePath in items)
             {
                 index++;
+
+                if (absolutePath.Equals(packageLocation))
+                {
+                    Log.Warning("File to pack is the same as the package file: {path}", absolutePath);
+                    continue;
+                }
+
                 if (!File.Exists(absolutePath))
                 {
                     Log.Warning("File does not exist: {path}", absolutePath);

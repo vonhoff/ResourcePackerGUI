@@ -22,7 +22,7 @@ using System.Runtime.InteropServices;
 
 namespace ResourcePacker.Entities
 {
-    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    [StructLayout(LayoutKind.Sequential)]
     public struct Entry
     {
         public uint Id;

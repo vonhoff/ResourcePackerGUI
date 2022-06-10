@@ -54,22 +54,26 @@ namespace ResourcePacker.Helpers
             using var binaryWriter = new BinaryWriter(outputStream);
 
             var key = AesEncryptionHelper.KeySetup(password);
-            var entries = new List<Entry>();
+            var entryIndex = 0;
+            var entries = new Entry[paths.Count];
             var offset = Unsafe.SizeOf<PackageHeader>() + (header.NumberOfEntries * Unsafe.SizeOf<Entry>());
-
-            var expectedEntries = paths.Count;
             foreach (var (absolutePath, relativePath) in paths)
             {
-                progressPrimary?.Report(((int)((double)(entries.Count) / expectedEntries * 100), relativePath));
+                progressPrimary?.Report(((int)((double)(entryIndex) / entries.Length * 100), relativePath));
                 cancellationToken.ThrowIfCancellationRequested();
+                
                 byte[] fileContent;
                 try
                 {
+                    if (absolutePath.Equals(packageOutput))
+                    {
+                        throw new InvalidOperationException("The specified file is the same as the output file.");
+                    }
+
                     fileContent = File.ReadAllBytes(absolutePath);
                 }
                 catch (Exception ex)
                 {
-                    expectedEntries--;
                     Log.Warning(ex, "Could not open file stream for {path}", absolutePath);
                     continue;
                 }
@@ -115,9 +119,8 @@ namespace ResourcePacker.Helpers
 
                 binaryWriter.Seek(offset, SeekOrigin.Begin);
                 binaryWriter.Write(fileContent);
-
+                entries[entryIndex++] = entry;
                 offset += entry.PackSize;
-                entries.Add(entry);
             }
 
             // Write header to file.
@@ -131,6 +134,7 @@ namespace ResourcePacker.Helpers
                 binaryWriter.WriteStruct(entry);
             }
 
+            binaryWriter.Dispose();
             outputStream.Close();
         }
 
@@ -170,7 +174,7 @@ namespace ResourcePacker.Helpers
                 var entry = binaryReader.ReadStruct<Entry>();
                 if (entry.Id == 0)
                 {
-                    Log.Error("Invalid entry: {@entry}",
+                    Log.Warning("Invalid entry: {@entry}",
                         new { entry.Id, entry.Crc, entry.DataSize, entry.PackSize });
                     continue;
                 }
@@ -253,6 +257,12 @@ namespace ResourcePacker.Helpers
             out Asset asset, string password = "", IProgress<int>? progressSecondary = null,
             CancellationToken cancellationToken = default)
         {
+            if (entry.Offset < 0)
+            {
+                asset = new Asset();
+                return false;
+            }
+
             binaryReader.BaseStream.Position = entry.Offset;
             var buffer = binaryReader.ReadBytes(entry.PackSize);
 
