@@ -396,8 +396,17 @@ namespace ResourcePacker.Forms
 
             var stream = openFileDialog.OpenFile();
             var binaryReader = new BinaryReader(stream);
-
-            _packageHeader = PackageHelper.GetHeader(binaryReader);
+            try
+            {
+                _packageHeader = PackageHelper.GetHeader(binaryReader);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Could not open resource package. {ex.Message}", "Error",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+           
             Log.Information("ResourcePackage: {@info}",
                 new { _packageHeader.Id, _packageHeader.NumberOfEntries });
 
