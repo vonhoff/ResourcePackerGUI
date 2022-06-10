@@ -20,7 +20,6 @@
 
 using System.IO.Packaging;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using System.Text;
 using Force.Crc32;
 using ResourcePacker.Entities;
@@ -32,8 +31,17 @@ namespace ResourcePacker.Helpers
     {
         public static ulong PackHeaderId => 0x6B636150736552;
 
+        /// <summary>
+        /// Builds a resource package from a set of absolute and relative paths.
+        /// </summary>
+        /// <param name="paths">A dictionary of paths where the key is the absolute path and the value is relative.</param>
+        /// <param name="packageOutput">The destination of the resource package.</param>
+        /// <param name="password">An optional password to be used during the encryption process.</param>
+        /// <param name="progressPrimary">An optional progress to keep track of the amount of assets being packed.</param>
+        /// <param name="progressSecondary">An optional progress to keep track of the encryption state.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> to cancel the operation.</param>
         public static void BuildPackage(IReadOnlyDictionary<string, string> paths, string packageOutput,
-                    string password, IProgress<(int percentage, string path)>? progressPrimary = null,
+                    string password = "", IProgress<(int percentage, string path)>? progressPrimary = null,
                     IProgress<int>? progressSecondary = null, CancellationToken cancellationToken = default)
         {
             var header = new PackageHeader
@@ -83,9 +91,8 @@ namespace ResourcePacker.Helpers
 
                 if (key.Length > 0)
                 {
-                    var packSize = (dataSize + AesEncryptionHelper.BlockSize - 1)
-                                   & ~(AesEncryptionHelper.BlockSize - 1);
-
+                    var packSize = (dataSize + AesEncryptionHelper.BlockSize - 1) &
+                                   ~(AesEncryptionHelper.BlockSize - 1);
                     if (packSize == dataSize)
                     {
                         packSize += AesEncryptionHelper.BlockSize;
@@ -93,18 +100,17 @@ namespace ResourcePacker.Helpers
 
                     entry.PackSize = packSize;
 
-                    var output = new byte[packSize];
+                    // Fill with PKCS#7 padding value.
                     var pkcs7 = packSize - dataSize;
                     var dataToEncrypt = fileContent.Concat(
                         Enumerable.Repeat((byte)pkcs7, pkcs7).ToArray()).ToArray();
 
-                    if (!AesEncryptionHelper.EncryptCbc(dataToEncrypt, packSize, ref output, key,
+                    var output = new byte[packSize];
+                    if (AesEncryptionHelper.EncryptCbc(dataToEncrypt, packSize, ref output, key,
                             progress: progressSecondary, cancellationToken: cancellationToken))
                     {
-                        continue;
+                        fileContent = output;
                     }
-
-                    fileContent = output;
                 }
 
                 binaryWriter.Seek(offset, SeekOrigin.Begin);
@@ -126,7 +132,6 @@ namespace ResourcePacker.Helpers
             }
 
             outputStream.Close();
-            MessageBox.Show("Done!");
         }
 
         /// <summary>
@@ -189,16 +194,17 @@ namespace ResourcePacker.Helpers
         }
 
         /// <summary>
-        /// Attempts to load all assets from a collection of entries.
+        /// Loads assets from a specified package.
         /// </summary>
-        /// <param name="entries"></param>
-        /// <param name="fileStream"></param>
-        /// <param name="password"></param>
-        /// <param name="progressPrimary"></param>
-        /// <param name="cancellationToken"></param>
-        /// <returns>A list of all assets inside the package.</returns>
+        /// <param name="entries">An array of entry metadata.</param>
+        /// <param name="binaryReader">A binary reader for the package.</param>
+        /// <param name="password">The password to be used for loading the assets.</param>
+        /// <param name="progressPrimary">An optional progress for the amount of files to be loaded.</param>
+        /// <param name="progressSecondary">An optional progress for the state of file decryption.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> to cancel the operation.</param>
+        /// <returns>A list of loaded assets.</returns>
         public static List<Asset> LoadAssetsFromPackage(Entry[] entries, BinaryReader binaryReader, string password,
-            IProgress<(int percentage, int amount)>? progressPrimary = null, 
+            IProgress<(int percentage, int amount)>? progressPrimary = null,
             IProgress<int>? progressSecondary = null, CancellationToken cancellationToken = default)
         {
             var assets = new List<Asset>();
@@ -207,7 +213,7 @@ namespace ResourcePacker.Helpers
                 cancellationToken.ThrowIfCancellationRequested();
 
                 var entry = entries[i];
-                if (!LoadSingleFromPackage(binaryReader, entry, out var asset, password, 
+                if (!LoadSingleFromPackage(binaryReader, entry, out var asset, password,
                         progressSecondary, cancellationToken))
                 {
                     Log.Error("Integrity check failed for entry: {id}", new { entry.Id });
@@ -234,7 +240,7 @@ namespace ResourcePacker.Helpers
         }
 
         /// <summary>
-        /// Attempts to load a specified asset from a provided stream.
+        /// Attempts to load a specified asset from a provided binary reader.
         /// </summary>
         /// <param name="binaryReader">The package reader.</param>
         /// <param name="entry">Information about the entry.</param>
@@ -244,7 +250,7 @@ namespace ResourcePacker.Helpers
         /// <param name="cancellationToken"></param>
         /// <returns><see langword="true"/> when integrity check succeeded; otherwise, <see langword="false"/>.</returns>
         public static bool LoadSingleFromPackage(BinaryReader binaryReader, Entry entry,
-            out Asset asset, string password = "", IProgress<int>? progressSecondary = null, 
+            out Asset asset, string password = "", IProgress<int>? progressSecondary = null,
             CancellationToken cancellationToken = default)
         {
             binaryReader.BaseStream.Position = entry.Offset;
@@ -254,7 +260,7 @@ namespace ResourcePacker.Helpers
             {
                 var key = AesEncryptionHelper.KeySetup(password);
                 var output = new byte[entry.PackSize];
-                AesEncryptionHelper.DecryptCbc(buffer, entry.PackSize, ref output, key, 
+                AesEncryptionHelper.DecryptCbc(buffer, entry.PackSize, ref output, key,
                     progress: progressSecondary, cancellationToken: cancellationToken);
                 buffer = output;
             }

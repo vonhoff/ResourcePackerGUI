@@ -39,7 +39,7 @@ namespace ResourcePacker.Forms
 {
     public partial class MainForm : Form
     {
-        private readonly TimeSpan _progressTimeInterval = TimeSpan.FromMilliseconds(20);
+        private readonly TimeSpan _progressTimeInterval = TimeSpan.FromMilliseconds(50);
         private readonly LoggingLevelSwitch _loggingLevelSwitch = new(LogEventLevel.Debug);
         private readonly IProgress<(int percentage, int amount)> _progressPrimary;
         private readonly IProgress<int> _progressSecondary;

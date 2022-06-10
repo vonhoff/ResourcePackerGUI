@@ -68,21 +68,18 @@ namespace ResourcePacker.Helpers
         /// </summary>
         /// <param name="items">The set of file paths.</param>
         /// <param name="relativeDepth">The number of nodes to skip from a path.</param>
-        /// <param name="outputFile">An optional file location to write to.</param>
+        /// <param name="outputFile">The file location to write to.</param>
+        /// <param name="progress"></param>
         /// <returns>A collection of definitions.</returns>
         public static IReadOnlyDictionary<string, string> CreateDefinitionFile(IReadOnlyList<string> items, 
-            int relativeDepth, string outputFile)
+            int relativeDepth, string outputFile, IProgress<int>? progress = null)
         {
             var processedItems = new Dictionary<string, string>();
-
-            StreamWriter? file = null;
-            if (!string.IsNullOrWhiteSpace(outputFile))
-            {
-                file = new StreamWriter(outputFile);
-            }
-
+            var file = new StreamWriter(outputFile);
+            var index = 1;
             foreach (var absolutePath in items)
             {
+                index++;
                 if (!File.Exists(absolutePath))
                 {
                     Log.Warning("File does not exist: {path}", absolutePath);
@@ -99,12 +96,12 @@ namespace ResourcePacker.Helpers
                 }
 
                 var relativePath = string.Join('/', pathNodes[relativeDepth..]).ToLowerInvariant();
-
-                file?.WriteLine(relativePath);
+                file.WriteLine(relativePath);
                 processedItems.Add(absolutePath, relativePath);
+                progress?.Report((int)((double)index / items.Count * 100));
             }
 
-            file?.Close();
+            file.Close();
             return processedItems;
         }
     }

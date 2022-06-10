@@ -18,23 +18,27 @@
 
 #endregion
 
-using System.Runtime.InteropServices;
-using System.Runtime.InteropServices.ComTypes;
 using Serilog;
 
 namespace ResourcePacker.Helpers
 {
     public static class DirectoryHelper
     {
-        public static IEnumerable<string> GetAllFiles(string path, string searchPattern, CancellationToken cancellationToken)
+        /// <summary>
+        /// Attempts to get all files from a path and skip inaccessible files or folders.
+        /// </summary>
+        /// <param name="path">The path to enumerate.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> to cancel the operation.</param>
+        /// <returns>A <see cref="IEnumerable{T}"/> of all accessible files.</returns>
+        public static IEnumerable<string> GetAllFiles(string path, CancellationToken cancellationToken)
         {
-            return Directory.EnumerateFiles(path, searchPattern).Union(
+            return Directory.EnumerateFiles(path).Union(
                 Directory.EnumerateDirectories(path).SelectMany(d =>
                 {
                     try
                     {
                         cancellationToken.ThrowIfCancellationRequested();
-                        return GetAllFiles(d, searchPattern, cancellationToken);
+                        return GetAllFiles(d, cancellationToken);
                     }
                     catch (UnauthorizedAccessException ex)
                     {

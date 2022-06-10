@@ -29,9 +29,10 @@ namespace ResourcePacker.Forms
 
         public string Password { get; set; } = string.Empty;
 
-        private void ChkShowPassword_CheckedChanged(object sender, EventArgs e)
+        private void BtnCancel_Click(object sender, EventArgs e)
         {
-            txtPassword.UseSystemPasswordChar = !chkShowPassword.Checked;
+            DialogResult = DialogResult.Cancel;
+            Close();
         }
 
         private void BtnOk_Click(object sender, EventArgs e)
@@ -39,9 +40,15 @@ namespace ResourcePacker.Forms
             ConfirmPassword();
         }
 
-        private void BtnCancel_Click(object sender, EventArgs e)
+        private void ChkShowPassword_CheckedChanged(object sender, EventArgs e)
         {
-            DialogResult = DialogResult.Cancel;
+            txtPassword.UseSystemPasswordChar = !chkShowPassword.Checked;
+        }
+
+        private void ConfirmPassword()
+        {
+            Password = txtPassword.Text;
+            DialogResult = DialogResult.OK;
             Close();
         }
 
@@ -51,13 +58,6 @@ namespace ResourcePacker.Forms
             {
                 ConfirmPassword();
             }
-        }
-
-        private void ConfirmPassword()
-        {
-            Password = txtPassword.Text;
-            DialogResult = DialogResult.OK;
-            Close();
         }
     }
 }
