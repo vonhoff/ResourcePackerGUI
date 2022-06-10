@@ -167,7 +167,7 @@
         AAEAAAD/////AQAAAAAAAAAMAgAAAEZTeXN0ZW0uV2luZG93cy5Gb3JtcywgQ3VsdHVyZT1uZXV0cmFs
         LCBQdWJsaWNLZXlUb2tlbj1iNzdhNWM1NjE5MzRlMDg5BQEAAAAmU3lzdGVtLldpbmRvd3MuRm9ybXMu
         SW1hZ2VMaXN0U3RyZWFtZXIBAAAABERhdGEHAgIAAAAJAwAAAA8DAAAAchEAAAJNU0Z0AUkBTAIBAQkB
-        AAH4AR0B+AEdARABAAEQAQAE/wEJAQAI/wFCAU0BNgEEBgABNgEEAgABKAMAAUADAAEwAwABAQEAAQgG
+        AAFgAR4BYAEeARABAAEQAQAE/wEJAQAI/wFCAU0BNgEEBgABNgEEAgABKAMAAUADAAEwAwABAQEAAQgG
         AAEMGAABgAIAAYADAAKAAQABgAMAAYABAAGAAQACgAIAA8ABAAHAAdwBwAEAAfABygGmAQABMwUAATMB
         AAEzAQABMwEAAjMCAAMWAQADHAEAAyIBAAMpAQADVQEAA00BAANCAQADOQEAAYABfAH/AQACUAH/AQAB
         kwEAAdYBAAH/AewBzAEAAcYB1gHvAQAB1gLnAQABkAGpAa0CAAH/ATMDAAFmAwABmQMAAcwCAAEzAwAC
@@ -828,7 +828,7 @@
     <value>132, 17</value>
   </metadata>
   <data name="lblStatus.Size" type="System.Drawing.Size, System.Drawing">
-    <value>825, 22</value>
+    <value>733, 22</value>
   </data>
   <data name="lblStatus.TextAlign" type="System.Drawing.ContentAlignment, System.Drawing">
     <value>MiddleLeft</value>
@@ -842,8 +842,11 @@
   <data name="lblResultCount.Text" xml:space="preserve">
     <value>0 Assets</value>
   </data>
-  <data name="progressBar.Size" type="System.Drawing.Size, System.Drawing">
-    <value>160, 20</value>
+  <data name="progressBarSecondary.Size" type="System.Drawing.Size, System.Drawing">
+    <value>75, 20</value>
+  </data>
+  <data name="progressBarPrimary.Size" type="System.Drawing.Size, System.Drawing">
+    <value>175, 20</value>
   </data>
   <data name="lblElapsed.AutoSize" type="System.Boolean, mscorlib">
     <value>False</value>
@@ -2624,10 +2627,16 @@ indentations in the preview panel</value>
   <data name="&gt;&gt;lblResultCount.Type" xml:space="preserve">
     <value>System.Windows.Forms.ToolStripStatusLabel, System.Windows.Forms, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
-  <data name="&gt;&gt;progressBar.Name" xml:space="preserve">
-    <value>progressBar</value>
+  <data name="&gt;&gt;progressBarSecondary.Name" xml:space="preserve">
+    <value>progressBarSecondary</value>
   </data>
-  <data name="&gt;&gt;progressBar.Type" xml:space="preserve">
+  <data name="&gt;&gt;progressBarSecondary.Type" xml:space="preserve">
+    <value>System.Windows.Forms.ToolStripProgressBar, System.Windows.Forms, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;progressBarPrimary.Name" xml:space="preserve">
+    <value>progressBarPrimary</value>
+  </data>
+  <data name="&gt;&gt;progressBarPrimary.Type" xml:space="preserve">
     <value>System.Windows.Forms.ToolStripProgressBar, System.Windows.Forms, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;lblElapsed.Name" xml:space="preserve">

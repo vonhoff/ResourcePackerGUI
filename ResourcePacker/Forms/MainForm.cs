@@ -41,7 +41,8 @@ namespace ResourcePacker.Forms
     {
         private readonly TimeSpan _progressTimeInterval = TimeSpan.FromMilliseconds(20);
         private readonly LoggingLevelSwitch _loggingLevelSwitch = new(LogEventLevel.Debug);
-        private readonly IProgress<(int percentage, int amount)> _progress;
+        private readonly IProgress<(int percentage, int amount)> _progressPrimary;
+        private readonly IProgress<int> _progressSecondary;
         private readonly ActionDebouncer _searchDebouncer;
         private CancellationTokenSource _cancellationTokenSource;
         private List<Asset>? _assets;
@@ -52,20 +53,34 @@ namespace ResourcePacker.Forms
         private string _password = string.Empty;
         private bool _formatPreviewText = true;
         private bool _showDebugMessages = true;
-        private DateTime _progressLastUpdated;
+        private DateTime _progressLastUpdatedPrimary;
+        private DateTime _progressLastUpdatedSecondary;
 
         public MainForm()
         {
             InitializeComponent();
             _searchDebouncer = new ActionDebouncer(RefreshFileTree, TimeSpan.FromSeconds(0.35));
-            _progress = new Progress<(int percentage, int amount)>(UpdateLoadProgress);
+            _progressPrimary = new Progress<(int percentage, int amount)>(UpdateLoadProgress);
+            _progressSecondary = new Progress<int>(UpdateDecryptionProgress);
             _cancellationTokenSource = new CancellationTokenSource();
             _cancellationTokenSource.Cancel();
         }
 
-        #region Custom methods
+        private void UpdateDecryptionProgress(int percentage)
+        {
+            if (_progressLastUpdatedSecondary >= DateTime.UtcNow)
+            {
+                return;
+            }
 
-        #region Preview methods
+            _progressLastUpdatedSecondary = DateTime.UtcNow + _progressTimeInterval;
+
+            progressBarSecondary.Value = percentage;
+            if (progressBarSecondary.Style == ProgressBarStyle.Marquee)
+            {
+                progressBarSecondary.Style = ProgressBarStyle.Blocks;
+            }
+        }
 
         /// <summary>
         /// Prepares the preview tab with the corresponding values.
@@ -190,8 +205,11 @@ namespace ResourcePacker.Forms
                     {
                         xmlDocument.LoadXml(text);
                         var stringWriter = new StringWriter();
-                        var xmlTextWriter = new XmlTextWriter(stringWriter);
-                        xmlTextWriter.Formatting = Formatting.Indented;
+                        var xmlTextWriter = new XmlTextWriter(stringWriter)
+                        {
+                            Formatting = Formatting.Indented
+                        };
+
                         xmlDocument.WriteTo(xmlTextWriter);
                         previewTextBox.Text = stringWriter.ToString();
                     }
@@ -210,8 +228,6 @@ namespace ResourcePacker.Forms
                 }
             }
         }
-
-        #endregion Preview methods
 
         /// <summary>
         /// Gets the corresponding icon for the provided <paramref name="mimeType"/>.
@@ -309,10 +325,6 @@ namespace ResourcePacker.Forms
             });
         }
 
-        #endregion Custom methods
-
-        #region Component events
-
         private void BtnAbout_Click(object sender, EventArgs e)
         {
             new AboutForm().ShowDialog();
@@ -333,21 +345,16 @@ namespace ResourcePacker.Forms
 
         private void UpdateLoadProgress((int percentage, int amount) progress)
         {
-            if (_progressLastUpdated >= DateTime.UtcNow)
+            if (_progressLastUpdatedPrimary >= DateTime.UtcNow)
             {
                 return;
             }
 
-            _progressLastUpdated = DateTime.UtcNow + _progressTimeInterval;
+            _progressLastUpdatedPrimary = DateTime.UtcNow + _progressTimeInterval;
 
             var (percentage, amount) = progress;
-            progressBar.Value = percentage;
+            progressBarPrimary.Value = percentage;
             lblResultCount.Text = $"{amount} " + (amount > 1 ? "Assets" : "Asset");
-
-            if (progressBar.Style == ProgressBarStyle.Marquee)
-            {
-                progressBar.Style = ProgressBarStyle.Blocks;
-            }
         }
 
         private void BtnLoadDefinitions_Click(object sender, EventArgs e)
@@ -388,7 +395,9 @@ namespace ResourcePacker.Forms
             }
 
             var stream = openFileDialog.OpenFile();
-            _packageHeader = PackageHelper.GetHeader(stream);
+            var binaryReader = new BinaryReader(stream);
+
+            _packageHeader = PackageHelper.GetHeader(binaryReader);
             Log.Information("ResourcePackage: {@info}",
                 new { _packageHeader.Id, _packageHeader.NumberOfEntries });
 
@@ -402,14 +411,14 @@ namespace ResourcePacker.Forms
             {
                 try
                 {
-                    var entries = PackageHelper.LoadAllEntryInformation(_packageHeader, stream);
+                    var entries = PackageHelper.LoadAllEntryInformation(_packageHeader, binaryReader);
                     _password = string.Empty;
 
                     // Get the smallest entry for fast integrity checking.
                     var smallestEntry = entries.Aggregate((c, d) => c.PackSize < d.PackSize ? c : d);
 
                     // Try to load the first asset to check whether the package is encrypted.
-                    if (!PackageHelper.LoadSingleFromPackage(stream, smallestEntry, out _))
+                    if (!PackageHelper.LoadSingleFromPackage(binaryReader, smallestEntry, out _))
                     {
                         var passwordDialog = new PasswordForm();
                         if (passwordDialog.ShowDialog() != DialogResult.OK)
@@ -418,7 +427,7 @@ namespace ResourcePacker.Forms
                         }
 
                         _password = passwordDialog.Password;
-                        if (!PackageHelper.LoadSingleFromPackage(stream, smallestEntry, out _, _password))
+                        if (!PackageHelper.LoadSingleFromPackage(binaryReader, smallestEntry, out _, _password))
                         {
                             throw new Exception("The password is incorrect.");
                         }
@@ -429,15 +438,15 @@ namespace ResourcePacker.Forms
                         btnCancel.Visible = true;
                         btnCreate.Visible = false;
                         btnOpen.Visible = false;
-                        progressBar.Style = ProgressBarStyle.Marquee;
+                        progressBarSecondary.Style = ProgressBarStyle.Marquee;
                     });
-                    
-                    _assets = PackageHelper.LoadAssetsFromPackage(entries, stream, _password, 
-                        _progress, _cancellationTokenSource.Token);
+
+                    _assets = PackageHelper.LoadAssetsFromPackage(entries, binaryReader, _password,
+                        _progressPrimary, _progressSecondary, _cancellationTokenSource.Token);
 
                     stopwatch.Stop();
                     RefreshFileTree();
-                
+
                     Invoke(() =>
                     {
                         lblResultCount.Text = $"{_assets.Count} " + (_assets.Count > 1 ? "Assets" : "Asset");
@@ -463,10 +472,15 @@ namespace ResourcePacker.Forms
                         "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
 
+                binaryReader.Close();
                 Invoke(() =>
                 {
-                    progressBar.Style = ProgressBarStyle.Blocks;
-                    progressBar.Value = 0;
+                    progressBarPrimary.Style = ProgressBarStyle.Blocks;
+                    progressBarPrimary.Value = 0;
+
+                    progressBarSecondary.Style = ProgressBarStyle.Blocks;
+                    progressBarSecondary.Value = 0;
+
                     btnLoadDefinitions.Enabled = true;
                     btnExtract.Enabled = true;
 
@@ -546,12 +560,10 @@ namespace ResourcePacker.Forms
             ScrollOutputToEnd();
         }
 
-        #endregion Component events
-
         private void BtnCreate_Click(object sender, EventArgs e)
         {
             var createForm = new CreateForm();
-            var createDialogResult = createForm.ShowDialog();
+            createForm.ShowDialog();
         }
 
         private void MainForm_ResizeBegin(object sender, EventArgs e)

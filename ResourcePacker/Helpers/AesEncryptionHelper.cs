@@ -211,7 +211,8 @@ namespace ResourcePacker.Helpers
         };
 
         public static bool DecryptCbc(byte[] input, int inputLength, ref byte[] output,
-            uint[] key, byte[]? iv = null, CancellationToken cancellationToken = default)
+            uint[] key, byte[]? iv = null, IProgress<int>? progress = null,
+            CancellationToken cancellationToken = default)
         {
             var inputBuffer = new byte[BlockSize];
             var outputBuffer = new byte[BlockSize];
@@ -234,6 +235,7 @@ namespace ResourcePacker.Helpers
                 XorBuf(ivBuffer, ref outputBuffer, BlockSize);
                 Buffer.BlockCopy(outputBuffer, 0, output, index * BlockSize, BlockSize);
                 Buffer.BlockCopy(inputBuffer, 0, ivBuffer, 0, BlockSize);
+                progress?.Report((int)((double)(index + 1) / blocks * 100));
             }
 
             return true;
@@ -250,7 +252,8 @@ namespace ResourcePacker.Helpers
         /// <param name="cancellationToken">A token to cancel the operation.</param>
         /// <returns><see langword="true"/> when succeeded, otherwise <see langword="false"/>.</returns>
         public static bool EncryptCbc(byte[] input, int inputLength, ref byte[] output,
-            uint[] key, byte[]? iv = null, CancellationToken cancellationToken = default)
+            uint[] key, byte[]? iv = null, IProgress<int>? progress = null,
+            CancellationToken cancellationToken = default)
         {
             var inputBuffer = new byte[BlockSize];
             var outputBuffer = new byte[BlockSize];
@@ -273,6 +276,7 @@ namespace ResourcePacker.Helpers
                 Encrypt(inputBuffer, ref outputBuffer, key);
                 Buffer.BlockCopy(outputBuffer, 0, output, index * BlockSize, BlockSize);
                 Buffer.BlockCopy(outputBuffer, 0, ivBuffer, 0, BlockSize);
+                progress?.Report((int)((double)(index + 1) / blocks * 100));
             }
 
             return true;

@@ -28,9 +28,10 @@ namespace ResourcePacker.Forms
         private readonly List<string> _assetsToInclude = new();
 
         private readonly IProgress<(int percentage, string path)> _progressPrimary;
+        private readonly IProgress<int> _progressSecondary;
         private readonly TimeSpan _progressTimeInterval = TimeSpan.FromMilliseconds(20);
-        private DateTime _progressLastUpdatedPrimary = DateTime.UtcNow;
-        private DateTime _progressLastUpdatedSecondary = DateTime.UtcNow;
+        private DateTime _progressLastUpdatedPrimary;
+        private DateTime _progressLastUpdatedSecondary;
 
         private CancellationTokenSource _cancellationTokenSource;
         private string _packageLocation = string.Empty;
@@ -43,8 +44,20 @@ namespace ResourcePacker.Forms
         {
             InitializeComponent();
             _progressPrimary = new Progress<(int percentage, string path)>(UpdateFileCollectionProgress);
+            _progressSecondary = new Progress<int>(UpdateEncryptionProgress);
             _cancellationTokenSource = new CancellationTokenSource();
             _cancellationTokenSource.Cancel();
+        }
+
+        private void UpdateEncryptionProgress(int percentage)
+        {
+            if (_progressLastUpdatedSecondary >= DateTime.UtcNow)
+            {
+                return;
+            }
+
+            _progressLastUpdatedSecondary = DateTime.UtcNow + _progressTimeInterval;
+            progressBarSecondary.Value = percentage;
         }
 
         protected override CreateParams CreateParams
@@ -161,7 +174,8 @@ namespace ResourcePacker.Forms
                 try
                 {
                     PackageHelper.BuildPackage(paths, _packageLocation,
-                        txtPassword.Text, _progressPrimary, _cancellationTokenSource.Token);
+                        txtPassword.Text, _progressPrimary, _progressSecondary,
+                        _cancellationTokenSource.Token);
 
                     _cancellationTokenSource.Cancel();
                 }

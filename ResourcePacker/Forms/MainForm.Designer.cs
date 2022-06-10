@@ -78,7 +78,8 @@ namespace ResourcePacker.Forms
             this.statusStrip = new System.Windows.Forms.StatusStrip();
             this.lblStatus = new System.Windows.Forms.ToolStripStatusLabel();
             this.lblResultCount = new System.Windows.Forms.ToolStripStatusLabel();
-            this.progressBar = new System.Windows.Forms.ToolStripProgressBar();
+            this.progressBarSecondary = new System.Windows.Forms.ToolStripProgressBar();
+            this.progressBarPrimary = new System.Windows.Forms.ToolStripProgressBar();
             this.lblElapsed = new System.Windows.Forms.ToolStripStatusLabel();
             this.btnCreate = new System.Windows.Forms.ToolStripButton();
             this.btnOpen = new System.Windows.Forms.ToolStripButton();
@@ -334,7 +335,8 @@ namespace ResourcePacker.Forms
             this.statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.lblStatus,
             this.lblResultCount,
-            this.progressBar,
+            this.progressBarSecondary,
+            this.progressBarPrimary,
             this.lblElapsed});
             resources.ApplyResources(this.statusStrip, "statusStrip");
             this.statusStrip.Name = "statusStrip";
@@ -350,11 +352,17 @@ namespace ResourcePacker.Forms
             resources.ApplyResources(this.lblResultCount, "lblResultCount");
             this.lblResultCount.Name = "lblResultCount";
             // 
-            // progressBar
+            // progressBarSecondary
             // 
-            this.progressBar.MarqueeAnimationSpeed = 75;
-            this.progressBar.Name = "progressBar";
-            resources.ApplyResources(this.progressBar, "progressBar");
+            this.progressBarSecondary.MarqueeAnimationSpeed = 75;
+            this.progressBarSecondary.Name = "progressBarSecondary";
+            resources.ApplyResources(this.progressBarSecondary, "progressBarSecondary");
+            // 
+            // progressBarPrimary
+            // 
+            this.progressBarPrimary.MarqueeAnimationSpeed = 75;
+            this.progressBarPrimary.Name = "progressBarPrimary";
+            resources.ApplyResources(this.progressBarPrimary, "progressBarPrimary");
             // 
             // lblElapsed
             // 
@@ -541,7 +549,8 @@ namespace ResourcePacker.Forms
         private ToolStrip toolStrip;
         private ToolStripButton btnFormattedText;
         private ToolStripButton btnExtract;
-        private ToolStripProgressBar progressBar;
+        private ToolStripProgressBar progressBarPrimary;
         private ToolStripButton btnCancel;
+        private ToolStripProgressBar progressBarSecondary;
     }
 }

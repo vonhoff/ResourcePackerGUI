@@ -33,8 +33,8 @@ namespace ResourcePacker.Helpers
         public static ulong PackHeaderId => 0x5265735061636B;
 
         public static void BuildPackage(IReadOnlyDictionary<string, string> paths, string packageOutput,
-                    string password, IProgress<(int percentage, string path)>? primaryProgress = null,
-                    CancellationToken cancellationToken = default)
+                    string password, IProgress<(int percentage, string path)>? progressPrimary = null,
+                    IProgress<int>? progressSecondary = null, CancellationToken cancellationToken = default)
         {
             var header = new PackageHeader
             {
@@ -52,7 +52,7 @@ namespace ResourcePacker.Helpers
             var expectedEntries = paths.Count;
             foreach (var (absolutePath, relativePath) in paths)
             {
-                primaryProgress?.Report(((int)((double)(entries.Count) / expectedEntries * 100), relativePath));
+                progressPrimary?.Report(((int)((double)(entries.Count) / expectedEntries * 100), relativePath));
                 cancellationToken.ThrowIfCancellationRequested();
                 byte[] fileContent;
                 try
@@ -99,7 +99,7 @@ namespace ResourcePacker.Helpers
                         Enumerable.Repeat((byte)pkcs7, pkcs7).ToArray()).ToArray();
 
                     if (!AesEncryptionHelper.EncryptCbc(dataToEncrypt, packSize, ref output, key,
-                            cancellationToken: cancellationToken))
+                            progress: progressSecondary, cancellationToken: cancellationToken))
                     {
                         continue;
                     }
@@ -132,14 +132,12 @@ namespace ResourcePacker.Helpers
         /// <summary>
         /// Gets the header of the provided file stream.
         /// </summary>
-        /// <param name="fileStream">The stream of the provided file.</param>
+        /// <param name="binaryReader">The binary reader for the provided file.</param>
         /// <returns>The header of the provided resource package.</returns>
         /// <exception cref="InvalidDataException">
         /// When the file stream is not a valid <see langword="ResPack"/> stream.</exception>
-        public static PackageHeader GetHeader(Stream fileStream)
+        public static PackageHeader GetHeader(BinaryReader binaryReader)
         {
-            using var binaryReader = new BinaryReader(fileStream);
-
             var header = binaryReader.ReadStruct<PackageHeader>();
             if (header.Id != PackHeaderId || header.NumberOfEntries <= 0)
             {
@@ -153,14 +151,12 @@ namespace ResourcePacker.Helpers
         /// Creates a package containing all information about the entries inside a package.
         /// </summary>
         /// <param name="header">A <see cref="PackageHeader"/> instance.</param>
-        /// <param name="fileStream">The stream of the package file.</param>
+        /// <param name="binaryReader">A reader for the package file.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A <see cref="Package"/> instance containing all information about a package.</returns>
         /// <exception cref="InvalidDataException">When the provided file stream is corrupted.</exception>
-        public static Entry[] LoadAllEntryInformation(PackageHeader header, Stream fileStream, CancellationToken cancellationToken = default)
+        public static Entry[] LoadAllEntryInformation(PackageHeader header, BinaryReader binaryReader, CancellationToken cancellationToken = default)
         {
-            using var binaryReader = new BinaryReader(fileStream);
-
             var entries = new List<Entry>();
             for (var i = 0; i < header.NumberOfEntries; i++)
             {
@@ -198,11 +194,12 @@ namespace ResourcePacker.Helpers
         /// <param name="entries"></param>
         /// <param name="fileStream"></param>
         /// <param name="password"></param>
-        /// <param name="progress"></param>
+        /// <param name="progressPrimary"></param>
         /// <param name="cancellationToken"></param>
         /// <returns>A list of all assets inside the package.</returns>
-        public static List<Asset> LoadAssetsFromPackage(Entry[] entries, Stream fileStream, string password,
-            IProgress<(int percentage, int amount)> progress, CancellationToken cancellationToken = default)
+        public static List<Asset> LoadAssetsFromPackage(Entry[] entries, BinaryReader binaryReader, string password,
+            IProgress<(int percentage, int amount)>? progressPrimary = null, 
+            IProgress<int>? progressSecondary = null, CancellationToken cancellationToken = default)
         {
             var assets = new List<Asset>();
             for (var i = 0; i < entries.Length; i++)
@@ -210,7 +207,8 @@ namespace ResourcePacker.Helpers
                 cancellationToken.ThrowIfCancellationRequested();
 
                 var entry = entries[i];
-                if (!LoadSingleFromPackage(fileStream, entry, out var asset, password))
+                if (!LoadSingleFromPackage(binaryReader, entry, out var asset, password, 
+                        progressSecondary, cancellationToken))
                 {
                     Log.Error("Integrity check failed for entry: {id}", new { entry.Id });
                     continue;
@@ -219,7 +217,7 @@ namespace ResourcePacker.Helpers
                 Log.Debug("Added asset: {@asset}",
                     new { asset.Name, MediaType = asset.MimeType?.Name });
                 assets.Add(asset);
-                progress.Report(((int)((double)(i + 1) / entries.Length * 100), i + 1));
+                progressPrimary?.Report(((int)((double)(i + 1) / entries.Length * 100), i + 1));
             }
 
             if (assets.Count == entries.Length)
@@ -238,14 +236,17 @@ namespace ResourcePacker.Helpers
         /// <summary>
         /// Attempts to load a specified asset from a provided stream.
         /// </summary>
-        /// <param name="fileStream">The package stream.</param>
+        /// <param name="binaryReader">The package reader.</param>
         /// <param name="entry">Information about the entry.</param>
         /// <param name="asset"></param>
         /// <param name="password"></param>
+        /// <param name="progressSecondary"></param>
+        /// <param name="cancellationToken"></param>
         /// <returns><see langword="true"/> when integrity check succeeded; otherwise, <see langword="false"/>.</returns>
-        public static bool LoadSingleFromPackage(Stream fileStream, Entry entry, out Asset asset, string password = "")
+        public static bool LoadSingleFromPackage(BinaryReader binaryReader, Entry entry,
+            out Asset asset, string password = "", IProgress<int>? progressSecondary = null, 
+            CancellationToken cancellationToken = default)
         {
-            using var binaryReader = new BinaryReader(fileStream);
             binaryReader.BaseStream.Position = entry.Offset;
             var buffer = binaryReader.ReadBytes(entry.PackSize);
 
@@ -253,7 +254,8 @@ namespace ResourcePacker.Helpers
             {
                 var key = AesEncryptionHelper.KeySetup(password);
                 var output = new byte[entry.PackSize];
-                AesEncryptionHelper.DecryptCbc(buffer, entry.PackSize, ref output, key);
+                AesEncryptionHelper.DecryptCbc(buffer, entry.PackSize, ref output, key, 
+                    progress: progressSecondary, cancellationToken: cancellationToken);
                 buffer = output;
             }
 
