@@ -30,7 +30,7 @@ namespace ResourcePacker.Helpers
 {
     internal static class PackageHelper
     {
-        public static ulong PackHeaderId => 0x5265735061636B;
+        public static ulong PackHeaderId => 0x6B636150736552;
 
         public static void BuildPackage(IReadOnlyDictionary<string, string> paths, string packageOutput,
                     string password, IProgress<(int percentage, string path)>? progressPrimary = null,

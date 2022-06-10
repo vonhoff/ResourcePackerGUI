@@ -22,7 +22,7 @@ using System.Runtime.InteropServices;
 
 namespace ResourcePacker.Entities
 {
-    [StructLayout(LayoutKind.Sequential)]
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct PackageHeader
     {
         public ulong Id;
