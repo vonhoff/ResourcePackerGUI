@@ -19,6 +19,7 @@
 #endregion
 
 using System.IO.Packaging;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 using Force.Crc32;
@@ -29,7 +30,7 @@ namespace ResourcePacker.Helpers
 {
     internal static class PackageHelper
     {
-        public static string PackHeaderId => "ResPack";
+        public static ulong PackHeaderId => 0x5265735061636B;
 
         public static void BuildPackage(IReadOnlyDictionary<string, string> paths, string packageOutput,
                     string password, IProgress<(int percentage, string path)>? primaryProgress = null,
@@ -41,15 +42,12 @@ namespace ResourcePacker.Helpers
                 NumberOfEntries = paths.Count
             };
 
-            var headerSize = Marshal.SizeOf(typeof(PackageHeader));
-            var entrySize = Marshal.SizeOf(typeof(Entry));
-
             var outputStream = File.Open(packageOutput, FileMode.OpenOrCreate);
             var binaryWriter = new BinaryWriter(outputStream);
 
             var key = AesEncryptionHelper.KeySetup(password);
             var entries = new List<Entry>();
-            var offset = headerSize + (header.NumberOfEntries * entrySize);
+            var offset = Unsafe.SizeOf<PackageHeader>() + (header.NumberOfEntries * Unsafe.SizeOf<Entry>());
 
             var expectedEntries = paths.Count;
             foreach (var (absolutePath, relativePath) in paths)
@@ -100,7 +98,7 @@ namespace ResourcePacker.Helpers
                     var dataToEncrypt = fileContent.Concat(
                         Enumerable.Repeat((byte)pkcs7, pkcs7).ToArray()).ToArray();
 
-                    if (!AesEncryptionHelper.EncryptCbc(dataToEncrypt, packSize, ref output, key, 
+                    if (!AesEncryptionHelper.EncryptCbc(dataToEncrypt, packSize, ref output, key,
                             cancellationToken: cancellationToken))
                     {
                         continue;
@@ -118,26 +116,13 @@ namespace ResourcePacker.Helpers
 
             // Write header to file.
             binaryWriter.Seek(0, SeekOrigin.Begin);
-
-            var buffer = new byte[headerSize];
-            var ptr = Marshal.AllocHGlobal(headerSize);
-
-            Marshal.StructureToPtr(header, ptr, true);
-            Marshal.Copy(ptr, buffer, 0, headerSize);
-            Marshal.FreeHGlobal(ptr);
-            binaryWriter.Write(buffer);
+            binaryWriter.WriteStruct(header);
 
             // Write entry metadata to file.
             foreach (var entry in entries)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                buffer = new byte[entrySize];
-                ptr = Marshal.AllocHGlobal(entrySize);
-
-                Marshal.StructureToPtr(entry, ptr, true);
-                Marshal.Copy(ptr, buffer, 0, entrySize);
-                Marshal.FreeHGlobal(ptr);
-                binaryWriter.Write(buffer);
+                binaryWriter.WriteStruct(entry);
             }
 
             outputStream.Close();
@@ -154,18 +139,9 @@ namespace ResourcePacker.Helpers
         public static PackageHeader GetHeader(Stream fileStream)
         {
             var binaryReader = new BinaryReader(fileStream);
-            var headerSize = Marshal.SizeOf(typeof(PackageHeader));
 
-            var buffer = binaryReader.ReadBytes(headerSize);
-            var ptr = Marshal.AllocHGlobal(headerSize);
-
-            Marshal.Copy(buffer, 0, ptr, headerSize);
-            var structure = Marshal.PtrToStructure(ptr, typeof(PackageHeader));
-
-            Marshal.FreeHGlobal(ptr);
-            var header = structure != null ? (PackageHeader)structure : default;
-
-            if (header.Id != null && (!header.Id.Equals(PackHeaderId) || header.NumberOfEntries <= 0))
+            var header = binaryReader.ReadStruct<PackageHeader>();
+            if (header.Id != PackHeaderId || header.NumberOfEntries <= 0)
             {
                 throw new InvalidDataException("The specified file is invalid.");
             }
@@ -184,21 +160,13 @@ namespace ResourcePacker.Helpers
         public static Entry[] LoadAllEntryInformation(PackageHeader header, Stream fileStream, CancellationToken cancellationToken = default)
         {
             var binaryReader = new BinaryReader(fileStream);
-            var entrySize = Marshal.SizeOf(typeof(Entry));
-            var packSize = Marshal.SizeOf(typeof(PackageHeader)) + (entrySize * header.NumberOfEntries);
-
-            var buffer = binaryReader.ReadBytes(packSize);
-            var ptr = Marshal.AllocHGlobal(packSize);
-
-            Marshal.Copy(buffer, 0, ptr, packSize);
 
             var entries = new List<Entry>();
             for (var i = 0; i < header.NumberOfEntries; i++)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                var ins = new IntPtr(ptr.ToInt64() + (i * entrySize));
-                var entry = Marshal.PtrToStructure<Entry>(ins);
 
+                var entry = binaryReader.ReadStruct<Entry>();
                 if (entry.Id == 0)
                 {
                     Log.Error("Invalid entry: {@entry}",
