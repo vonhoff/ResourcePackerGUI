@@ -21,6 +21,7 @@
 using System.IO.Packaging;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Timers;
 using Force.Crc32;
 using ResourcePacker.Entities;
 using Serilog;
@@ -42,7 +43,8 @@ namespace ResourcePacker.Helpers
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> to cancel the operation.</param>
         public static void BuildPackage(IReadOnlyDictionary<string, string> paths, string packageOutput,
                     string password = "", IProgress<(int percentage, string path)>? progressPrimary = null,
-                    IProgress<int>? progressSecondary = null, CancellationToken cancellationToken = default)
+                    IProgress<int>? progressSecondary = null, int progressReportInterval = 100,
+                    CancellationToken cancellationToken = default)
         {
             var header = new PackageHeader
             {
@@ -57,9 +59,19 @@ namespace ResourcePacker.Helpers
             var entryIndex = 0;
             var entries = new Entry[paths.Count];
             var offset = Unsafe.SizeOf<PackageHeader>() + (header.NumberOfEntries * Unsafe.SizeOf<Entry>());
-            foreach (var (absolutePath, relativePath) in paths)
+
+            var relativePath = string.Empty;
+            var percentage = 0;
+
+            // Setup timer for keeping track of progress.
+            using var timer = new System.Timers.Timer(progressReportInterval);
+            timer.Elapsed += delegate { progressPrimary!.Report((percentage, relativePath)); };
+            timer.Enabled = progressPrimary != null;
+
+            foreach (var (absolutePath, name) in paths)
             {
-                progressPrimary?.Report(((int)((double)(entryIndex) / entries.Length * 100), relativePath));
+                relativePath = name;
+                percentage = (int)((double)(entryIndex) / entries.Length * 100);
                 cancellationToken.ThrowIfCancellationRequested();
                 
                 byte[] fileContent;
@@ -110,8 +122,8 @@ namespace ResourcePacker.Helpers
                         Enumerable.Repeat((byte)pkcs7, pkcs7).ToArray()).ToArray();
 
                     var output = new byte[packSize];
-                    if (AesEncryptionHelper.EncryptCbc(dataToEncrypt, packSize, ref output, key,
-                            progress: progressSecondary, cancellationToken: cancellationToken))
+                    if (AesEncryptionHelper.EncryptCbc(dataToEncrypt, packSize, ref output, key, 
+                            progressSecondary, progressReportInterval, cancellationToken))
                     {
                         fileContent = output;
                     }
@@ -122,6 +134,9 @@ namespace ResourcePacker.Helpers
                 entries[entryIndex++] = entry;
                 offset += entry.PackSize;
             }
+
+            // Dispose timer.
+            timer.Dispose();
 
             // Write header to file.
             binaryWriter.Seek(0, SeekOrigin.Begin);
@@ -134,7 +149,6 @@ namespace ResourcePacker.Helpers
                 binaryWriter.WriteStruct(entry);
             }
 
-            binaryWriter.Dispose();
             outputStream.Close();
         }
 
@@ -205,20 +219,29 @@ namespace ResourcePacker.Helpers
         /// <param name="password">The password to be used for loading the assets.</param>
         /// <param name="progressPrimary">An optional progress for the amount of files to be loaded.</param>
         /// <param name="progressSecondary">An optional progress for the state of file decryption.</param>
+        /// <param name="progressReportInterval"></param>
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> to cancel the operation.</param>
         /// <returns>A list of loaded assets.</returns>
         public static List<Asset> LoadAssetsFromPackage(Entry[] entries, BinaryReader binaryReader, string password,
             IProgress<(int percentage, int amount)>? progressPrimary = null,
-            IProgress<int>? progressSecondary = null, CancellationToken cancellationToken = default)
+            IProgress<int>? progressSecondary = null, int progressReportInterval = 100, 
+            CancellationToken cancellationToken = default)
         {
             var assets = new List<Asset>();
-            for (var i = 0; i < entries.Length; i++)
+
+            var percentage = 0;
+            var i = 0;
+            using var timer = new System.Timers.Timer(progressReportInterval);
+            timer.Elapsed += delegate { progressPrimary!.Report((percentage, i)); };
+            timer.Enabled = progressPrimary != null;
+
+            for (i = 0; i < entries.Length; i++)
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
                 var entry = entries[i];
                 if (!LoadSingleFromPackage(binaryReader, entry, out var asset, password,
-                        progressSecondary, cancellationToken))
+                        progressSecondary, progressReportInterval, cancellationToken))
                 {
                     Log.Error("Integrity check failed for entry: {id}", new { entry.Id });
                     continue;
@@ -227,8 +250,10 @@ namespace ResourcePacker.Helpers
                 Log.Debug("Added asset: {@asset}",
                     new { asset.Name, MediaType = asset.MimeType?.Name });
                 assets.Add(asset);
-                progressPrimary?.Report(((int)((double)(i + 1) / entries.Length * 100), i + 1));
+                percentage = (int)((double)(i + 1) / entries.Length * 100);
             }
+
+            timer.Dispose();
 
             if (assets.Count == entries.Length)
             {
@@ -250,12 +275,13 @@ namespace ResourcePacker.Helpers
         /// <param name="entry">Information about the entry.</param>
         /// <param name="asset"></param>
         /// <param name="password"></param>
-        /// <param name="progressSecondary"></param>
+        /// <param name="progress"></param>
+        /// <param name="progressReportInterval"></param>
         /// <param name="cancellationToken"></param>
         /// <returns><see langword="true"/> when integrity check succeeded; otherwise, <see langword="false"/>.</returns>
         public static bool LoadSingleFromPackage(BinaryReader binaryReader, Entry entry,
-            out Asset asset, string password = "", IProgress<int>? progressSecondary = null,
-            CancellationToken cancellationToken = default)
+            out Asset asset, string password = "", IProgress<int>? progress = null,
+            int progressReportInterval = 100, CancellationToken cancellationToken = default)
         {
             if (entry.Offset < 0)
             {
@@ -271,7 +297,7 @@ namespace ResourcePacker.Helpers
                 var key = AesEncryptionHelper.KeySetup(password);
                 var output = new byte[entry.PackSize];
                 AesEncryptionHelper.DecryptCbc(buffer, entry.PackSize, ref output, key,
-                    progress: progressSecondary, cancellationToken: cancellationToken);
+                    progress, progressReportInterval, cancellationToken);
                 buffer = output;
             }
 

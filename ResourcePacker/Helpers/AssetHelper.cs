@@ -31,6 +31,7 @@ namespace ResourcePacker.Helpers
     internal static class AssetHelper
     {
         private static readonly Regex TextRegex = new(@"[^\t\r\n -~]", RegexOptions.Compiled);
+
         private static readonly MimeType JsonMimeType =
             new("application", "json")
             {
@@ -47,7 +48,6 @@ namespace ResourcePacker.Helpers
             }
 
             var mimeType = MimeTypes.Value.GetMimeType(buffer);
-
             if (mimeType != null)
             {
                 return mimeType;

@@ -19,6 +19,7 @@
 #endregion
 
 using System.Text;
+using System.Timers;
 using Force.Crc32;
 using Serilog;
 
@@ -73,11 +74,18 @@ namespace ResourcePacker.Helpers
         /// <param name="progress"></param>
         /// <returns>A collection of definitions.</returns>
         public static IReadOnlyDictionary<string, string> CreateDefinitionFile(IReadOnlyList<string> items,
-            int relativeDepth, string definitionsLocation, string packageLocation, IProgress<int>? progress = null)
+            int relativeDepth, string definitionsLocation, string packageLocation, IProgress<int>? progress = null,
+            int progressReportInterval = 100)
         {
             var processedItems = new Dictionary<string, string>();
             var file = new StreamWriter(definitionsLocation);
             var index = 0;
+
+            var percentage = 0;
+            using var timer = new System.Timers.Timer(progressReportInterval);
+            timer.Elapsed += delegate { progress!.Report(percentage); };
+            timer.Enabled = progress != null;
+
             foreach (var absolutePath in items)
             {
                 index++;
@@ -106,7 +114,7 @@ namespace ResourcePacker.Helpers
                 var relativePath = string.Join('/', pathNodes[relativeDepth..]).ToLowerInvariant();
                 file.WriteLine(relativePath);
                 processedItems.Add(absolutePath, relativePath);
-                progress?.Report((int)((double)index / items.Count * 100));
+                percentage = (int)((double)index / items.Count * 100);
             }
 
             file.Close();

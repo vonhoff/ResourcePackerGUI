@@ -18,8 +18,8 @@
 
 #endregion
 
-using System.Diagnostics;
-using Serilog;
+using System.Timers;
+using Timer = System.Threading.Timer;
 
 namespace ResourcePacker.Helpers
 {
@@ -214,7 +214,7 @@ namespace ResourcePacker.Helpers
         };
 
         public static bool DecryptCbc(byte[] input, int inputLength, ref byte[] output,
-            uint[] key, byte[]? iv = null, IProgress<int>? progress = null,
+            uint[] key, IProgress<int>? progress = null, int progressReportInterval = 100, 
             CancellationToken cancellationToken = default)
         {
             var inputBuffer = new byte[BlockSize];
@@ -226,10 +226,14 @@ namespace ResourcePacker.Helpers
                 return false;
             }
 
-            iv ??= Iv;
             var blocks = inputLength / BlockSize;
-            BinaryHelper.CopyMemory(iv, 0, ivBuffer, 0, BlockSize);
-            
+            BinaryHelper.CopyMemory(Iv, 0, ivBuffer, 0, BlockSize);
+
+            var percentage = 0;
+            using var timer = new System.Timers.Timer(progressReportInterval);
+            timer.Elapsed += delegate { progress!.Report(percentage); };
+            timer.Enabled = progress != null;
+
             for (var index = 0; index < blocks; index++)
             {
                 cancellationToken.ThrowIfCancellationRequested();
@@ -238,7 +242,7 @@ namespace ResourcePacker.Helpers
                 XorBuf(ivBuffer, ref outputBuffer, BlockSize);
                 BinaryHelper.CopyMemory(outputBuffer, 0, output, index * BlockSize, BlockSize);
                 BinaryHelper.CopyMemory(inputBuffer, 0, ivBuffer, 0, BlockSize);
-                progress?.Report((int)((double)(index + 1) / blocks * 100));
+                percentage = (int)((double)(index + 1) / blocks * 100);
             }
 
             return true;
@@ -251,12 +255,11 @@ namespace ResourcePacker.Helpers
         /// <param name="inputLength">Must be a multiple of <see cref="BlockSize"/>.</param>
         /// <param name="output">Ciphertext, same length as plaintext.</param>
         /// <param name="key">From the key setup.</param>
-        /// <param name="iv">IV, must be <see cref="BlockSize"/> bytes long.</param>
         /// <param name="progress"></param>
         /// <param name="cancellationToken">A token to cancel the operation.</param>
         /// <returns><see langword="true"/> when succeeded, otherwise <see langword="false"/>.</returns>
         public static bool EncryptCbc(byte[] input, int inputLength, ref byte[] output,
-            uint[] key, byte[]? iv = null, IProgress<int>? progress = null,
+            uint[] key, IProgress<int>? progress = null, int progressReportInterval = 100,
             CancellationToken cancellationToken = default)
         {
             var inputBuffer = new byte[BlockSize];
@@ -268,9 +271,13 @@ namespace ResourcePacker.Helpers
                 return false;
             }
 
-            iv ??= Iv;
             var blocks = inputLength / BlockSize;
-            BinaryHelper.CopyMemory(iv, 0, ivBuffer, 0, BlockSize);
+            BinaryHelper.CopyMemory(Iv, 0, ivBuffer, 0, BlockSize);
+
+            var percentage = 0;
+            using var timer = new System.Timers.Timer(progressReportInterval);
+            timer.Elapsed += (_, _) => progress!.Report(percentage);
+            timer.Enabled = progress != null;
 
             for (var index = 0; index < blocks; index++)
             {
@@ -280,7 +287,7 @@ namespace ResourcePacker.Helpers
                 Encrypt(inputBuffer, ref outputBuffer, key);
                 BinaryHelper.CopyMemory(outputBuffer, 0, output, index * BlockSize, BlockSize);
                 BinaryHelper.CopyMemory(outputBuffer, 0, ivBuffer, 0, BlockSize);
-                progress?.Report((int)((double)(index + 1) / blocks * 100));
+                percentage = (int)((double)(index + 1) / blocks * 100);
             }
 
             return true;
@@ -370,7 +377,7 @@ namespace ResourcePacker.Helpers
             state[3][3] ^= subKey[3];
         }
 
-        private static void Decrypt(byte[] input, ref byte[] output, uint[] key)
+        private static void Decrypt(IReadOnlyList<byte> input, ref byte[] output, uint[] key)
         {
             var state = new byte[4][];
             state[0] = new byte[4];

@@ -35,12 +35,10 @@ namespace ResourcePacker.Forms
         private int _relativePackageLocationDepth;
 
         // Progress variables
+        private const int ProgressReportInterval = 25;
         private readonly IProgress<(int percentage, string path)> _progressPrimary;
         private readonly IProgress<int> _progressSecondary;
-        private readonly TimeSpan _progressTimeInterval = TimeSpan.FromMilliseconds(25);
-        private DateTime _progressLastUpdatedPrimary;
-        private DateTime _progressLastUpdatedSecondary;
-
+      
         public CreateForm()
         {
             InitializeComponent();
@@ -123,8 +121,13 @@ namespace ResourcePacker.Forms
                     else
                     {
                         CreateSelectorNodes(rootNode, _relativePackageLocationDepth, files);
-
                         _cancellationTokenSource.Token.ThrowIfCancellationRequested();
+
+                        if (IsDisposed)
+                        {
+                            return;
+                        }
+
                         Invoke(() =>
                         {
                             lblStatusFile.Text = string.Empty;
@@ -212,11 +215,12 @@ namespace ResourcePacker.Forms
                     _packageLocation, _progressSecondary);
 
                 Invoke(() => lblStatus.Text = "Packing assets...");
+
                 try
                 {
                     PackageHelper.BuildPackage(paths, _packageLocation,
                         txtPassword.Text, _progressPrimary, _progressSecondary,
-                        _cancellationTokenSource.Token);
+                        ProgressReportInterval, _cancellationTokenSource.Token);
                 }
                 catch (OperationCanceledException ex)
                 {
@@ -390,13 +394,21 @@ namespace ResourcePacker.Forms
 
         private void CreateSelectorNodes(TreeNode rootNode, int relativeDepth, IReadOnlyList<string> files)
         {
+            var percentage = 0;
+            var pathNodes = Array.Empty<string>();
+            using var timer = new System.Timers.Timer(ProgressReportInterval);
+            timer.Elapsed += delegate { _progressPrimary.Report((percentage, 
+                string.Join("/", pathNodes[relativeDepth..]))); };
+            timer.Enabled = true;
+
             for (var i = 0; i < files.Count; i++)
             {
                 _cancellationTokenSource.Token.ThrowIfCancellationRequested();
 
                 var filePath = files[i];
                 var currentNode = rootNode;
-                var pathNodes = filePath.Replace(@"\", "/").Split('/');
+
+                pathNodes = filePath.Replace(@"\", "/").Split('/');
                 for (var j = relativeDepth; j < pathNodes.Length; j++)
                 {
                     var item = pathNodes[j];
@@ -418,8 +430,7 @@ namespace ResourcePacker.Forms
                     }
                 }
 
-                _progressPrimary.Report(((int)((double)(i + 1) / files.Count * 100),
-                    string.Join("/", pathNodes[relativeDepth..])));
+                percentage = (int)((double)(i + 1) / files.Count * 100);
             }
         }
 
@@ -460,24 +471,11 @@ namespace ResourcePacker.Forms
 
         private void UpdateEncryptionProgress(int percentage)
         {
-            if (_progressLastUpdatedSecondary >= DateTime.UtcNow)
-            {
-                return;
-            }
-
-            _progressLastUpdatedSecondary = DateTime.UtcNow + _progressTimeInterval;
             progressBarSecondary.Value = percentage;
         }
 
         private void UpdateFileCollectionProgress((int percentage, string path) progress)
         {
-            if (_progressLastUpdatedPrimary >= DateTime.UtcNow)
-            {
-                return;
-            }
-
-            _progressLastUpdatedPrimary = DateTime.UtcNow + _progressTimeInterval;
-
             var (percentage, path) = progress;
             progressBarPrimary.Value = percentage;
             lblPercentage.Text = $"{percentage}%";

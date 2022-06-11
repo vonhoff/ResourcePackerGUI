@@ -54,11 +54,9 @@ namespace ResourcePacker.Forms
         private PackageHeader _packageHeader;
 
         // Progress variables
-        private readonly TimeSpan _progressTimeInterval = TimeSpan.FromMilliseconds(25);
+        private const int ProgressReportInterval = 25;
         private readonly IProgress<(int percentage, int amount)> _progressPrimary;
         private readonly IProgress<int> _progressSecondary;
-        private DateTime _progressLastUpdatedPrimary;
-        private DateTime _progressLastUpdatedSecondary;
 
         public MainForm()
         {
@@ -72,18 +70,8 @@ namespace ResourcePacker.Forms
 
         private void UpdateDecryptionProgress(int percentage)
         {
-            if (_progressLastUpdatedSecondary >= DateTime.UtcNow)
-            {
-                return;
-            }
-
-            _progressLastUpdatedSecondary = DateTime.UtcNow + _progressTimeInterval;
-
             progressBarSecondary.Value = percentage;
-            if (progressBarSecondary.Style == ProgressBarStyle.Marquee)
-            {
-                progressBarSecondary.Style = ProgressBarStyle.Blocks;
-            }
+            progressBarSecondary.Style = ProgressBarStyle.Blocks;
         }
 
         /// <summary>
@@ -349,13 +337,6 @@ namespace ResourcePacker.Forms
 
         private void UpdateLoadProgress((int percentage, int amount) progress)
         {
-            if (_progressLastUpdatedPrimary >= DateTime.UtcNow)
-            {
-                return;
-            }
-
-            _progressLastUpdatedPrimary = DateTime.UtcNow + _progressTimeInterval;
-
             var (percentage, amount) = progress;
             progressBarPrimary.Value = percentage;
             lblResultCount.Text = $"{amount} " + (amount > 1 ? "Assets" : "Asset");
@@ -456,7 +437,7 @@ namespace ResourcePacker.Forms
                     });
 
                     _assets = PackageHelper.LoadAssetsFromPackage(entries, binaryReader, _password,
-                        _progressPrimary, _progressSecondary, _cancellationTokenSource.Token);
+                        _progressPrimary, _progressSecondary, ProgressReportInterval, _cancellationTokenSource.Token);
 
                     stopwatch.Stop();
                     RefreshFileTree();
