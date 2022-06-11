@@ -18,6 +18,9 @@
 
 #endregion
 
+using System.Diagnostics;
+using Serilog;
+
 namespace ResourcePacker.Helpers
 {
     public static class AesEncryptionHelper
@@ -225,16 +228,16 @@ namespace ResourcePacker.Helpers
 
             iv ??= Iv;
             var blocks = inputLength / BlockSize;
-            Array.Copy(iv, ivBuffer, BlockSize);
-
+            BinaryHelper.FastCopy(iv, 0, ivBuffer, 0, BlockSize);
+            
             for (var index = 0; index < blocks; index++)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                Buffer.BlockCopy(input, index * BlockSize, inputBuffer, 0, BlockSize);
+                BinaryHelper.FastCopy(input, index * BlockSize, inputBuffer, 0, BlockSize);
                 Decrypt(inputBuffer, ref outputBuffer, key);
                 XorBuf(ivBuffer, ref outputBuffer, BlockSize);
-                Buffer.BlockCopy(outputBuffer, 0, output, index * BlockSize, BlockSize);
-                Buffer.BlockCopy(inputBuffer, 0, ivBuffer, 0, BlockSize);
+                BinaryHelper.FastCopy(outputBuffer, 0, output, index * BlockSize, BlockSize);
+                BinaryHelper.FastCopy(inputBuffer, 0, ivBuffer, 0, BlockSize);
                 progress?.Report((int)((double)(index + 1) / blocks * 100));
             }
 
@@ -249,6 +252,7 @@ namespace ResourcePacker.Helpers
         /// <param name="output">Ciphertext, same length as plaintext.</param>
         /// <param name="key">From the key setup.</param>
         /// <param name="iv">IV, must be <see cref="BlockSize"/> bytes long.</param>
+        /// <param name="progress"></param>
         /// <param name="cancellationToken">A token to cancel the operation.</param>
         /// <returns><see langword="true"/> when succeeded, otherwise <see langword="false"/>.</returns>
         public static bool EncryptCbc(byte[] input, int inputLength, ref byte[] output,
@@ -266,16 +270,16 @@ namespace ResourcePacker.Helpers
 
             iv ??= Iv;
             var blocks = inputLength / BlockSize;
-            Array.Copy(iv, ivBuffer, BlockSize);
+            BinaryHelper.FastCopy(iv, 0, ivBuffer, 0, BlockSize);
 
             for (var index = 0; index < blocks; index++)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                Buffer.BlockCopy(input, index * BlockSize, inputBuffer, 0, BlockSize);
+                BinaryHelper.FastCopy(input, index * BlockSize, inputBuffer, 0, BlockSize);
                 XorBuf(ivBuffer, ref inputBuffer, BlockSize);
                 Encrypt(inputBuffer, ref outputBuffer, key);
-                Buffer.BlockCopy(outputBuffer, 0, output, index * BlockSize, BlockSize);
-                Buffer.BlockCopy(outputBuffer, 0, ivBuffer, 0, BlockSize);
+                BinaryHelper.FastCopy(outputBuffer, 0, output, index * BlockSize, BlockSize);
+                BinaryHelper.FastCopy(outputBuffer, 0, ivBuffer, 0, BlockSize);
                 progress?.Report((int)((double)(index + 1) / blocks * 100));
             }
 
