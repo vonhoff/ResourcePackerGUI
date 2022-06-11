@@ -54,7 +54,7 @@ namespace ResourcePacker.Forms
         private PackageHeader _packageHeader;
 
         // Progress variables
-        private const int ProgressReportInterval = 25;
+        private const int ProgressReportInterval = 50;
         private readonly IProgress<(int percentage, int amount)> _progressPrimary;
         private readonly IProgress<int> _progressSecondary;
 

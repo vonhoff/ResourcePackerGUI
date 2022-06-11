@@ -35,7 +35,7 @@ namespace ResourcePacker.Forms
         private int _relativePackageLocationDepth;
 
         // Progress variables
-        private const int ProgressReportInterval = 25;
+        private const int ProgressReportInterval = 50;
         private readonly IProgress<(int percentage, string path)> _progressPrimary;
         private readonly IProgress<int> _progressSecondary;
       
@@ -224,6 +224,7 @@ namespace ResourcePacker.Forms
                 }
                 catch (OperationCanceledException ex)
                 {
+                    GC.Collect();
                     MessageBox.Show(ex.Message, "Operation canceled",
                         MessageBoxButtons.OK, MessageBoxIcon.Information);
 
