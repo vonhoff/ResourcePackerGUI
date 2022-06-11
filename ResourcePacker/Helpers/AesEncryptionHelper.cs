@@ -228,16 +228,16 @@ namespace ResourcePacker.Helpers
 
             iv ??= Iv;
             var blocks = inputLength / BlockSize;
-            BinaryHelper.FastCopy(iv, 0, ivBuffer, 0, BlockSize);
+            BinaryHelper.CopyMemory(iv, 0, ivBuffer, 0, BlockSize);
             
             for (var index = 0; index < blocks; index++)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                BinaryHelper.FastCopy(input, index * BlockSize, inputBuffer, 0, BlockSize);
+                BinaryHelper.CopyMemory(input, index * BlockSize, inputBuffer, 0, BlockSize);
                 Decrypt(inputBuffer, ref outputBuffer, key);
                 XorBuf(ivBuffer, ref outputBuffer, BlockSize);
-                BinaryHelper.FastCopy(outputBuffer, 0, output, index * BlockSize, BlockSize);
-                BinaryHelper.FastCopy(inputBuffer, 0, ivBuffer, 0, BlockSize);
+                BinaryHelper.CopyMemory(outputBuffer, 0, output, index * BlockSize, BlockSize);
+                BinaryHelper.CopyMemory(inputBuffer, 0, ivBuffer, 0, BlockSize);
                 progress?.Report((int)((double)(index + 1) / blocks * 100));
             }
 
@@ -270,16 +270,16 @@ namespace ResourcePacker.Helpers
 
             iv ??= Iv;
             var blocks = inputLength / BlockSize;
-            BinaryHelper.FastCopy(iv, 0, ivBuffer, 0, BlockSize);
+            BinaryHelper.CopyMemory(iv, 0, ivBuffer, 0, BlockSize);
 
             for (var index = 0; index < blocks; index++)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                BinaryHelper.FastCopy(input, index * BlockSize, inputBuffer, 0, BlockSize);
+                BinaryHelper.CopyMemory(input, index * BlockSize, inputBuffer, 0, BlockSize);
                 XorBuf(ivBuffer, ref inputBuffer, BlockSize);
                 Encrypt(inputBuffer, ref outputBuffer, key);
-                BinaryHelper.FastCopy(outputBuffer, 0, output, index * BlockSize, BlockSize);
-                BinaryHelper.FastCopy(outputBuffer, 0, ivBuffer, 0, BlockSize);
+                BinaryHelper.CopyMemory(outputBuffer, 0, output, index * BlockSize, BlockSize);
+                BinaryHelper.CopyMemory(outputBuffer, 0, ivBuffer, 0, BlockSize);
                 progress?.Report((int)((double)(index + 1) / blocks * 100));
             }
 
