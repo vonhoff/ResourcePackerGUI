@@ -256,6 +256,7 @@ namespace ResourcePacker.Helpers
         /// <param name="output">Ciphertext, same length as plaintext.</param>
         /// <param name="key">From the key setup.</param>
         /// <param name="progress"></param>
+        /// <param name="progressReportInterval"></param>
         /// <param name="cancellationToken">A token to cancel the operation.</param>
         /// <returns><see langword="true"/> when succeeded, otherwise <see langword="false"/>.</returns>
         public static bool EncryptCbc(byte[] input, int inputLength, ref byte[] output,
@@ -276,7 +277,7 @@ namespace ResourcePacker.Helpers
 
             var percentage = 0;
             using var timer = new System.Timers.Timer(progressReportInterval);
-            timer.Elapsed += (_, _) => progress!.Report(percentage);
+            timer.Elapsed += delegate { progress!.Report(percentage); };
             timer.Enabled = progress != null;
 
             for (var index = 0; index < blocks; index++)

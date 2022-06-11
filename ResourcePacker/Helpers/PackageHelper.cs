@@ -40,6 +40,7 @@ namespace ResourcePacker.Helpers
         /// <param name="password">An optional password to be used during the encryption process.</param>
         /// <param name="progressPrimary">An optional progress to keep track of the amount of assets being packed.</param>
         /// <param name="progressSecondary">An optional progress to keep track of the encryption state.</param>
+        /// <param name="progressReportInterval"></param>
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> to cancel the operation.</param>
         public static void BuildPackage(IReadOnlyDictionary<string, string> paths, string packageOutput,
                     string password = "", IProgress<(int percentage, string path)>? progressPrimary = null,
@@ -60,83 +61,80 @@ namespace ResourcePacker.Helpers
             var entries = new Entry[paths.Count];
             var offset = Unsafe.SizeOf<PackageHeader>() + (header.NumberOfEntries * Unsafe.SizeOf<Entry>());
 
-            var relativePath = string.Empty;
-            var percentage = 0;
-
-            // Setup timer for keeping track of progress.
-            using var timer = new System.Timers.Timer(progressReportInterval);
-            timer.Elapsed += delegate { progressPrimary!.Report((percentage, relativePath)); };
-            timer.Enabled = progressPrimary != null;
-
-            foreach (var (absolutePath, name) in paths)
+            using (var timer = new System.Timers.Timer(progressReportInterval))
             {
-                relativePath = name;
-                percentage = (int)((double)(entryIndex) / entries.Length * 100);
-                cancellationToken.ThrowIfCancellationRequested();
-                
-                byte[] fileContent;
-                try
+                var relativePath = string.Empty;
+                var percentage = 0;
+                timer.Elapsed += delegate { progressPrimary!.Report((percentage, relativePath)); };
+                timer.Enabled = progressPrimary != null;
+
+                foreach (var (absolutePath, name) in paths)
                 {
-                    if (absolutePath.Equals(packageOutput))
+                    relativePath = name;
+                    percentage = (int)((double)(entryIndex) / entries.Length * 100);
+                    cancellationToken.ThrowIfCancellationRequested();
+
+                    byte[] fileContent;
+                    try
                     {
-                        throw new InvalidOperationException("The specified file is the same as the output file.");
+                        if (absolutePath.Equals(packageOutput))
+                        {
+                            throw new InvalidOperationException("The specified file is the same as the output file.");
+                        }
+
+                        fileContent = File.ReadAllBytes(absolutePath);
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Warning(ex, "Could not open file stream for {path}", absolutePath);
+                        continue;
                     }
 
-                    fileContent = File.ReadAllBytes(absolutePath);
-                }
-                catch (Exception ex)
-                {
-                    Log.Warning(ex, "Could not open file stream for {path}", absolutePath);
-                    continue;
-                }
+                    cancellationToken.ThrowIfCancellationRequested();
+                    var dataSize = fileContent.Length;
+                    var nameBytes = Encoding.ASCII.GetBytes(relativePath);
+                    var nameCrc = Crc32Algorithm.Compute(nameBytes);
+                    var fileCrc = Crc32Algorithm.Compute(fileContent);
 
-                cancellationToken.ThrowIfCancellationRequested();
-                var dataSize = fileContent.Length;
-                var nameBytes = Encoding.ASCII.GetBytes(relativePath);
-                var nameCrc = Crc32Algorithm.Compute(nameBytes);
-                var fileCrc = Crc32Algorithm.Compute(fileContent);
-
-                var entry = new Entry
-                {
-                    Id = nameCrc,
-                    Crc = fileCrc,
-                    Offset = offset,
-                    DataSize = dataSize,
-                    PackSize = dataSize
-                };
-
-                if (key.Length > 0)
-                {
-                    var packSize = (dataSize + AesEncryptionHelper.BlockSize - 1) &
-                                   ~(AesEncryptionHelper.BlockSize - 1);
-                    if (packSize == dataSize)
+                    var entry = new Entry
                     {
-                        packSize += AesEncryptionHelper.BlockSize;
+                        Id = nameCrc,
+                        Crc = fileCrc,
+                        Offset = offset,
+                        DataSize = dataSize,
+                        PackSize = dataSize
+                    };
+
+                    if (key.Length > 0)
+                    {
+                        var packSize = (dataSize + AesEncryptionHelper.BlockSize - 1) &
+                                       ~(AesEncryptionHelper.BlockSize - 1);
+                        if (packSize == dataSize)
+                        {
+                            packSize += AesEncryptionHelper.BlockSize;
+                        }
+
+                        entry.PackSize = packSize;
+
+                        // Fill with PKCS#7 padding value.
+                        var pkcs7 = packSize - dataSize;
+                        var dataToEncrypt = fileContent.Concat(
+                            Enumerable.Repeat((byte)pkcs7, pkcs7).ToArray()).ToArray();
+
+                        var output = new byte[packSize];
+                        if (AesEncryptionHelper.EncryptCbc(dataToEncrypt, packSize, 
+                                ref output, key, progressSecondary, progressReportInterval, cancellationToken))
+                        {
+                            fileContent = output;
+                        }
                     }
 
-                    entry.PackSize = packSize;
-
-                    // Fill with PKCS#7 padding value.
-                    var pkcs7 = packSize - dataSize;
-                    var dataToEncrypt = fileContent.Concat(
-                        Enumerable.Repeat((byte)pkcs7, pkcs7).ToArray()).ToArray();
-
-                    var output = new byte[packSize];
-                    if (AesEncryptionHelper.EncryptCbc(dataToEncrypt, packSize, ref output, key, 
-                            progressSecondary, progressReportInterval, cancellationToken))
-                    {
-                        fileContent = output;
-                    }
+                    binaryWriter.Seek(offset, SeekOrigin.Begin);
+                    binaryWriter.Write(fileContent);
+                    entries[entryIndex++] = entry;
+                    offset += entry.PackSize;
                 }
-
-                binaryWriter.Seek(offset, SeekOrigin.Begin);
-                binaryWriter.Write(fileContent);
-                entries[entryIndex++] = entry;
-                offset += entry.PackSize;
             }
-
-            // Dispose timer.
-            timer.Dispose();
 
             // Write header to file.
             binaryWriter.Seek(0, SeekOrigin.Begin);
@@ -228,32 +226,31 @@ namespace ResourcePacker.Helpers
             CancellationToken cancellationToken = default)
         {
             var assets = new List<Asset>();
-
-            var percentage = 0;
-            var i = 0;
-            using var timer = new System.Timers.Timer(progressReportInterval);
-            timer.Elapsed += delegate { progressPrimary!.Report((percentage, i)); };
-            timer.Enabled = progressPrimary != null;
-
-            for (i = 0; i < entries.Length; i++)
+            using (var timer = new System.Timers.Timer(progressReportInterval))
             {
-                cancellationToken.ThrowIfCancellationRequested();
+                var i = 0;
+                var percentage = 0;
+                timer.Elapsed += delegate { progressPrimary!.Report((percentage, i)); };
+                timer.Enabled = progressPrimary != null;
 
-                var entry = entries[i];
-                if (!LoadSingleFromPackage(binaryReader, entry, out var asset, password,
-                        progressSecondary, progressReportInterval, cancellationToken))
+                for (i = 0; i < entries.Length; i++)
                 {
-                    Log.Error("Integrity check failed for entry: {id}", new { entry.Id });
-                    continue;
+                    cancellationToken.ThrowIfCancellationRequested();
+
+                    var entry = entries[i];
+                    if (!LoadSingleFromPackage(binaryReader, entry, out var asset, password,
+                            progressSecondary, progressReportInterval, cancellationToken))
+                    {
+                        Log.Error("Integrity check failed for entry: {id}", new { entry.Id });
+                        continue;
+                    }
+
+                    Log.Debug("Added asset: {@asset}",
+                        new { asset.Name, MediaType = asset.MimeType?.Name });
+                    assets.Add(asset);
+                    percentage = (int)((double)(i + 1) / entries.Length * 100);
                 }
-
-                Log.Debug("Added asset: {@asset}",
-                    new { asset.Name, MediaType = asset.MimeType?.Name });
-                assets.Add(asset);
-                percentage = (int)((double)(i + 1) / entries.Length * 100);
             }
-
-            timer.Dispose();
 
             if (assets.Count == entries.Length)
             {

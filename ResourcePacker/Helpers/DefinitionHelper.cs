@@ -72,6 +72,7 @@ namespace ResourcePacker.Helpers
         /// <param name="definitionsLocation">The file location to write to.</param>
         /// <param name="packageLocation"></param>
         /// <param name="progress"></param>
+        /// <param name="progressReportInterval"></param>
         /// <returns>A collection of definitions.</returns>
         public static IReadOnlyDictionary<string, string> CreateDefinitionFile(IReadOnlyList<string> items,
             int relativeDepth, string definitionsLocation, string packageLocation, IProgress<int>? progress = null,

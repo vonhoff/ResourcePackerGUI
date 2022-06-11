@@ -35,7 +35,7 @@ namespace ResourcePacker.Forms
         private int _relativePackageLocationDepth;
 
         // Progress variables
-        private const int ProgressReportInterval = 50;
+        private const int ProgressReportInterval = 25;
         private readonly IProgress<(int percentage, string path)> _progressPrimary;
         private readonly IProgress<int> _progressSecondary;
       
