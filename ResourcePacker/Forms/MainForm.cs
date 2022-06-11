@@ -445,15 +445,19 @@ namespace ResourcePacker.Forms
                     Invoke(() =>
                     {
                         lblResultCount.Text = $"{_assets.Count} " + (_assets.Count > 1 ? "Assets" : "Asset");
-                        lblStatus.Text = string.Empty;
                         lblElapsed.Text = stopwatch.Elapsed.ToString(@"hh\:mm\:ss\.ffff");
+
+                        btnLoadDefinitions.Enabled = true;
+                        btnExtract.Enabled = true;
+
+                        btnCancel.Visible = false;
+                        btnCreate.Visible = true;
                     });
                 }
                 catch (OperationCanceledException ex)
                 {
                     Invoke(() =>
                     {
-                        lblStatus.Text = string.Empty;
                         lblResultCount.Text = "0 Assets";
                         lblElapsed.Text = "00:00:00.0000";
                     });
@@ -470,18 +474,11 @@ namespace ResourcePacker.Forms
                 binaryReader.Close();
                 Invoke(() =>
                 {
+                    lblStatus.Text = string.Empty;
                     progressBarPrimary.Style = ProgressBarStyle.Blocks;
                     progressBarPrimary.Value = 0;
-
                     progressBarSecondary.Style = ProgressBarStyle.Blocks;
                     progressBarSecondary.Value = 0;
-
-                    btnLoadDefinitions.Enabled = true;
-                    btnExtract.Enabled = true;
-
-                    btnCancel.Visible = false;
-                    btnCreate.Visible = true;
-                    btnOpen.Visible = true;
                 });
             });
         }
