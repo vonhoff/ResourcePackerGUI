@@ -8,6 +8,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <StartupObject>ResourcePacker.Program</StartupObject>
     <ApplicationIcon>Resources\icon.ico</ApplicationIcon>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <ItemGroup>

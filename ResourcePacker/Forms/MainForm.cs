@@ -39,27 +39,31 @@ namespace ResourcePacker.Forms
 {
     public partial class MainForm : Form
     {
-        private readonly TimeSpan _progressTimeInterval = TimeSpan.FromMilliseconds(50);
         private readonly LoggingLevelSwitch _loggingLevelSwitch = new(LogEventLevel.Debug);
-        private readonly IProgress<(int percentage, int amount)> _progressPrimary;
-        private readonly IProgress<int> _progressSecondary;
         private readonly ActionDebouncer _searchDebouncer;
         private CancellationTokenSource _cancellationTokenSource;
-        private List<Asset>? _assets;
-        private PackageHeader _packageHeader;
         private Asset? _selectedPreviewAsset;
-        private string _packagePath = string.Empty;
         private string _searchQuery = string.Empty;
-        private string _password = string.Empty;
         private bool _formatPreviewText = true;
         private bool _showDebugMessages = true;
+
+        // Package configuration variables
+        private string _password = string.Empty;
+        private string _packagePath = string.Empty;
+        private List<Asset>? _assets;
+        private PackageHeader _packageHeader;
+
+        // Progress variables
+        private readonly TimeSpan _progressTimeInterval = TimeSpan.FromMilliseconds(25);
+        private readonly IProgress<(int percentage, int amount)> _progressPrimary;
+        private readonly IProgress<int> _progressSecondary;
         private DateTime _progressLastUpdatedPrimary;
         private DateTime _progressLastUpdatedSecondary;
 
         public MainForm()
         {
             InitializeComponent();
-            _searchDebouncer = new ActionDebouncer(RefreshFileTree, TimeSpan.FromSeconds(0.35));
+            _searchDebouncer = new ActionDebouncer(RefreshFileTree, TimeSpan.FromMilliseconds(35));
             _progressPrimary = new Progress<(int percentage, int amount)>(UpdateLoadProgress);
             _progressSecondary = new Progress<int>(UpdateDecryptionProgress);
             _cancellationTokenSource = new CancellationTokenSource();

@@ -37,7 +37,7 @@ namespace ResourcePacker.Forms
         // Progress variables
         private readonly IProgress<(int percentage, string path)> _progressPrimary;
         private readonly IProgress<int> _progressSecondary;
-        private readonly TimeSpan _progressTimeInterval = TimeSpan.FromMilliseconds(50);
+        private readonly TimeSpan _progressTimeInterval = TimeSpan.FromMilliseconds(25);
         private DateTime _progressLastUpdatedPrimary;
         private DateTime _progressLastUpdatedSecondary;
 
@@ -71,13 +71,25 @@ namespace ResourcePacker.Forms
             }
 
             var selectedPath = browserDialog.SelectedPath;
-            if (!Directory.EnumerateFiles(selectedPath, string.Empty, SearchOption.AllDirectories).Any())
+
+            try
             {
-                MessageBox.Show("The specified directory does not contain any files.",
+                if (!Directory.EnumerateFileSystemEntries(selectedPath,
+                        string.Empty, SearchOption.AllDirectories).Any())
+                {
+                    MessageBox.Show("The specified directory does not contain any files.",
+                        "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Could not open the specified directory or subdirectories. \n{ex.Message}",
                     "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
+            btnCancel.Text = "Cancel";
             txtAssetFolder.Text = selectedPath;
 
             var assetPathNodes = selectedPath
@@ -96,59 +108,73 @@ namespace ResourcePacker.Forms
             _cancellationTokenSource = new CancellationTokenSource();
             Task.Run(() =>
             {
+                string[]? files = null;
+
                 try
                 {
-                    var files = CollectFiles(selectedPath);
-                    CreateSelectorNodes(rootNode, _relativePackageLocationDepth, files);
-
-                    _cancellationTokenSource.Token.ThrowIfCancellationRequested();
-                    Invoke(() =>
+                    files = CollectFiles(selectedPath);
+                    if (files.Length == 0)
                     {
-                        lblStatusFile.Text = string.Empty;
-                        Cursor.Current = Cursors.WaitCursor;
-                        lblStatus.Text = "Updating tree view...";
-                        lblStatus.Refresh();
+                        MessageBox.Show("The specified directory does not contain any files.",
+                            "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
 
-                        selectorTreeView.BeginUpdate();
-                        selectorTreeView.Nodes.Add(rootNode);
-                        selectorTreeView.ExpandAll();
-                        selectorTreeView.Nodes[0].EnsureVisible();
-                        selectorTreeView.EndUpdate();
+                        _cancellationTokenSource.Cancel();
+                    }
+                    else
+                    {
+                        CreateSelectorNodes(rootNode, _relativePackageLocationDepth, files);
 
-                        lblStatus.Text = "Ready";
-                        lblPercentage.Text = "0%";
-                        progressBarPrimary.Value = 0;
-                        btnCreate.Enabled = _packageLocation != string.Empty;
-                        Cursor.Current = Cursors.Default;
+                        _cancellationTokenSource.Token.ThrowIfCancellationRequested();
+                        Invoke(() =>
+                        {
+                            lblStatusFile.Text = string.Empty;
+                            Cursor.Current = Cursors.WaitCursor;
+                            lblStatus.Text = "Updating tree view...";
+                            lblStatus.Refresh();
 
-                        lblAvailableItems.Text = $"Available items: {_assetsToInclude.Count}";
-                        lblSelectedItems.Text = $"Selected items: {_assetsToInclude.Count}";
-                    });
+                            selectorTreeView.BeginUpdate();
+                            selectorTreeView.Nodes.Add(rootNode);
+                            selectorTreeView.ExpandAll();
+                            selectorTreeView.Nodes[0].EnsureVisible();
+                            selectorTreeView.EndUpdate();
+
+                            btnCancel.Text = "Close";
+                            lblStatus.Text = "Ready";
+                            lblPercentage.Text = "0%";
+                            progressBarPrimary.Value = 0;
+                            btnCreate.Enabled = _packageLocation != string.Empty;
+                            Cursor.Current = Cursors.Default;
+
+                            lblAvailableItems.Text = $"Available items: {_assetsToInclude.Count}";
+                            lblSelectedItems.Text = $"Selected items: {_assetsToInclude.Count}";
+                        });
+                    }
                 }
                 catch (OperationCanceledException ex)
                 {
                     MessageBox.Show(ex.Message, "Operation canceled",
                         MessageBoxButtons.OK, MessageBoxIcon.Information);
-
-                    if (!IsDisposed)
-                    {
-                        _assetsToInclude.Clear();
-                        Invoke(() =>
-                        {
-                            lblStatusFile.Text = string.Empty;
-                            txtAssetFolder.Text = string.Empty;
-                            lblStatus.Text = "Ready";
-                            lblPercentage.Text = "0%";
-                            progressBarPrimary.Style = ProgressBarStyle.Blocks;
-                            progressBarPrimary.Value = 0;
-                            btnCreate.Enabled = false;
-                        });
-                    }
                 }
-                catch (Exception ex)
+
+                if (!IsDisposed)
                 {
-                    MessageBox.Show(ex.Message, "Error",
-                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    Invoke(() =>
+                    {
+                        if (files?.Length == 0 || _cancellationTokenSource.IsCancellationRequested)
+                        {
+                            _assetsToInclude.Clear();
+                            btnCreate.Enabled = false;
+                            txtAssetFolder.Text = string.Empty;
+                            txtAssetFolder.Refresh();
+                        }
+
+                        lblStatusFile.Text = string.Empty;
+                        btnCancel.Text = "Close";
+                        lblStatus.Text = "Ready";
+                        lblPercentage.Text = "0%";
+                        progressBarPrimary.Style = ProgressBarStyle.Blocks;
+                        progressBarPrimary.Value = 0;
+                    });
                 }
 
                 _cancellationTokenSource.Cancel();
@@ -174,7 +200,13 @@ namespace ResourcePacker.Forms
             {
                 var definitionsLocation = _createDefinitionFile ? _definitionsLocation : string.Empty;
 
-                Invoke(() => lblStatus.Text = "Creating definitions...");
+                Invoke(() =>
+                {
+                    btnCancel.Text = "Cancel";
+                    lblStatus.Text = "Creating definitions...";
+                    progressBarSecondary.Visible = true;
+                });
+
                 var paths = DefinitionHelper.CreateDefinitionFile(
                     _assetsToInclude, _relativePackageLocationDepth, definitionsLocation,
                     _packageLocation, _progressSecondary);
@@ -188,17 +220,23 @@ namespace ResourcePacker.Forms
                 }
                 catch (OperationCanceledException ex)
                 {
+                    MessageBox.Show(ex.Message, "Operation canceled",
+                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                    if (IsDisposed)
+                    {
+                        return;
+                    }
+
                     Invoke(() =>
                     {
                         lblStatus.Text = "Ready";
                         lblPercentage.Text = "0%";
                         lblStatusFile.Text = string.Empty;
                         progressBarPrimary.Value = 0;
-                        progressBarSecondary.Value = 0;
+                        progressBarSecondary.Visible = false;
+                        btnCancel.Text = "Close";
                     });
-
-                    MessageBox.Show(ex.Message, "Operation canceled",
-                        MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
                 catch (Exception ex)
                 {
@@ -236,7 +274,9 @@ namespace ResourcePacker.Forms
                     lblPercentage.Text = "100%";
                     lblStatusFile.Text = string.Empty;
                     progressBarPrimary.Value = 100;
-                    progressBarSecondary.Value = 100;
+                    progressBarSecondary.Visible = false;
+                    btnCancel.Text = "Close";
+                    btnCancel.Focus();
                 });
 
                 SystemSounds.Asterisk.Play();
@@ -315,7 +355,7 @@ namespace ResourcePacker.Forms
 
             if (files.Length == 0)
             {
-                throw new Exception("The specified folder is empty.");
+                return files;
             }
 
             _assetsToInclude.Clear();
