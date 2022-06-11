@@ -28,27 +28,13 @@ namespace ResourcePacker.Helpers
         private static readonly int PlatformWordSize = IntPtr.Size;
 
         /// <summary>
-        /// Uses <see cref="CopyMemory"/> when the byte count is less than 128 bytes. <br/>
-        /// Uses <see cref="Buffer.BlockCopy"/> otherwise. <br/>
         /// CopyMemory is faster than Buffer.BlockCopy when the byte count is not greater than 128 bytes.
         /// </summary>
         /// <param name="src">Source</param>
-        /// <param name="srcOffset">Source offset</param>
+        /// <param name="srcOff">Source offset</param>
         /// <param name="dst">Destination</param>
-        /// <param name="dstOffset">Destination offset</param>
+        /// <param name="dstOff">Destination offset</param>
         /// <param name="count">Byte count</param>
-        public static void FastCopy(byte[] src, int srcOffset, byte[] dst, int dstOffset, int count)
-        {
-            if (count <= 128)
-            {
-                CopyMemory(src, srcOffset, dst, dstOffset, count);
-            }
-            else
-            {
-                Buffer.BlockCopy(src, srcOffset, dst, dstOffset, count);
-            }
-        }
-
         public static void CopyMemory(byte[] src, int srcOff, byte[] dst, int dstOff, int count)
         {
             unsafe
