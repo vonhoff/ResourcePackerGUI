@@ -30,6 +30,7 @@ namespace ResourcePacker.Helpers
 {
     internal static class AssetHelper
     {
+        private static readonly Regex TextRegex = new(@"[^\t\r\n -~]", RegexOptions.Compiled);
         private static readonly MimeType JsonMimeType =
             new("application", "json")
             {
@@ -40,6 +41,11 @@ namespace ResourcePacker.Helpers
 
         public static MimeType? GetMimeType(byte[] buffer)
         {
+            if (buffer.Length == 0)
+            {
+                return null;
+            }
+
             var mimeType = MimeTypes.Value.GetMimeType(buffer);
 
             if (mimeType != null)
@@ -51,8 +57,14 @@ namespace ResourcePacker.Helpers
             // since JSON types are not automatically detected.
             try
             {
+                // Return null when the buffer does not start with a left curly bracket.
+                if (buffer[0] != 0x7B)
+                {
+                    return null;
+                }
+
                 var text = Encoding.UTF8.GetString(buffer);
-                text = Regex.Replace(text, @"[^\t\r\n -~]", string.Empty, RegexOptions.Compiled);
+                text = TextRegex.Replace(text, string.Empty);
                 JsonNode.Parse(text);
                 return JsonMimeType;
             }
