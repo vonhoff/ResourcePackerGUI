@@ -18,9 +18,6 @@
 
 #endregion
 
-using System.Timers;
-using Timer = System.Threading.Timer;
-
 namespace ResourcePacker.Helpers
 {
     public static class AesEncryptionHelper
@@ -214,7 +211,7 @@ namespace ResourcePacker.Helpers
         };
 
         public static bool DecryptCbc(byte[] input, int inputLength, ref byte[] output,
-            uint[] key, IProgress<int>? progress = null, int progressReportInterval = 100, 
+            uint[] key, IProgress<int>? progress = null, int progressReportInterval = 100,
             CancellationToken cancellationToken = default)
         {
             var inputBuffer = new byte[BlockSize];
@@ -227,7 +224,7 @@ namespace ResourcePacker.Helpers
             }
 
             var blocks = inputLength / BlockSize;
-            BinaryHelper.CopyMemory(Iv, 0, ivBuffer, 0, BlockSize);
+            MemoryHelper.CopyMemory(Iv, 0, ivBuffer, 0, BlockSize);
 
             var percentage = 0;
             using var timer = new System.Timers.Timer(progressReportInterval);
@@ -237,11 +234,11 @@ namespace ResourcePacker.Helpers
             for (var index = 0; index < blocks; index++)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                BinaryHelper.CopyMemory(input, index * BlockSize, inputBuffer, 0, BlockSize);
+                MemoryHelper.CopyMemory(input, index * BlockSize, inputBuffer, 0, BlockSize);
                 Decrypt(inputBuffer, ref outputBuffer, key);
                 XorBuf(ivBuffer, ref outputBuffer, BlockSize);
-                BinaryHelper.CopyMemory(outputBuffer, 0, output, index * BlockSize, BlockSize);
-                BinaryHelper.CopyMemory(inputBuffer, 0, ivBuffer, 0, BlockSize);
+                MemoryHelper.CopyMemory(outputBuffer, 0, output, index * BlockSize, BlockSize);
+                MemoryHelper.CopyMemory(inputBuffer, 0, ivBuffer, 0, BlockSize);
                 percentage = (int)((double)(index + 1) / blocks * 100);
             }
 
@@ -273,7 +270,7 @@ namespace ResourcePacker.Helpers
             }
 
             var blocks = inputLength / BlockSize;
-            BinaryHelper.CopyMemory(Iv, 0, ivBuffer, 0, BlockSize);
+            MemoryHelper.CopyMemory(Iv, 0, ivBuffer, 0, BlockSize);
 
             var percentage = 0;
             using var timer = new System.Timers.Timer(progressReportInterval);
@@ -283,11 +280,11 @@ namespace ResourcePacker.Helpers
             for (var index = 0; index < blocks; index++)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                BinaryHelper.CopyMemory(input, index * BlockSize, inputBuffer, 0, BlockSize);
+                MemoryHelper.CopyMemory(input, index * BlockSize, inputBuffer, 0, BlockSize);
                 XorBuf(ivBuffer, ref inputBuffer, BlockSize);
                 Encrypt(inputBuffer, ref outputBuffer, key);
-                BinaryHelper.CopyMemory(outputBuffer, 0, output, index * BlockSize, BlockSize);
-                BinaryHelper.CopyMemory(outputBuffer, 0, ivBuffer, 0, BlockSize);
+                MemoryHelper.CopyMemory(outputBuffer, 0, output, index * BlockSize, BlockSize);
+                MemoryHelper.CopyMemory(outputBuffer, 0, ivBuffer, 0, BlockSize);
                 percentage = (int)((double)(index + 1) / blocks * 100);
             }
 

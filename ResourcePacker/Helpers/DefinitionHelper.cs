@@ -19,7 +19,6 @@
 #endregion
 
 using System.Text;
-using System.Timers;
 using Force.Crc32;
 using Serilog;
 
@@ -79,17 +78,17 @@ namespace ResourcePacker.Helpers
             int progressReportInterval = 100)
         {
             var processedItems = new Dictionary<string, string>();
-            var file = new StreamWriter(definitionsLocation);
-            var index = 0;
+            var file = string.IsNullOrEmpty(definitionsLocation) ? null :
+                new StreamWriter(definitionsLocation);
 
             var percentage = 0;
             using var timer = new System.Timers.Timer(progressReportInterval);
             timer.Elapsed += delegate { progress!.Report(percentage); };
             timer.Enabled = progress != null;
 
-            foreach (var absolutePath in items)
+            for (var i = 0; i < items.Count; i++)
             {
-                index++;
+                var absolutePath = items[i];
 
                 if (absolutePath.Equals(packageLocation))
                 {
@@ -113,12 +112,12 @@ namespace ResourcePacker.Helpers
                 }
 
                 var relativePath = string.Join('/', pathNodes[relativeDepth..]).ToLowerInvariant();
-                file.WriteLine(relativePath);
+                file?.WriteLine(relativePath);
                 processedItems.Add(absolutePath, relativePath);
-                percentage = (int)((double)index / items.Count * 100);
+                percentage = (int)((double)i / (items.Count - 1) * 100);
             }
 
-            file.Close();
+            file?.Close();
             return processedItems;
         }
     }

@@ -24,9 +24,9 @@ namespace ResourcePacker.Extensions
 {
     internal static class RichTextBoxExtensions
     {
-        private const int SB_PAGEBOTTOM = 7;
+        private const int SB_PAGEBOTTOM = 0x7;
 
-        private const int WM_VSCROLL = 277;
+        private const int WM_VSCROLL = 0x115;
 
         internal static void ScrollToBottom(this RichTextBox richTextBox)
         {

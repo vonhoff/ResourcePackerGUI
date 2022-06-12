@@ -42,6 +42,7 @@ namespace ResourcePacker.Forms
     {
         private readonly LoggingLevelSwitch _loggingLevelSwitch = new(LogEventLevel.Debug);
         private readonly ActionDebouncer _searchDebouncer;
+        private readonly ActionDebouncer _scrollOutputToEndDebouncer;
         private CancellationTokenSource _cancellationTokenSource;
         private Asset? _selectedPreviewAsset;
         private string _searchQuery = string.Empty;
@@ -50,21 +51,20 @@ namespace ResourcePacker.Forms
 
         // Package configuration variables
         private string _password = string.Empty;
-
         private string _packagePath = string.Empty;
         private List<Asset>? _assets;
         private PackageHeader _packageHeader;
 
         // Progress variables
         private const int ProgressReportInterval = 25;
-
         private readonly IProgress<(int percentage, int amount)> _progressPrimary;
         private readonly IProgress<int> _progressSecondary;
 
         public MainForm()
         {
             InitializeComponent();
-            _searchDebouncer = new ActionDebouncer(RefreshFileTree, TimeSpan.FromMilliseconds(35));
+            _searchDebouncer = new ActionDebouncer(RefreshFileTree, TimeSpan.FromMilliseconds(175));
+            _scrollOutputToEndDebouncer = new ActionDebouncer(ScrollOutputToEnd, TimeSpan.FromMilliseconds(234));
             _progressPrimary = new Progress<(int percentage, int amount)>(UpdateLoadProgress);
             _progressSecondary = new Progress<int>(UpdateDecryptionProgress);
             _cancellationTokenSource = new CancellationTokenSource();
@@ -590,15 +590,19 @@ namespace ResourcePacker.Forms
             SuspendLayout();
         }
 
-        private void MainForm_ResizeEnd(object sender, EventArgs e)
-        {
-            ResumeLayout(true);
-            ScrollOutputToEnd();
-        }
-
         private void BtnCancel_Click(object sender, EventArgs e)
         {
             _cancellationTokenSource.Cancel();
+        }
+
+        private void MainForm_Resize(object sender, EventArgs e)
+        {
+            _scrollOutputToEndDebouncer.Invoke();
+        }
+
+        private void MainForm_ResizeEnd(object sender, EventArgs e)
+        {
+            ResumeLayout();
         }
     }
 }

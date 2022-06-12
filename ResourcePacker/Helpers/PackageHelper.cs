@@ -21,9 +21,9 @@
 using System.IO.Packaging;
 using System.Runtime.CompilerServices;
 using System.Text;
-using System.Timers;
 using Force.Crc32;
 using ResourcePacker.Entities;
+using ResourcePacker.Extensions;
 using Serilog;
 
 namespace ResourcePacker.Helpers
@@ -122,7 +122,7 @@ namespace ResourcePacker.Helpers
                             Enumerable.Repeat((byte)pkcs7, pkcs7).ToArray()).ToArray();
 
                         var output = new byte[packSize];
-                        if (AesEncryptionHelper.EncryptCbc(dataToEncrypt, packSize, 
+                        if (AesEncryptionHelper.EncryptCbc(dataToEncrypt, packSize,
                                 ref output, key, progressSecondary, progressReportInterval, cancellationToken))
                         {
                             fileContent = output;
@@ -222,7 +222,7 @@ namespace ResourcePacker.Helpers
         /// <returns>A list of loaded assets.</returns>
         public static List<Asset> LoadAssetsFromPackage(Entry[] entries, BinaryReader binaryReader, string password,
             IProgress<(int percentage, int amount)>? progressPrimary = null,
-            IProgress<int>? progressSecondary = null, int progressReportInterval = 100, 
+            IProgress<int>? progressSecondary = null, int progressReportInterval = 100,
             CancellationToken cancellationToken = default)
         {
             var assets = new List<Asset>();

@@ -167,7 +167,7 @@
         AAEAAAD/////AQAAAAAAAAAMAgAAAEZTeXN0ZW0uV2luZG93cy5Gb3JtcywgQ3VsdHVyZT1uZXV0cmFs
         LCBQdWJsaWNLZXlUb2tlbj1iNzdhNWM1NjE5MzRlMDg5BQEAAAAmU3lzdGVtLldpbmRvd3MuRm9ybXMu
         SW1hZ2VMaXN0U3RyZWFtZXIBAAAABERhdGEHAgIAAAAJAwAAAA8DAAAAchEAAAJNU0Z0AUkBTAIBAQkB
-        AAGQASIBkAEiARABAAEQAQAE/wEJAQAI/wFCAU0BNgEEBgABNgEEAgABKAMAAUADAAEwAwABAQEAAQgG
+        AAFAASMBQAEjARABAAEQAQAE/wEJAQAI/wFCAU0BNgEEBgABNgEEAgABKAMAAUADAAEwAwABAQEAAQgG
         AAEMGAABgAIAAYADAAKAAQABgAMAAYABAAGAAQACgAIAA8ABAAHAAdwBwAEAAfABygGmAQABMwUAATMB
         AAEzAQABMwEAAjMCAAMWAQADHAEAAyIBAAMpAQADVQEAA00BAANCAQADOQEAAYABfAH/AQACUAH/AQAB
         kwEAAdYBAAH/AewBzAEAAcYB1gHvAQAB1gLnAQABkAGpAa0CAAH/ATMDAAFmAwABmQMAAcwCAAEzAwAC
@@ -315,7 +315,7 @@
     <value>0</value>
   </data>
   <data name="tabPage3.Text" xml:space="preserve">
-    <value>Explorer</value>
+    <value>Package Explorer</value>
   </data>
   <data name="&gt;&gt;tabPage3.Name" xml:space="preserve">
     <value>tabPage3</value>
@@ -969,10 +969,10 @@
     <value>Magenta</value>
   </data>
   <data name="btnExtract.Size" type="System.Drawing.Size, System.Drawing">
-    <value>84, 30</value>
+    <value>144, 30</value>
   </data>
   <data name="btnExtract.Text" xml:space="preserve">
-    <value>Extract</value>
+    <value>Extract package</value>
   </data>
   <data name="btnExtract.ToolTipText" xml:space="preserve">
     <value>Extract all files contained in the package</value>
