@@ -1,16 +1,34 @@
-﻿using System.Data;
-using System.Diagnostics;
+﻿#region GNU General Public License
+
+/* Copyright 2022 Vonhoff, MaxtorCoder
+ *
+ * This file is part of ResourcePackerGUI.
+ *
+ * ResourcePackerGUI is free software: you can redistribute it and/or modify it under the terms of the
+ * GNU General Public License as published by the Free Software Foundation, either version 3 of the License,
+ * or (at your option) any later version.
+ *
+ * ResourcePackerGUI is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with ResourcePackerGUI.
+ * If not, see <https://www.gnu.org/licenses/>.
+ */
+
+#endregion
+
 using ResourcePacker.Entities;
-using Serilog;
 using Winista.Mime;
 
 namespace ResourcePacker.Controls
 {
     public partial class MultiNodeSelectionTreeView : UserControl
     {
-        private List<TreeNode> _nodes = new List<TreeNode>();
         private static readonly Color SelectedBackgroundColor = Color.FromArgb(0, 120, 215);
         private static readonly Color SelectedForegroundColor = Color.White;
+        private readonly List<TreeNode> _nodes = new();
+        private readonly Queue<TreeNode> _nodesToReset = new();
 
         public MultiNodeSelectionTreeView()
         {
@@ -19,10 +37,20 @@ namespace ResourcePacker.Controls
 
         public event EventHandler<TreeNodeMouseClickEventArgs>? NodeMouseDoubleClick;
 
-        public List<TreeNode> SelectedNodes { get; private set; } = new();
+        public List<TreeNode> SelectedNodes { get; } = new();
+
+        protected override CreateParams CreateParams
+        {
+            get
+            {
+                var cp = base.CreateParams;
+                cp.ExStyle |= 0x02000000;
+                return cp;
+            }
+        }
 
         public void CreateNodesFromAssets(IReadOnlyList<Asset> assets, string packageName,
-            IProgress<int>? progressSecondary = null, int progressReportInterval = 100)
+                    IProgress<int>? progressSecondary = null, int progressReportInterval = 100)
         {
             _nodes.Clear();
             if (assets.Count == 0)
@@ -63,7 +91,7 @@ namespace ResourcePacker.Controls
                         else
                         {
                             currentNode = currentNode.Nodes.Add(item);
-                            
+
                             if (j == pathNodes.Length - 1)
                             {
                                 currentNode.ImageIndex = GetMimeTypeIconIndex(asset.MimeType);
@@ -80,7 +108,7 @@ namespace ResourcePacker.Controls
                 }
             }
 
-            _nodes.AddRange(Collect(rootNode.Nodes));
+            _nodes.AddRange(CollectAllNodes(rootNode.Nodes));
 
             treeView.Invoke(() =>
             {
@@ -91,13 +119,13 @@ namespace ResourcePacker.Controls
             });
         }
 
-        private static IEnumerable<TreeNode> Collect(TreeNodeCollection nodes)
+        private static IEnumerable<TreeNode> CollectAllNodes(TreeNodeCollection nodes)
         {
             foreach (TreeNode node in nodes)
             {
                 yield return node;
 
-                foreach (var child in Collect(node.Nodes))
+                foreach (var child in CollectAllNodes(node.Nodes))
                 {
                     yield return child;
                 }
@@ -128,11 +156,62 @@ namespace ResourcePacker.Controls
             };
         }
 
+        private static void NodeToDefaultColors(TreeNode node)
+        {
+            node.BackColor = Color.White;
+            node.ForeColor = Color.Black;
+        }
+
+        private void ApplySelectedNodeStyling()
+        {
+            foreach (var node in SelectedNodes)
+            {
+                node.BackColor = SelectedBackgroundColor;
+                node.ForeColor = SelectedForegroundColor;
+            }
+        }
+
+        private void ClearSelectedNodeStyling()
+        {
+            foreach (var node in SelectedNodes)
+            {
+                NodeToDefaultColors(node);
+            }
+        }
+
+        private void MultiNodeSelectionTreeView_Leave(object sender, EventArgs e)
+        {
+            ClearSelectedNodeStyling();
+            SelectedNodes.Clear();
+        }
+
+        private void SelectChildNodes(TreeNode node)
+        {
+            if (node.Nodes.Count > 0 && node.Tag == null)
+            {
+                SelectedNodes.AddRange(CollectAllNodes(node.Nodes));
+            }
+        }
+
+        private void TreeView_AfterSelect(object sender, TreeViewEventArgs e)
+        {
+            // Disable the default selection style.
+            treeView.SelectedNode = null;
+
+            // Remove styling for pending reset nodes.
+            while (_nodesToReset.TryDequeue(out var node))
+            {
+                NodeToDefaultColors(node);
+            }
+        }
+
         private void TreeView_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
         {
             ClearSelectedNodeStyling();
 
-            if (e.Node.Bounds.Contains(e.X, e.Y))
+            if (e.Node.Bounds.Contains(e.X, e.Y) ||
+                ModifierKeys.HasFlag(Keys.Control) ||
+                ModifierKeys.HasFlag(Keys.Shift))
             {
                 UpdateSelectedNodes(e.Node);
                 ApplySelectedNodeStyling();
@@ -144,67 +223,51 @@ namespace ResourcePacker.Controls
             }
         }
 
-        private void UpdateSelectedNodes(TreeNode node)
-        {
-            switch (ModifierKeys)
-            {
-                case Keys.Control:
-                    SelectedNodes.Add(node);
-                    break;
-                case Keys.Shift when SelectedNodes.Count > 0:
-                    var a = _nodes.IndexOf(SelectedNodes[0]);
-                    var b = _nodes.IndexOf(node);
-
-                    SelectedNodes.Clear();
-                    while (a != b)
-                    {
-                        SelectedNodes.Add(_nodes[a]);
-                        a = a < b ? a + 1 : a - 1;
-                    }
-                    break;
-                default:
-                    SelectedNodes.Clear();
-                    SelectedNodes.Add(node);
-                    break;
-            }
-        }
-
-        protected override CreateParams CreateParams
-        {
-            get
-            {
-                var cp = base.CreateParams;
-                cp.ExStyle |= 0x02000000;
-                return cp;
-            }
-        }
-
         private void TreeView_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
         {
             NodeMouseDoubleClick?.Invoke(sender, e);
         }
 
-        private void MultiNodeSelectionTreeView_Leave(object sender, EventArgs e)
+        private void UpdateSelectedNodes(TreeNode node)
         {
-            ClearSelectedNodeStyling();
-            SelectedNodes.Clear();
-        }
-
-        private void ClearSelectedNodeStyling()
-        {
-            foreach (var node in SelectedNodes)
+            switch (ModifierKeys)
             {
-                node.BackColor = Color.White;
-                node.ForeColor = Color.Black;
-            }
-        }
+                case Keys.Shift | Keys.Control when SelectedNodes.Count > 0:
+                case Keys.Shift when SelectedNodes.Count > 0:
+                    var a = _nodes.IndexOf(SelectedNodes[0]);
+                    var b = _nodes.IndexOf(node);
 
-        private void ApplySelectedNodeStyling()
-        {
-            foreach (var node in SelectedNodes)
-            {
-                node.BackColor = SelectedBackgroundColor;
-                node.ForeColor = SelectedForegroundColor;
+                    if (!ModifierKeys.HasFlag(Keys.Control))
+                    {
+                        SelectedNodes.Clear();
+                    }
+
+                    while (a != b)
+                    {
+                        SelectedNodes.Add(_nodes[a]);
+                        a = a < b ? a + 1 : a - 1;
+                    }
+
+                    SelectedNodes.Add(_nodes[a]);
+                    SelectChildNodes(_nodes[a]);
+                    break;
+
+                case Keys.Control:
+                    if (SelectedNodes.Contains(node))
+                    {
+                        _nodesToReset.Enqueue(node);
+                        SelectedNodes.Remove(node);
+                        break;
+                    }
+
+                    SelectedNodes.Insert(0, node);
+                    SelectChildNodes(node);
+                    break;
+
+                default:
+                    SelectedNodes.Clear();
+                    SelectedNodes.Add(node);
+                    break;
             }
         }
     }
