@@ -48,7 +48,6 @@ namespace ResourcePacker.Forms
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.tabControl3 = new System.Windows.Forms.TabControl();
@@ -56,8 +55,7 @@ namespace ResourcePacker.Forms
             this.splitContainer3 = new System.Windows.Forms.SplitContainer();
             this.searchBox = new System.Windows.Forms.TextBox();
             this.lblNoResults = new System.Windows.Forms.Label();
-            this.explorerTreeView = new System.Windows.Forms.TreeView();
-            this.explorerImages = new System.Windows.Forms.ImageList(this.components);
+            this.packageExplorerTreeView = new ResourcePacker.Controls.MultiNodeSelectionTreeView();
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
             this.tabControl2 = new System.Windows.Forms.TabControl();
             this.tabPage2 = new System.Windows.Forms.TabPage();
@@ -160,7 +158,7 @@ namespace ResourcePacker.Forms
             // splitContainer3.Panel2
             // 
             this.splitContainer3.Panel2.Controls.Add(this.lblNoResults);
-            this.splitContainer3.Panel2.Controls.Add(this.explorerTreeView);
+            this.splitContainer3.Panel2.Controls.Add(this.packageExplorerTreeView);
             // 
             // searchBox
             // 
@@ -174,27 +172,11 @@ namespace ResourcePacker.Forms
             this.lblNoResults.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.lblNoResults.Name = "lblNoResults";
             // 
-            // explorerTreeView
+            // packageExplorerTreeView
             // 
-            resources.ApplyResources(this.explorerTreeView, "explorerTreeView");
-            this.explorerTreeView.ImageList = this.explorerImages;
-            this.explorerTreeView.Name = "explorerTreeView";
-            this.explorerTreeView.NodeMouseDoubleClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.ExplorerTreeView_NodeMouseDoubleClick);
-            // 
-            // explorerImages
-            // 
-            this.explorerImages.ColorDepth = System.Windows.Forms.ColorDepth.Depth8Bit;
-            this.explorerImages.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("explorerImages.ImageStream")));
-            this.explorerImages.TransparentColor = System.Drawing.Color.Transparent;
-            this.explorerImages.Images.SetKeyName(0, "application_view_tile.png");
-            this.explorerImages.Images.SetKeyName(1, "music.png");
-            this.explorerImages.Images.SetKeyName(2, "font.png");
-            this.explorerImages.Images.SetKeyName(3, "picture.png");
-            this.explorerImages.Images.SetKeyName(4, "page.png");
-            this.explorerImages.Images.SetKeyName(5, "film.png");
-            this.explorerImages.Images.SetKeyName(6, "help.png");
-            this.explorerImages.Images.SetKeyName(7, "folder.png");
-            this.explorerImages.Images.SetKeyName(8, "database.png");
+            resources.ApplyResources(this.packageExplorerTreeView, "packageExplorerTreeView");
+            this.packageExplorerTreeView.Name = "packageExplorerTreeView";
+            this.packageExplorerTreeView.NodeMouseDoubleClick += new System.EventHandler<System.Windows.Forms.TreeNodeMouseClickEventArgs>(this.PackageExplorerTreeView_NodeMouseDoubleClick);
             // 
             // splitContainer2
             // 
@@ -523,11 +505,8 @@ namespace ResourcePacker.Forms
         private TabControl tabControl1;
         private TabPage tabPage1;
         private RichTextBox outputBox;
-        private ImageList explorerImages;
         private SplitContainer splitContainer3;
         private TextBox searchBox;
-        private TreeView explorerTreeView;
-        private Label lblNoResults;
         private TabPage tabPage2;
         private TabControl previewTabs;
         private TabPage previewImageTab;
@@ -553,5 +532,7 @@ namespace ResourcePacker.Forms
         private ToolStripProgressBar progressBarPrimary;
         private ToolStripButton btnCancel;
         private ToolStripProgressBar progressBarSecondary;
+        private Controls.MultiNodeSelectionTreeView packageExplorerTreeView;
+        private Label lblNoResults;
     }
 }

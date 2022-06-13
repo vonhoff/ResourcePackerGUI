@@ -48,16 +48,6 @@ namespace ResourcePacker.Forms
             _cancellationTokenSource.Cancel();
         }
 
-        protected override CreateParams CreateParams
-        {
-            get
-            {
-                var cp = base.CreateParams;
-                cp.ExStyle |= 0x02000000;
-                return cp;
-            }
-        }
-
         private void BtnAssetExplore_Click(object sender, EventArgs e)
         {
             using var browserDialog = new FolderBrowserDialog();
@@ -390,7 +380,7 @@ namespace ResourcePacker.Forms
 
         private void CreateForm_ResizeEnd(object sender, EventArgs e)
         {
-            ResumeLayout(true);
+            ResumeLayout();
         }
 
         private void CreateSelectorNodes(TreeNode rootNode, int relativeDepth, IReadOnlyList<string> files)
@@ -483,6 +473,12 @@ namespace ResourcePacker.Forms
             lblPercentage.Refresh();
             lblStatusFile.Text = path;
             lblStatusFile.Refresh();
+        }
+
+        private void CreateForm_SizeChanged(object sender, EventArgs e)
+        {
+            splitContainer2.SplitterDistance = Math.Min(splitContainer2.SplitterDistance,
+                Width - splitContainer2.Panel2MinSize);
         }
     }
 }

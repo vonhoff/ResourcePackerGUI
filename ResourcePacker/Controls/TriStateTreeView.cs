@@ -16,8 +16,6 @@
 
 #endregion
 
-using System.ComponentModel;
-
 namespace ResourcePacker.Controls
 {
     public partial class TriStateTreeView : UserControl
@@ -34,9 +32,19 @@ namespace ResourcePacker.Controls
             InitializeCheckboxGraphics();
         }
 
-        public event EventHandler<TreeViewEventArgs>? NodeStateChanged;
+        protected override CreateParams CreateParams
+        {
+            get
+            {
+                var cp = base.CreateParams;
+                cp.ExStyle |= 0x02000000;
+                return cp;
+            }
+        }
 
         public event EventHandler<TreeViewEventArgs>? AfterStateChanged;
+
+        public event EventHandler<TreeViewEventArgs>? NodeStateChanged;
 
         /// <summary>
         /// CheckedState is an enum of all allowable nodes states.
@@ -65,19 +73,6 @@ namespace ResourcePacker.Controls
 
         public TreeNodeCollection Nodes => treeView.Nodes;
 
-        [Category("Tri-State Tree View")]
-        [DisplayName("Style")]
-        [Description("Style of the Tri-State Tree View")]
-        public TriStateStyles TriStateStyleProperty { get; set; } = TriStateStyles.Standard;
-
-        /// <summary>
-        /// Expands all the tree nodes.
-        /// </summary>
-        public void ExpandAll()
-        {
-            treeView.ExpandAll();
-        }
-
         /// <summary>
         /// Disables any redrawing of the tree view.
         /// </summary>
@@ -92,6 +87,14 @@ namespace ResourcePacker.Controls
         public void EndUpdate()
         {
             treeView.EndUpdate();
+        }
+
+        /// <summary>
+        /// Expands all the tree nodes.
+        /// </summary>
+        public void ExpandAll()
+        {
+            treeView.ExpandAll();
         }
 
         private static void UpdateChildState(TreeNodeCollection nodes, int treeNodeStateImageIndex,
@@ -111,6 +114,81 @@ namespace ResourcePacker.Controls
                 {
                     UpdateChildState(child.Nodes, treeNodeStateImageIndex, treeNodeChecked, changeUninitializedNodesOnly);
                 }
+            }
+        }
+
+        /// <summary>
+        /// Helper function to notify parent it may need to use 'mixed' state.
+        /// </summary>
+        /// <param name="treeNode">The tree node to update the parent from.</param>
+        private static void UpdateParentState(TreeNode treeNode)
+        {
+            while (true)
+            {
+                var origStateImageIndex = treeNode.StateImageIndex;
+                var hasCheckedNodes = false;
+                var hasUncheckedNodes = false;
+                var hasMixedNodes = false;
+
+                // The parent needs to know how many of it's children are Checked or Mixed.
+                foreach (TreeNode child in treeNode.Nodes)
+                {
+                    if (child.StateImageIndex == (int)CheckedState.Checked)
+                    {
+                        hasCheckedNodes = true;
+                    }
+                    else if (child.StateImageIndex == (int)CheckedState.Mixed)
+                    {
+                        hasMixedNodes = true;
+                        break;
+                    }
+                    else
+                    {
+                        hasUncheckedNodes = true;
+                    }
+
+                    if (hasCheckedNodes && hasUncheckedNodes)
+                    {
+                        hasMixedNodes = true;
+                        break;
+                    }
+                }
+
+                // Determines the parent's new image state.
+                if (hasMixedNodes)
+                {
+                    treeNode.StateImageIndex = (int)CheckedState.Mixed;
+                }
+                else
+                {
+                    if (hasUncheckedNodes)
+                    {
+                        if (!hasCheckedNodes)
+                        {
+                            treeNode.Checked = false;
+                        }
+                    }
+                    else
+                    {
+                        treeNode.Checked = true;
+                    }
+
+                    treeNode.StateImageIndex = hasCheckedNodes switch
+                    {
+                        true when !hasUncheckedNodes => treeNode.Checked ? (int)CheckedState.Checked : (int)CheckedState.Mixed,
+                        true => (int)CheckedState.Mixed,
+                        _ => treeNode.Checked ? (int)CheckedState.Mixed : (int)CheckedState.Unchecked
+                    };
+                }
+
+                if (origStateImageIndex != treeNode.StateImageIndex && treeNode.Parent != null)
+                {
+                    // Parent's state has changed, notify the parent's parent.
+                    treeNode = treeNode.Parent;
+                    continue;
+                }
+
+                break;
             }
         }
 
@@ -226,85 +304,6 @@ namespace ResourcePacker.Controls
             // Toggle the node's checked status. This will then fire OnAfterCheck.
             var treeNode = e.Node;
             treeNode.Checked = !treeNode.Checked;
-        }
-
-        /// <summary>
-        /// Helper function to notify parent it may need to use 'mixed' state.
-        /// </summary>
-        /// <param name="treeNode">The tree node to update the parent from.</param>
-        private void UpdateParentState(TreeNode treeNode)
-        {
-            while (true)
-            {
-                var origStateImageIndex = treeNode.StateImageIndex;
-                var hasCheckedNodes = false;
-                var hasUncheckedNodes = false;
-                var hasMixedNodes = false;
-
-                // The parent needs to know how many of it's children are Checked or Mixed.
-                foreach (TreeNode child in treeNode.Nodes)
-                {
-                    if (child.StateImageIndex == (int)CheckedState.Checked)
-                    {
-                        hasCheckedNodes = true;
-                    }
-                    else if (child.StateImageIndex == (int)CheckedState.Mixed)
-                    {
-                        hasMixedNodes = true;
-                        break;
-                    }
-                    else
-                    {
-                        hasUncheckedNodes = true;
-                    }
-
-                    if (hasCheckedNodes && hasUncheckedNodes)
-                    {
-                        hasMixedNodes = true;
-                        break;
-                    }
-                }
-
-                // In Installer mode, if all child nodes are checked then parent is checked.
-                if (TriStateStyleProperty == TriStateStyles.Installer && !hasMixedNodes)
-                {
-                    if (hasUncheckedNodes)
-                    {
-                        if (!hasCheckedNodes)
-                        {
-                            treeNode.Checked = false;
-                        }
-                    }
-                    else
-                    {
-                        treeNode.Checked = true;
-                    }
-                }
-
-                // Determines the parent's new image state.
-                if (hasMixedNodes)
-                {
-                    treeNode.StateImageIndex = (int)CheckedState.Mixed;
-                }
-                else
-                {
-                    treeNode.StateImageIndex = hasCheckedNodes switch
-                    {
-                        true when !hasUncheckedNodes => treeNode.Checked ? (int)CheckedState.Checked : (int)CheckedState.Mixed,
-                        true => (int)CheckedState.Mixed,
-                        _ => treeNode.Checked ? (int)CheckedState.Mixed : (int)CheckedState.Unchecked
-                    };
-                }
-
-                if (origStateImageIndex != treeNode.StateImageIndex && treeNode.Parent != null)
-                {
-                    // Parent's state has changed, notify the parent's parent.
-                    treeNode = treeNode.Parent;
-                    continue;
-                }
-
-                break;
-            }
         }
     }
 }

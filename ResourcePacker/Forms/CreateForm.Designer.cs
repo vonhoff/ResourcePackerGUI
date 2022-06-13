@@ -86,7 +86,7 @@ namespace ResourcePacker.Forms
             this.lblAvailableItems = new System.Windows.Forms.ToolStripLabel();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.lblSelectedItems = new System.Windows.Forms.ToolStripLabel();
-            this.grpBoxItemSelector = new System.Windows.Forms.GroupBox();
+            this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.selectorTreeView = new ResourcePacker.Controls.TriStateTreeView();
             this.panel2 = new System.Windows.Forms.Panel();
             this.btnCancel = new System.Windows.Forms.Button();
@@ -129,7 +129,7 @@ namespace ResourcePacker.Forms
             this.splitContainer5.Panel2.SuspendLayout();
             this.splitContainer5.SuspendLayout();
             this.toolStrip1.SuspendLayout();
-            this.grpBoxItemSelector.SuspendLayout();
+            this.groupBox3.SuspendLayout();
             this.panel2.SuspendLayout();
             this.panel1.SuspendLayout();
             this.SuspendLayout();
@@ -577,7 +577,7 @@ namespace ResourcePacker.Forms
             // 
             // splitContainer5.Panel2
             // 
-            this.splitContainer5.Panel2.Controls.Add(this.grpBoxItemSelector);
+            this.splitContainer5.Panel2.Controls.Add(this.groupBox3);
             this.splitContainer5.Size = new System.Drawing.Size(651, 638);
             this.splitContainer5.SplitterDistance = 32;
             this.splitContainer5.TabIndex = 4;
@@ -617,31 +617,25 @@ namespace ResourcePacker.Forms
             this.lblSelectedItems.Size = new System.Drawing.Size(127, 25);
             this.lblSelectedItems.Text = "Selected items: 0";
             // 
-            // grpBoxItemSelector
+            // groupBox3
             // 
-            this.grpBoxItemSelector.Controls.Add(this.selectorTreeView);
-            this.grpBoxItemSelector.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.grpBoxItemSelector.Location = new System.Drawing.Point(0, 0);
-            this.grpBoxItemSelector.Name = "grpBoxItemSelector";
-            this.grpBoxItemSelector.Padding = new System.Windows.Forms.Padding(9);
-            this.grpBoxItemSelector.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            this.grpBoxItemSelector.Size = new System.Drawing.Size(651, 602);
-            this.grpBoxItemSelector.TabIndex = 3;
-            this.grpBoxItemSelector.TabStop = false;
-            this.grpBoxItemSelector.Text = "Items to pack";
+            this.groupBox3.Controls.Add(this.selectorTreeView);
+            this.groupBox3.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.groupBox3.Location = new System.Drawing.Point(0, 0);
+            this.groupBox3.Name = "groupBox3";
+            this.groupBox3.Padding = new System.Windows.Forms.Padding(6);
+            this.groupBox3.Size = new System.Drawing.Size(651, 602);
+            this.groupBox3.TabIndex = 0;
+            this.groupBox3.TabStop = false;
+            this.groupBox3.Text = "Items to pack";
             // 
             // selectorTreeView
             // 
-            this.selectorTreeView.BackColor = System.Drawing.Color.Transparent;
-            this.selectorTreeView.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
             this.selectorTreeView.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.selectorTreeView.Location = new System.Drawing.Point(9, 29);
+            this.selectorTreeView.Location = new System.Drawing.Point(6, 26);
             this.selectorTreeView.Name = "selectorTreeView";
-            this.selectorTreeView.Size = new System.Drawing.Size(633, 564);
-            this.selectorTreeView.TabIndex = 1;
-            this.selectorTreeView.TriStateStyleProperty = ResourcePacker.Controls.TriStateTreeView.TriStateStyles.Installer;
-            this.selectorTreeView.NodeStateChanged += new System.EventHandler<System.Windows.Forms.TreeViewEventArgs>(this.ExplorerTreeView_NodeStateChanged);
-            this.selectorTreeView.AfterStateChanged += new System.EventHandler<System.Windows.Forms.TreeViewEventArgs>(this.ExplorerTreeView_AfterStateChanged);
+            this.selectorTreeView.Size = new System.Drawing.Size(639, 570);
+            this.selectorTreeView.TabIndex = 2;
             // 
             // panel2
             // 
@@ -692,9 +686,7 @@ namespace ResourcePacker.Forms
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1217, 733);
             this.Controls.Add(this.splitContainer1);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "CreateForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
@@ -702,6 +694,7 @@ namespace ResourcePacker.Forms
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.CreateForm_FormClosing);
             this.ResizeBegin += new System.EventHandler(this.CreateForm_ResizeBegin);
             this.ResizeEnd += new System.EventHandler(this.CreateForm_ResizeEnd);
+            this.SizeChanged += new System.EventHandler(this.CreateForm_SizeChanged);
             this.splitContainer1.Panel1.ResumeLayout(false);
             this.splitContainer1.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
@@ -749,7 +742,7 @@ namespace ResourcePacker.Forms
             this.splitContainer5.ResumeLayout(false);
             this.toolStrip1.ResumeLayout(false);
             this.toolStrip1.PerformLayout();
-            this.grpBoxItemSelector.ResumeLayout(false);
+            this.groupBox3.ResumeLayout(false);
             this.panel2.ResumeLayout(false);
             this.panel1.ResumeLayout(false);
             this.ResumeLayout(false);
@@ -772,7 +765,6 @@ namespace ResourcePacker.Forms
         private CheckBox chkShowPassword;
         private TextBox txtPassword;
         private Label label1;
-        private GroupBox grpBoxItemSelector;
         private GroupBox groupBox7;
         private GroupBox groupBox1;
         private SplitContainer splitContainer4;
@@ -784,7 +776,6 @@ namespace ResourcePacker.Forms
         private ToolStripLabel lblAvailableItems;
         private ToolStripSeparator toolStripSeparator1;
         private ToolStripLabel lblSelectedItems;
-        private Controls.TriStateTreeView selectorTreeView;
         private GroupBox groupBox4;
         private SplitContainer splitContainer6;
         private Label lblStatus;
@@ -801,5 +792,7 @@ namespace ResourcePacker.Forms
         private ProgressBar progressBarSecondary;
         private Label lblStatusFile;
         private ProgressBar progressBarPrimary;
+        private GroupBox groupBox3;
+        private Controls.TriStateTreeView selectorTreeView;
     }
 }

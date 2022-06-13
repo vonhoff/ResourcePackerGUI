@@ -34,36 +34,36 @@ using Serilog;
 using Serilog.Core;
 using Serilog.Events;
 using Serilog.Sinks.RichTextBoxForms.Themes;
-using Winista.Mime;
 
 namespace ResourcePacker.Forms
 {
     public partial class MainForm : Form
     {
+        // Progress variables
+        private const int ProgressReportInterval = 25;
+
         private readonly LoggingLevelSwitch _loggingLevelSwitch = new(LogEventLevel.Debug);
-        private readonly ActionDebouncer _searchDebouncer;
+        private readonly IProgress<(int percentage, int amount)> _progressPrimary;
+        private readonly IProgress<int> _progressSecondary;
         private readonly ActionDebouncer _scrollOutputToEndDebouncer;
+        private readonly ActionDebouncer _searchDebouncer;
+        private List<Asset>? _assets;
         private CancellationTokenSource _cancellationTokenSource;
-        private Asset? _selectedPreviewAsset;
-        private string _searchQuery = string.Empty;
         private bool _formatPreviewText = true;
-        private bool _showDebugMessages = true;
+        private PackageHeader _packageHeader;
+        private string _packagePath = string.Empty;
 
         // Package configuration variables
         private string _password = string.Empty;
-        private string _packagePath = string.Empty;
-        private List<Asset>? _assets;
-        private PackageHeader _packageHeader;
 
-        // Progress variables
-        private const int ProgressReportInterval = 25;
-        private readonly IProgress<(int percentage, int amount)> _progressPrimary;
-        private readonly IProgress<int> _progressSecondary;
+        private string _searchQuery = string.Empty;
+        private Asset? _selectedPreviewAsset;
+        private bool _showDebugMessages = true;
 
         public MainForm()
         {
             InitializeComponent();
-            _searchDebouncer = new ActionDebouncer(RefreshFileTree, TimeSpan.FromMilliseconds(175));
+            _searchDebouncer = new ActionDebouncer(RefreshPackageExplorer, TimeSpan.FromMilliseconds(175));
             _scrollOutputToEndDebouncer = new ActionDebouncer(ScrollOutputToEnd, TimeSpan.FromMilliseconds(234));
             _progressPrimary = new Progress<(int percentage, int amount)>(UpdateLoadProgress);
             _progressSecondary = new Progress<int>(UpdateDecryptionProgress);
@@ -71,15 +71,272 @@ namespace ResourcePacker.Forms
             _cancellationTokenSource.Cancel();
         }
 
-        private void UpdateDecryptionProgress(int percentage)
+        private void BtnAbout_Click(object sender, EventArgs e)
         {
-            if (progressBarSecondary == null)
+            new AboutForm().ShowDialog();
+        }
+
+        private void BtnCancel_Click(object sender, EventArgs e)
+        {
+            _cancellationTokenSource.Cancel();
+        }
+
+        private void BtnCreate_Click(object sender, EventArgs e)
+        {
+            var createForm = new CreateForm();
+            createForm.ShowDialog();
+        }
+
+        private void BtnFormattedText_Click(object sender, EventArgs e)
+        {
+            _formatPreviewText = !_formatPreviewText;
+
+            btnFormattedText.Image =
+                _formatPreviewText ? Images.checkbox_checked : Images.checkbox_unchecked;
+
+            if (previewTabs.SelectedTab == previewTextTab)
+            {
+                SetTextPreviewValue();
+            }
+        }
+
+        private void BtnLoadDefinitions_Click(object sender, EventArgs e)
+        {
+            if (_assets == null)
+            {
+                MessageBox.Show("A resource package must be selected before a definition source can be set.",
+                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            using var openFileDialog = new OpenFileDialog();
+            openFileDialog.Filter = "Text file (*.txt)|*.txt";
+            openFileDialog.RestoreDirectory = true;
+
+            if (openFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                IReadOnlyDictionary<uint, string> crcDictionary;
+                using (var fileStream = openFileDialog.OpenFile())
+                {
+                    crcDictionary = DefinitionHelper.CreateCrcDictionary(fileStream);
+                }
+
+                AssetHelper.UpdateAssetsWithDefinitions(_assets, crcDictionary);
+                RefreshPackageExplorer();
+            }
+        }
+
+        private void BtnOpen_Click(object sender, EventArgs e)
+        {
+            using var openFileDialog = new OpenFileDialog();
+            openFileDialog.Filter = "ResourcePack (*.dat)|*.dat";
+            openFileDialog.RestoreDirectory = true;
+
+            if (openFileDialog.ShowDialog() != DialogResult.OK)
             {
                 return;
             }
 
-            progressBarSecondary.Value = percentage;
-            progressBarSecondary.Style = ProgressBarStyle.Blocks;
+            var stream = openFileDialog.OpenFile();
+            var binaryReader = new BinaryReader(stream);
+            try
+            {
+                _packageHeader = PackageHelper.GetHeader(binaryReader);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Could not open resource package. {ex.Message}", "Error",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            Log.Information("ResourcePackage: {@info}",
+                new { _packageHeader.Id, _packageHeader.NumberOfEntries });
+
+            _packagePath = openFileDialog.FileName;
+            lblStatus.Text = _packagePath;
+            lblElapsed.Text = "00:00:00.0000";
+
+            _cancellationTokenSource = new CancellationTokenSource();
+            var stopwatch = Stopwatch.StartNew();
+            Task.Run(() =>
+            {
+                try
+                {
+                    var entries = PackageHelper.LoadAllEntryInformation(_packageHeader, binaryReader);
+                    _password = string.Empty;
+
+                    // Get the smallest entry for faster integrity checking.
+                    var smallestEntry = entries.Aggregate((c, d) =>
+                        (c.DataSize < d.DataSize && c.DataSize > 0) ? c : d);
+
+                    // Try to load the first asset to check whether the package is encrypted.
+                    if (!PackageHelper.LoadSingleFromPackage(binaryReader, smallestEntry, out _,
+                            progress: _progressSecondary))
+                    {
+                        var passwordDialog = new PasswordForm();
+                        if (passwordDialog.ShowDialog() != DialogResult.OK)
+                        {
+                            return;
+                        }
+
+                        _password = passwordDialog.Password;
+                        if (!PackageHelper.LoadSingleFromPackage(binaryReader, smallestEntry, out _,
+                                _password, _progressSecondary))
+                        {
+                            throw new Exception("The password is incorrect.");
+                        }
+                    }
+
+                    // Show the cancel button, hide the create and open button.
+                    Invoke(() =>
+                    {
+                        btnCancel.Visible = true;
+                        btnCreate.Visible = false;
+                        btnOpen.Visible = false;
+                        progressBarSecondary.Style = ProgressBarStyle.Marquee;
+                    });
+
+                    // Load all assets from package.
+                    _assets = PackageHelper.LoadAssetsFromPackage(entries, binaryReader, _password,
+                        _progressPrimary, _progressSecondary, ProgressReportInterval, _cancellationTokenSource.Token);
+
+                    // Stop stopwatch and refresh file tree.
+                    stopwatch.Stop();
+                    RefreshPackageExplorer();
+
+                    // When succeeded, show the action buttons.
+                    Invoke(() =>
+                    {
+                        lblResultCount.Text = $"{_assets.Count} " + (_assets.Count > 1 ? "Assets" : "Asset");
+                        lblElapsed.Text = stopwatch.Elapsed.ToString(@"hh\:mm\:ss\.ffff");
+
+                        btnLoadDefinitions.Enabled = true;
+                        btnExtract.Enabled = true;
+                    });
+                }
+                catch (OperationCanceledException ex)
+                {
+                    Invoke(() =>
+                    {
+                        lblResultCount.Text = "0 Assets";
+                        lblElapsed.Text = "00:00:00.0000";
+                    });
+
+                    MessageBox.Show(ex.Message,
+                        "Operation canceled", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Could not open resource package. {ex.Message}",
+                        "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+
+                binaryReader.Close();
+                Invoke(() =>
+                {
+                    // Clear the processing status.
+                    lblStatus.Text = string.Empty;
+
+                    // Hide cancel button, show the create and open button.
+                    btnCancel.Visible = false;
+                    btnCreate.Visible = true;
+                    btnOpen.Visible = true;
+
+                    // Set the progress bars to their initial state.
+                    progressBarPrimary.Style = ProgressBarStyle.Blocks;
+                    progressBarPrimary.Value = 0;
+                    progressBarSecondary.Style = ProgressBarStyle.Blocks;
+                    progressBarSecondary.Value = 0;
+                });
+            });
+        }
+
+        private void BtnToggleDebugMessages_Click(object sender, EventArgs e)
+        {
+            _showDebugMessages = !_showDebugMessages;
+
+            btnToggleDebugMessages.Image =
+                _showDebugMessages ? Images.checkbox_checked : Images.checkbox_unchecked;
+
+            _loggingLevelSwitch.MinimumLevel =
+                _showDebugMessages ? LogEventLevel.Debug : LogEventLevel.Information;
+        }
+
+        private void MainForm_Load(object sender, EventArgs e)
+        {
+            Log.Logger = new LoggerConfiguration()
+                .MinimumLevel.Verbose()
+                .WriteTo.RichTextBox(outputBox, theme: ThemePresets.Light,
+                    levelSwitch: _loggingLevelSwitch)
+                .CreateLogger();
+        }
+
+        private void MainForm_Resize(object sender, EventArgs e)
+        {
+            _scrollOutputToEndDebouncer.Invoke();
+        }
+
+        private void MainForm_ResizeBegin(object sender, EventArgs e)
+        {
+            SuspendLayout();
+        }
+
+        private void MainForm_ResizeEnd(object sender, EventArgs e)
+        {
+            ResumeLayout();
+        }
+
+        private void PackageExplorerTreeView_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
+        {
+            if (e.Node.Tag == null)
+            {
+                return;
+            }
+
+            _selectedPreviewAsset = (Asset)e.Node.Tag;
+
+            switch (_selectedPreviewAsset.MimeType)
+            {
+                case { PrimaryType: "image" }:
+                {
+                    previewTabs.SelectedTab = previewImageTab;
+                    break;
+                }
+                case { SubType: "xml" }:
+                case { SubType: "json" }:
+                case { PrimaryType: "text" }:
+                {
+                    previewTabs.SelectedTab = previewTextTab;
+                    break;
+                }
+                default:
+                {
+                    previewTabs.SelectedTab = previewHexTab;
+                    break;
+                }
+            }
+
+            ReloadPreviewTab(previewTabs.SelectedTab);
+        }
+
+        private void PreviewTabs_Selecting(object sender, TabControlCancelEventArgs e)
+        {
+            ReloadPreviewTab(e.TabPage);
+        }
+
+        private void RefreshPackageExplorer()
+        {
+            if (_assets == null)
+            {
+                return;
+            }
+
+            var packageName = Path.GetFileNameWithoutExtension(_packagePath);
+            var filteredAssets = _assets.Where(a => a.Name.Contains(_searchQuery)).ToList();
+
+            packageExplorerTreeView.CreateNodesFromAssets(filteredAssets, packageName,
+                _progressSecondary, ProgressReportInterval);
         }
 
         /// <summary>
@@ -121,6 +378,17 @@ namespace ResourcePacker.Forms
             {
                 SetHexPreviewValue();
             }
+        }
+
+        private void ScrollOutputToEnd()
+        {
+            outputBox.ScrollToBottom();
+        }
+
+        private void SearchBox_TextChanged(object sender, EventArgs e)
+        {
+            _searchQuery = ((TextBox)sender).Text;
+            _searchDebouncer.Invoke();
         }
 
         /// <summary>
@@ -229,126 +497,20 @@ namespace ResourcePacker.Forms
             }
         }
 
-        /// <summary>
-        /// Gets the corresponding icon for the provided <paramref name="mimeType"/>.
-        /// </summary>
-        /// <param name="mimeType">A mimetype.</param>
-        /// <returns>The index for an icon.</returns>
-        private static int GetMimeTypeIconIndex(MimeType? mimeType)
+        private void SplitContainer2_SplitterMoved(object sender, SplitterEventArgs e)
         {
-            if (mimeType == null)
-            {
-                return 6;
-            }
-
-            return mimeType.PrimaryType switch
-            {
-                "application" => 0,
-                "audio" => 1,
-                "font" => 2,
-                "image" => 3,
-                "text" => 4,
-                "video" => 5,
-                _ => 6
-            };
+            ScrollOutputToEnd();
         }
 
-        private void RefreshFileTree()
+        private void UpdateDecryptionProgress(int percentage)
         {
-            if (_assets == null)
+            if (progressBarSecondary == null)
             {
                 return;
             }
 
-            var packageName = Path.GetFileNameWithoutExtension(_packagePath);
-            var rootNode = new TreeNode(packageName)
-            {
-                ImageIndex = 8,
-                SelectedImageIndex = 8
-            };
-
-            using (var timer = new System.Timers.Timer(ProgressReportInterval))
-            {
-                var assets = _assets.Where(a => a.Name.Contains(_searchQuery)).ToArray();
-                var percentage = 0;
-                timer.Elapsed += delegate { _progressSecondary.Report(percentage); };
-                timer.Enabled = true;
-
-                for (var i = 0; i < assets.Length; i++)
-                {
-                    percentage = (int)((double)(i + 1) / assets.Length * 100);
-                    var asset = assets[i];
-                    var path = asset.Name;
-                    var currentNode = rootNode;
-                    var pathNodes = path.Split('/');
-                    for (var j = 0; j < pathNodes.Length; j++)
-                    {
-                        var item = pathNodes[j];
-                        var folder = currentNode.Nodes.Cast<TreeNode>()
-                            .FirstOrDefault(n => n.Text.Equals(item));
-
-                        if (folder != null)
-                        {
-                            currentNode = folder;
-                            currentNode.ImageIndex = 7;
-                        }
-                        else
-                        {
-                            currentNode = currentNode.Nodes.Add(item);
-
-                            if (j == pathNodes.Length - 1)
-                            {
-                                currentNode.ImageIndex = GetMimeTypeIconIndex(asset.MimeType);
-                                currentNode.Tag = asset;
-                            }
-                            else
-                            {
-                                currentNode.ImageIndex = 7;
-                            }
-                        }
-
-                        currentNode.SelectedImageIndex = currentNode.ImageIndex;
-                    }
-                }
-            }
-
-            Invoke(() =>
-            {
-                explorerTreeView.Nodes.Clear();
-                if (rootNode.GetNodeCount(true) < 1)
-                {
-                    lblNoResults.Visible = true;
-                    return;
-                }
-
-                lblNoResults.Visible = false;
-                explorerTreeView.Nodes.Add(rootNode);
-                explorerTreeView.ExpandAll();
-                rootNode.EnsureVisible();
-            });
-        }
-
-        private void ScrollOutputToEnd()
-        {
-            outputBox.ScrollToBottom();
-        }
-
-        private void BtnAbout_Click(object sender, EventArgs e)
-        {
-            new AboutForm().ShowDialog();
-        }
-
-        private void BtnFormattedText_Click(object sender, EventArgs e)
-        {
-            _formatPreviewText = !_formatPreviewText;
-
-            btnFormattedText.Image =
-                _formatPreviewText ? Images.checkbox_checked : Images.checkbox_unchecked;
-
-            if (previewTabs.SelectedTab == previewTextTab)
-            {
-                SetTextPreviewValue();
-            }
+            progressBarSecondary.Value = percentage;
+            progressBarSecondary.Style = ProgressBarStyle.Blocks;
         }
 
         private void UpdateLoadProgress((int percentage, int amount) progress)
@@ -356,253 +518,6 @@ namespace ResourcePacker.Forms
             var (percentage, amount) = progress;
             progressBarPrimary.Value = percentage;
             lblResultCount.Text = $"{amount} " + (amount > 1 ? "Assets" : "Asset");
-        }
-
-        private void BtnLoadDefinitions_Click(object sender, EventArgs e)
-        {
-            if (_assets == null)
-            {
-                MessageBox.Show("A resource package must be selected before a definition source can be set.",
-                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
-
-            using var openFileDialog = new OpenFileDialog();
-            openFileDialog.Filter = "Text file (*.txt)|*.txt";
-            openFileDialog.RestoreDirectory = true;
-
-            if (openFileDialog.ShowDialog() == DialogResult.OK)
-            {
-                IReadOnlyDictionary<uint, string> crcDictionary;
-                using (var fileStream = openFileDialog.OpenFile())
-                {
-                    crcDictionary = DefinitionHelper.CreateCrcDictionary(fileStream);
-                }
-
-                AssetHelper.UpdateAssetsWithDefinitions(_assets, crcDictionary);
-                RefreshFileTree();
-            }
-        }
-
-        private void BtnOpen_Click(object sender, EventArgs e)
-        {
-            using var openFileDialog = new OpenFileDialog();
-            openFileDialog.Filter = "ResourcePack (*.dat)|*.dat";
-            openFileDialog.RestoreDirectory = true;
-
-            if (openFileDialog.ShowDialog() != DialogResult.OK)
-            {
-                return;
-            }
-
-            var stream = openFileDialog.OpenFile();
-            var binaryReader = new BinaryReader(stream);
-            try
-            {
-                _packageHeader = PackageHelper.GetHeader(binaryReader);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Could not open resource package. {ex.Message}", "Error",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
-
-            Log.Information("ResourcePackage: {@info}",
-                new { _packageHeader.Id, _packageHeader.NumberOfEntries });
-
-            _packagePath = openFileDialog.FileName;
-            lblStatus.Text = _packagePath;
-            lblElapsed.Text = "00:00:00.0000";
-
-            _cancellationTokenSource = new CancellationTokenSource();
-            var stopwatch = Stopwatch.StartNew();
-            Task.Run(() =>
-            {
-                try
-                {
-                    var entries = PackageHelper.LoadAllEntryInformation(_packageHeader, binaryReader);
-                    _password = string.Empty;
-
-                    // Get the smallest entry for faster integrity checking.
-                    var smallestEntry = entries.Aggregate((c, d) =>
-                        (c.DataSize < d.DataSize && c.DataSize > 0) ? c : d);
-
-                    // Try to load the first asset to check whether the package is encrypted.
-                    if (!PackageHelper.LoadSingleFromPackage(binaryReader, smallestEntry, out _,
-                            progress: _progressSecondary))
-                    {
-                        var passwordDialog = new PasswordForm();
-                        if (passwordDialog.ShowDialog() != DialogResult.OK)
-                        {
-                            return;
-                        }
-
-                        _password = passwordDialog.Password;
-                        if (!PackageHelper.LoadSingleFromPackage(binaryReader, smallestEntry, out _,
-                                _password, _progressSecondary))
-                        {
-                            throw new Exception("The password is incorrect.");
-                        }
-                    }
-
-                    // Show the cancel button, hide the create and open button.
-                    Invoke(() =>
-                    {
-                        btnCancel.Visible = true;
-                        btnCreate.Visible = false;
-                        btnOpen.Visible = false;
-                        progressBarSecondary.Style = ProgressBarStyle.Marquee;
-                    });
-
-                    // Load all assets from package.
-                    _assets = PackageHelper.LoadAssetsFromPackage(entries, binaryReader, _password,
-                        _progressPrimary, _progressSecondary, ProgressReportInterval, _cancellationTokenSource.Token);
-
-                    // Stop stopwatch and refresh file tree.
-                    stopwatch.Stop();
-                    RefreshFileTree();
-
-                    // When succeeded, show the action buttons.
-                    Invoke(() =>
-                    {
-                        lblResultCount.Text = $"{_assets.Count} " + (_assets.Count > 1 ? "Assets" : "Asset");
-                        lblElapsed.Text = stopwatch.Elapsed.ToString(@"hh\:mm\:ss\.ffff");
-
-                        btnLoadDefinitions.Enabled = true;
-                        btnExtract.Enabled = true;
-                    });
-                }
-                catch (OperationCanceledException ex)
-                {
-                    Invoke(() =>
-                    {
-                        lblResultCount.Text = "0 Assets";
-                        lblElapsed.Text = "00:00:00.0000";
-                    });
-
-                    MessageBox.Show(ex.Message,
-                        "Operation canceled", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Could not open resource package. {ex.Message}",
-                        "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-
-                binaryReader.Close();
-                Invoke(() =>
-                {
-                    // Clear the processing status.
-                    lblStatus.Text = string.Empty;
-
-                    // Hide cancel button, show the create and open button.
-                    btnCancel.Visible = false;
-                    btnCreate.Visible = true;
-                    btnOpen.Visible = true;
-
-                    // Set the progress bars to their initial state.
-                    progressBarPrimary.Style = ProgressBarStyle.Blocks;
-                    progressBarPrimary.Value = 0;
-                    progressBarSecondary.Style = ProgressBarStyle.Blocks;
-                    progressBarSecondary.Value = 0;
-                });
-            });
-        }
-
-        private void BtnToggleDebugMessages_Click(object sender, EventArgs e)
-        {
-            _showDebugMessages = !_showDebugMessages;
-
-            btnToggleDebugMessages.Image =
-                _showDebugMessages ? Images.checkbox_checked : Images.checkbox_unchecked;
-
-            _loggingLevelSwitch.MinimumLevel =
-                _showDebugMessages ? LogEventLevel.Debug : LogEventLevel.Information;
-        }
-
-        private void ExplorerTreeView_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
-        {
-            if (e.Node.Tag == null)
-            {
-                return;
-            }
-
-            _selectedPreviewAsset = (Asset)e.Node.Tag;
-
-            switch (_selectedPreviewAsset.MimeType)
-            {
-                case { PrimaryType: "image" }:
-                {
-                    previewTabs.SelectedTab = previewImageTab;
-                    break;
-                }
-                case { SubType: "xml" }:
-                case { SubType: "json" }:
-                case { PrimaryType: "text" }:
-                {
-                    previewTabs.SelectedTab = previewTextTab;
-                    break;
-                }
-                default:
-                {
-                    previewTabs.SelectedTab = previewHexTab;
-                    break;
-                }
-            }
-
-            ReloadPreviewTab(previewTabs.SelectedTab);
-        }
-
-        private void MainForm_Load(object sender, EventArgs e)
-        {
-            Log.Logger = new LoggerConfiguration()
-                .MinimumLevel.Verbose()
-                .WriteTo.RichTextBox(outputBox, theme: ThemePresets.Light,
-                    levelSwitch: _loggingLevelSwitch)
-                .CreateLogger();
-        }
-
-        private void PreviewTabs_Selecting(object sender, TabControlCancelEventArgs e)
-        {
-            ReloadPreviewTab(e.TabPage);
-        }
-
-        private void SearchBox_TextChanged(object sender, EventArgs e)
-        {
-            _searchQuery = ((TextBox)sender).Text;
-            _searchDebouncer.Invoke();
-        }
-
-        private void SplitContainer2_SplitterMoved(object sender, SplitterEventArgs e)
-        {
-            ScrollOutputToEnd();
-        }
-
-        private void BtnCreate_Click(object sender, EventArgs e)
-        {
-            var createForm = new CreateForm();
-            createForm.ShowDialog();
-        }
-
-        private void MainForm_ResizeBegin(object sender, EventArgs e)
-        {
-            SuspendLayout();
-        }
-
-        private void BtnCancel_Click(object sender, EventArgs e)
-        {
-            _cancellationTokenSource.Cancel();
-        }
-
-        private void MainForm_Resize(object sender, EventArgs e)
-        {
-            _scrollOutputToEndDebouncer.Invoke();
-        }
-
-        private void MainForm_ResizeEnd(object sender, EventArgs e)
-        {
-            ResumeLayout();
         }
     }
 }
