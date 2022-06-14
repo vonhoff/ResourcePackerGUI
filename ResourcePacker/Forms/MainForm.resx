@@ -583,6 +583,9 @@
   <data name="&gt;&gt;splitContainer2.Panel1.ZOrder" xml:space="preserve">
     <value>0</value>
   </data>
+  <data name="splitContainer2.Panel1MinSize" type="System.Int32, mscorlib">
+    <value>120</value>
+  </data>
   <data name="outputBox.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
     <value>Fill</value>
   </data>
@@ -793,9 +796,6 @@
   <data name="&gt;&gt;statusStrip.ZOrder" xml:space="preserve">
     <value>1</value>
   </data>
-  <data name="btnCreate.ImageTransparentColor" type="System.Drawing.Color, System.Drawing">
-    <value>Magenta</value>
-  </data>
   <data name="btnCreate.Size" type="System.Drawing.Size, System.Drawing">
     <value>82, 30</value>
   </data>
@@ -804,9 +804,6 @@
   </data>
   <data name="btnCreate.ToolTipText" xml:space="preserve">
     <value>Create a new resource package</value>
-  </data>
-  <data name="btnOpen.ImageTransparentColor" type="System.Drawing.Color, System.Drawing">
-    <value>Magenta</value>
   </data>
   <data name="btnOpen.Size" type="System.Drawing.Size, System.Drawing">
     <value>75, 30</value>
@@ -832,9 +829,6 @@
   <data name="btnLoadDefinitions.Enabled" type="System.Boolean, mscorlib">
     <value>False</value>
   </data>
-  <data name="btnLoadDefinitions.ImageTransparentColor" type="System.Drawing.Color, System.Drawing">
-    <value>Magenta</value>
-  </data>
   <data name="btnLoadDefinitions.Size" type="System.Drawing.Size, System.Drawing">
     <value>146, 30</value>
   </data>
@@ -859,9 +853,6 @@
   <metadata name="toolStrip.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>17, 17</value>
   </metadata>
-  <data name="btnCancel.ImageTransparentColor" type="System.Drawing.Color, System.Drawing">
-    <value>Magenta</value>
-  </data>
   <data name="btnCancel.Size" type="System.Drawing.Size, System.Drawing">
     <value>83, 30</value>
   </data>
@@ -874,17 +865,20 @@
   <data name="btnExtract.Enabled" type="System.Boolean, mscorlib">
     <value>False</value>
   </data>
-  <data name="btnExtract.ImageTransparentColor" type="System.Drawing.Color, System.Drawing">
-    <value>Magenta</value>
-  </data>
   <data name="btnExtract.Size" type="System.Drawing.Size, System.Drawing">
-    <value>84, 30</value>
+    <value>104, 30</value>
   </data>
   <data name="btnExtract.Text" xml:space="preserve">
-    <value>Extract</value>
+    <value>Extract all</value>
   </data>
   <data name="btnExtract.ToolTipText" xml:space="preserve">
     <value>Extract all files contained in the package</value>
+  </data>
+  <data name="toolStripButton1.Size" type="System.Drawing.Size, System.Drawing">
+    <value>143, 30</value>
+  </data>
+  <data name="toolStripButton1.Text" xml:space="preserve">
+    <value>Extract selected</value>
   </data>
   <data name="btnFormattedText.Size" type="System.Drawing.Size, System.Drawing">
     <value>160, 30</value>
@@ -2600,6 +2594,12 @@ indentations in the preview panel</value>
     <value>btnExtract</value>
   </data>
   <data name="&gt;&gt;btnExtract.Type" xml:space="preserve">
+    <value>System.Windows.Forms.ToolStripButton, System.Windows.Forms, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;toolStripButton1.Name" xml:space="preserve">
+    <value>toolStripButton1</value>
+  </data>
+  <data name="&gt;&gt;toolStripButton1.Type" xml:space="preserve">
     <value>System.Windows.Forms.ToolStripButton, System.Windows.Forms, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;btnFormattedText.Name" xml:space="preserve">

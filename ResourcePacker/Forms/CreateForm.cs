@@ -19,6 +19,7 @@
 #endregion
 
 using System.Media;
+using ResourcePacker.Extensions;
 using ResourcePacker.Helpers;
 using Serilog;
 
@@ -30,6 +31,7 @@ namespace ResourcePacker.Forms
         private CancellationTokenSource _cancellationTokenSource;
         private string _definitionsLocation = string.Empty;
         private string _packageLocation = string.Empty;
+        private string _assetsLocation = string.Empty;
         private bool _automaticDefinitionFile = true;
         private bool _createDefinitionFile = true;
         private int _relativePackageLocationDepth;
@@ -38,7 +40,7 @@ namespace ResourcePacker.Forms
         private const int ProgressReportInterval = 25;
         private readonly IProgress<(int percentage, string path)> _progressPrimary;
         private readonly IProgress<int> _progressSecondary;
-      
+
         public CreateForm()
         {
             InitializeComponent();
@@ -58,11 +60,11 @@ namespace ResourcePacker.Forms
                 return;
             }
 
-            var selectedPath = browserDialog.SelectedPath;
+            _assetsLocation = browserDialog.SelectedPath;
 
             try
             {
-                if (!Directory.EnumerateFileSystemEntries(selectedPath,
+                if (!Directory.EnumerateFileSystemEntries(_assetsLocation,
                         string.Empty, SearchOption.AllDirectories).Any())
                 {
                     MessageBox.Show("The specified directory does not contain any files.",
@@ -78,9 +80,9 @@ namespace ResourcePacker.Forms
             }
 
             btnCancel.Text = "Cancel";
-            txtAssetFolder.Text = selectedPath;
+            txtAssetFolder.Text = _assetsLocation;
 
-            var assetPathNodes = selectedPath
+            var assetPathNodes = _assetsLocation
                 .Replace(@"\", "/")
                 .Split('/')
                 .Where(n => n.Length > 0)
@@ -100,7 +102,7 @@ namespace ResourcePacker.Forms
 
                 try
                 {
-                    files = CollectFiles(selectedPath);
+                    files = CollectAvailableFiles(_assetsLocation);
                     if (files.Length == 0)
                     {
                         MessageBox.Show("The specified directory does not contain any files.",
@@ -121,25 +123,26 @@ namespace ResourcePacker.Forms
                         Invoke(() =>
                         {
                             lblStatusFile.Text = string.Empty;
-                            Cursor.Current = Cursors.WaitCursor;
                             lblStatus.Text = "Updating tree view...";
                             lblStatus.Refresh();
 
+                            Cursor.Current = Cursors.WaitCursor;
                             selectorTreeView.BeginUpdate();
                             selectorTreeView.Nodes.Add(rootNode);
                             selectorTreeView.ExpandAll();
                             selectorTreeView.Nodes[0].EnsureVisible();
                             selectorTreeView.EndUpdate();
+                            Cursor.Current = Cursors.Default;
 
                             btnCancel.Text = "Close";
                             lblStatus.Text = "Ready";
                             lblPercentage.Text = "0%";
                             progressBarPrimary.Value = 0;
                             btnCreate.Enabled = _packageLocation != string.Empty;
-                            Cursor.Current = Cursors.Default;
-
+                            
                             lblAvailableItems.Text = $"Available items: {_assetsToInclude.Count}";
                             lblSelectedItems.Text = $"Selected items: {_assetsToInclude.Count}";
+                            this.FlashNotification();
                         });
                     }
                 }
@@ -275,6 +278,7 @@ namespace ResourcePacker.Forms
                 });
 
                 SystemSounds.Asterisk.Play();
+                this.FlashNotification();
                 _cancellationTokenSource.Cancel();
             });
         }
@@ -283,23 +287,37 @@ namespace ResourcePacker.Forms
         {
             var saveFileDialog = new SaveFileDialog
             {
-                Filter = "Text file (*.txt)|*.txt"
+                Filter = "Text file (*.txt)|*.txt",
+                FileName = Path.GetFileName(_packageLocation) + ".txt"
             };
 
             var result = saveFileDialog.ShowDialog();
-            if (result == DialogResult.OK && !string.IsNullOrEmpty(saveFileDialog.FileName))
+            if (result != DialogResult.OK || string.IsNullOrEmpty(saveFileDialog.FileName))
             {
-                _automaticDefinitionFile = false;
-                _definitionsLocation = saveFileDialog.FileName;
-                txtDefinitionsLocation.Text = saveFileDialog.FileName;
+                return;
             }
+
+            if (Path.GetExtension(saveFileDialog.FileName) != ".txt")
+            {
+                saveFileDialog.FileName += ".txt";
+            }
+
+            if (saveFileDialog.FileName.Equals(_definitionsLocation))
+            {
+                return;
+            }
+
+            _automaticDefinitionFile = false;
+            _definitionsLocation = saveFileDialog.FileName;
+            txtDefinitionsLocation.Text = saveFileDialog.FileName;
         }
 
         private void BtnPackageExplore_Click(object sender, EventArgs e)
         {
             var saveFileDialog = new SaveFileDialog
             {
-                Filter = "ResourcePack (*.dat)|*.dat"
+                Filter = "ResourcePack (*.dat)|*.dat",
+                FileName = Path.GetFileNameWithoutExtension(_assetsLocation) + ".dat"
             };
 
             var result = saveFileDialog.ShowDialog();
@@ -336,7 +354,7 @@ namespace ResourcePacker.Forms
             txtPassword.UseSystemPasswordChar = !chkShowPassword.Checked;
         }
 
-        private string[] CollectFiles(string selectedPath)
+        private string[] CollectAvailableFiles(string path)
         {
             Invoke(() =>
             {
@@ -345,7 +363,7 @@ namespace ResourcePacker.Forms
                 progressBarPrimary.Style = ProgressBarStyle.Marquee;
             });
 
-            var files = DirectoryHelper.GetAllFiles(selectedPath,
+            var files = DirectoryHelper.GetAllFiles(path,
                 _cancellationTokenSource.Token).ToArray();
 
             if (files.Length == 0)

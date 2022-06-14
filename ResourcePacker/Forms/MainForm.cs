@@ -150,6 +150,7 @@ namespace ResourcePacker.Forms
                 return;
             }
 
+            outputBox.Clear();
             Log.Information("ResourcePackage: {@info}",
                 new { _packageHeader.Id, _packageHeader.NumberOfEntries });
 
@@ -177,7 +178,7 @@ namespace ResourcePacker.Forms
                         var passwordDialog = new PasswordForm();
                         if (passwordDialog.ShowDialog() != DialogResult.OK)
                         {
-                            return;
+                            throw new OperationCanceledException();
                         }
 
                         _password = passwordDialog.Password;
@@ -194,7 +195,6 @@ namespace ResourcePacker.Forms
                         btnCancel.Visible = true;
                         btnCreate.Visible = false;
                         btnOpen.Visible = false;
-                        progressBarSecondary.Style = ProgressBarStyle.Marquee;
                     });
 
                     // Load all assets from package.
@@ -223,8 +223,11 @@ namespace ResourcePacker.Forms
                         lblElapsed.Text = "00:00:00.0000";
                     });
 
-                    MessageBox.Show(ex.Message,
-                        "Operation canceled", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    if (!string.IsNullOrEmpty(_password))
+                    {
+                        MessageBox.Show(ex.Message,
+                            "Operation canceled", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -335,8 +338,13 @@ namespace ResourcePacker.Forms
             var packageName = Path.GetFileNameWithoutExtension(_packagePath);
             var filteredAssets = _assets.Where(a => a.Name.Contains(_searchQuery)).ToList();
 
-            packageExplorerTreeView.CreateNodesFromAssets(filteredAssets, packageName,
-                _progressSecondary, ProgressReportInterval);
+            Task.Run(() =>
+            {
+                packageExplorerTreeView.CreateNodesFromAssets(filteredAssets, packageName,
+                    _progressSecondary, ProgressReportInterval);
+
+                Invoke(() => progressBarSecondary.Value = 0);
+            });
         }
 
         /// <summary>

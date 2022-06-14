@@ -173,27 +173,39 @@ namespace ResourcePacker.Helpers
         /// </summary>
         /// <param name="header">A <see cref="PackageHeader"/> instance.</param>
         /// <param name="binaryReader">A reader for the package file.</param>
+        /// <param name="progressReportInterval"></param>
         /// <param name="cancellationToken">The cancellation token.</param>
+        /// <param name="progress"></param>
         /// <returns>A <see cref="Package"/> instance containing all information about a package.</returns>
         /// <exception cref="InvalidDataException">When the provided file stream is corrupted.</exception>
-        public static Entry[] LoadAllEntryInformation(PackageHeader header, BinaryReader binaryReader, CancellationToken cancellationToken = default)
+        public static Entry[] LoadAllEntryInformation(PackageHeader header, BinaryReader binaryReader, 
+            IProgress<int>? progress = null, int progressReportInterval = 100, CancellationToken cancellationToken = default)
         {
             var entries = new List<Entry>();
-            for (var i = 0; i < header.NumberOfEntries; i++)
+           
+            using (var timer = new System.Timers.Timer(progressReportInterval))
             {
-                cancellationToken.ThrowIfCancellationRequested();
+                var percentage = 0;
+                timer.Elapsed += delegate { progress!.Report(percentage); };
+                timer.Enabled = progress != null;
 
-                var entry = binaryReader.ReadStruct<Entry>();
-                if (entry.Id == 0)
+                for (var i = 0; i < header.NumberOfEntries; i++)
                 {
-                    Log.Warning("Invalid entry: {@entry}",
-                        new { entry.Id, entry.Crc, entry.DataSize, entry.PackSize });
-                    continue;
-                }
+                    cancellationToken.ThrowIfCancellationRequested();
 
-                entries.Add(entry);
-                Log.Debug("Added entry: {@entry}",
-                    new { entry.Id, entry.Crc, entry.DataSize });
+                    var entry = binaryReader.ReadStruct<Entry>();
+                    if (entry.Id == 0)
+                    {
+                        Log.Warning("Invalid entry: {@entry}",
+                            new { entry.Id, entry.Crc, entry.DataSize, entry.PackSize });
+                        continue;
+                    }
+
+                    entries.Add(entry);
+                    Log.Debug("Added entry: {@entry}",
+                        new { entry.Id, entry.Crc, entry.DataSize });
+                    percentage = (int)((double)(i + 1) / header.NumberOfEntries * 100);
+                }
             }
 
             if (entries.Count == header.NumberOfEntries)

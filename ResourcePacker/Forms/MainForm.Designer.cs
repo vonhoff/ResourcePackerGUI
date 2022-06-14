@@ -89,6 +89,7 @@ namespace ResourcePacker.Forms
             this.toolStrip = new System.Windows.Forms.ToolStrip();
             this.btnCancel = new System.Windows.Forms.ToolStripButton();
             this.btnExtract = new System.Windows.Forms.ToolStripButton();
+            this.toolStripButton1 = new System.Windows.Forms.ToolStripButton();
             this.btnFormattedText = new System.Windows.Forms.ToolStripButton();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
@@ -354,17 +355,17 @@ namespace ResourcePacker.Forms
             // btnCreate
             // 
             this.btnCreate.Image = global::ResourcePacker.Properties.Images.database_add;
-            resources.ApplyResources(this.btnCreate, "btnCreate");
             this.btnCreate.Name = "btnCreate";
             this.btnCreate.Padding = new System.Windows.Forms.Padding(3);
+            resources.ApplyResources(this.btnCreate, "btnCreate");
             this.btnCreate.Click += new System.EventHandler(this.BtnCreate_Click);
             // 
             // btnOpen
             // 
             this.btnOpen.Image = global::ResourcePacker.Properties.Images.database_connect;
-            resources.ApplyResources(this.btnOpen, "btnOpen");
             this.btnOpen.Name = "btnOpen";
             this.btnOpen.Padding = new System.Windows.Forms.Padding(3);
+            resources.ApplyResources(this.btnOpen, "btnOpen");
             this.btnOpen.Click += new System.EventHandler(this.BtnOpen_Click);
             // 
             // btnAbout
@@ -414,6 +415,7 @@ namespace ResourcePacker.Forms
             this.toolStripSeparator2,
             this.btnLoadDefinitions,
             this.btnExtract,
+            this.toolStripButton1,
             this.toolStripSeparator1,
             this.btnToggleDebugMessages,
             this.btnFormattedText});
@@ -423,9 +425,9 @@ namespace ResourcePacker.Forms
             // btnCancel
             // 
             this.btnCancel.Image = global::ResourcePacker.Properties.Images.cross;
-            resources.ApplyResources(this.btnCancel, "btnCancel");
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Padding = new System.Windows.Forms.Padding(3);
+            resources.ApplyResources(this.btnCancel, "btnCancel");
             this.btnCancel.Click += new System.EventHandler(this.BtnCancel_Click);
             // 
             // btnExtract
@@ -434,6 +436,13 @@ namespace ResourcePacker.Forms
             this.btnExtract.Image = global::ResourcePacker.Properties.Images.compress;
             this.btnExtract.Name = "btnExtract";
             this.btnExtract.Padding = new System.Windows.Forms.Padding(3);
+            // 
+            // toolStripButton1
+            // 
+            this.toolStripButton1.Image = global::ResourcePacker.Properties.Images.table_go;
+            this.toolStripButton1.Name = "toolStripButton1";
+            this.toolStripButton1.Padding = new System.Windows.Forms.Padding(3);
+            resources.ApplyResources(this.toolStripButton1, "toolStripButton1");
             // 
             // btnFormattedText
             // 
@@ -534,5 +543,6 @@ namespace ResourcePacker.Forms
         private ToolStripProgressBar progressBarSecondary;
         private Controls.MultiNodeSelectionTreeView packageExplorerTreeView;
         private Label lblNoResults;
+        private ToolStripButton toolStripButton1;
     }
 }
