@@ -28,12 +28,15 @@ namespace ResourcePacker.Controls
         private static readonly Color SelectedBackgroundColor = Color.FromArgb(0, 120, 215);
         private static readonly Color SelectedForegroundColor = Color.White;
         private readonly List<TreeNode> _nodes = new();
-        private readonly Queue<TreeNode> _nodesToReset = new();
+        private TreeNode? _selectionPivot;
+        private bool _skipNextNodeUpdate;
 
         public MultiNodeSelectionTreeView()
         {
             InitializeComponent();
         }
+
+        public event EventHandler<TreeNodeMouseClickEventArgs>? NodeMouseClick;
 
         public event EventHandler<TreeNodeMouseClickEventArgs>? NodeMouseDoubleClick;
 
@@ -58,6 +61,7 @@ namespace ResourcePacker.Controls
         public void CreateNodesFromAssets(IReadOnlyList<Asset> assets, string packageName,
                     IProgress<int>? progressSecondary = null, int progressReportInterval = 100)
         {
+            SelectedNodes.Clear();
             _nodes.Clear();
             if (assets.Count == 0)
             {
@@ -124,6 +128,10 @@ namespace ResourcePacker.Controls
                 treeView.ExpandAll();
                 rootNode.EnsureVisible();
             });
+
+            // Set the skip variable to false since it is only required
+            // after the user requested an expansion or collapse action.
+            _skipNextNodeUpdate = false;
         }
 
         private static IEnumerable<TreeNode> CollectAllNodes(TreeNodeCollection nodes)
@@ -169,6 +177,14 @@ namespace ResourcePacker.Controls
             node.ForeColor = Color.Black;
         }
 
+        private void AddNode(TreeNode node)
+        {
+            if (!SelectedNodes.Contains(node))
+            {
+                SelectedNodes.Add(node);
+            }
+        }
+
         private void ApplySelectedNodeStyling()
         {
             foreach (var node in SelectedNodes)
@@ -186,8 +202,10 @@ namespace ResourcePacker.Controls
             }
         }
 
-        private void DeselectChildNodes(TreeNode node)
+        private void DeselectNodes(TreeNode node)
         {
+            SelectedNodes.Remove(node);
+
             if (node.Nodes.Count <= 0 || node.Tag != null)
             {
                 return;
@@ -205,11 +223,18 @@ namespace ResourcePacker.Controls
             SelectedNodes.Clear();
         }
 
-        private void SelectChildNodes(TreeNode node)
+        private void SelectNodes(TreeNode node)
         {
-            if (node.Nodes.Count > 0 && node.Tag == null)
+            AddNode(node);
+
+            if (node.Nodes.Count <= 0 || node.Tag != null)
             {
-                SelectedNodes.AddRange(CollectAllNodes(node.Nodes));
+                return;
+            }
+
+            foreach (var child in CollectAllNodes(node.Nodes))
+            {
+                AddNode(child);
             }
         }
 
@@ -217,16 +242,26 @@ namespace ResourcePacker.Controls
         {
             // Disable the default selection style.
             treeView.SelectedNode = null;
+        }
 
-            // Remove styling for pending reset nodes.
-            while (_nodesToReset.TryDequeue(out var node))
-            {
-                NodeToDefaultColors(node);
-            }
+        private void TreeView_BeforeCollapse(object sender, TreeViewCancelEventArgs e)
+        {
+            _skipNextNodeUpdate = true;
+        }
+
+        private void TreeView_BeforeExpand(object sender, TreeViewCancelEventArgs e)
+        {
+            _skipNextNodeUpdate = true;
         }
 
         private void TreeView_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
         {
+            if (_skipNextNodeUpdate)
+            {
+                _skipNextNodeUpdate = false;
+                return;
+            }
+
             ClearSelectedNodeStyling();
 
             if (e.Node.Bounds.Contains(e.X, e.Y) ||
@@ -241,6 +276,8 @@ namespace ResourcePacker.Controls
                 SelectedNodes.Clear();
                 treeView.SelectedNode = null;
             }
+
+            NodeMouseClick?.Invoke(sender, e);
         }
 
         private void TreeView_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
@@ -253,8 +290,8 @@ namespace ResourcePacker.Controls
             switch (ModifierKeys)
             {
                 case Keys.Shift | Keys.Control when SelectedNodes.Count > 0:
-                case Keys.Shift when SelectedNodes.Count > 0:
-                    var a = _nodes.IndexOf(SelectedNodes[0]);
+                case Keys.Shift when _selectionPivot != null:
+                    var a = _nodes.IndexOf(_selectionPivot!);
                     var b = _nodes.IndexOf(node);
 
                     if (!ModifierKeys.HasFlag(Keys.Control))
@@ -268,27 +305,24 @@ namespace ResourcePacker.Controls
                         a = a < b ? a + 1 : a - 1;
                     }
 
-                    SelectedNodes.Add(_nodes[a]);
-                    SelectChildNodes(_nodes[a]);
+                    SelectNodes(_nodes[a]);
                     break;
 
                 case Keys.Control:
                     if (SelectedNodes.Contains(node))
                     {
-                        _nodesToReset.Enqueue(node);
-                        SelectedNodes.Remove(node);
-                        DeselectChildNodes(node);
+                        DeselectNodes(node);
                         break;
                     }
 
-                    SelectedNodes.Insert(0, node);
-                    SelectChildNodes(node);
+                    _selectionPivot = node;
+                    SelectNodes(node);
                     break;
 
                 default:
+                    _selectionPivot = node;
                     SelectedNodes.Clear();
-                    SelectedNodes.Add(node);
-                    SelectChildNodes(node);
+                    SelectNodes(node);
                     break;
             }
         }

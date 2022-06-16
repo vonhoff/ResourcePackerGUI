@@ -45,16 +45,16 @@ namespace ResourcePacker.Forms
         private readonly IProgress<int> _progressSecondary;
         private readonly ActionDebouncer _scrollOutputToEndDebouncer;
         private readonly ActionDebouncer _searchDebouncer;
-        private Asset? _selectedPreviewAsset;
         private List<Asset>? _assets;
         private CancellationTokenSource _cancellationTokenSource;
+        private bool _displayOutputPanel = true;
+        private bool _formatPreviewText = true;
         private PackageHeader _packageHeader;
         private string _packagePath = string.Empty;
         private string _password = string.Empty;
         private string _searchQuery = string.Empty;
-        private bool _formatPreviewText = true;
+        private Asset? _selectedPreviewAsset;
         private bool _showDebugMessages;
-        private bool _displayOutputPanel = true;
 
         public MainForm()
         {
@@ -86,6 +86,50 @@ namespace ResourcePacker.Forms
         {
             var createForm = new CreateForm();
             createForm.ShowDialog();
+        }
+
+        private void BtnDisplayOutput_Click(object sender, EventArgs e)
+        {
+            _displayOutputPanel = !_displayOutputPanel;
+
+            btnDisplayOutput.Image =
+                _displayOutputPanel ? Images.checkbox_checked : Images.checkbox_unchecked;
+
+            splitContainer2.Panel2Collapsed = !_displayOutputPanel;
+        }
+
+        private void BtnExportLogEntries_Click(object sender, EventArgs e)
+        {
+            if (outputBox.Lines.Length == 0)
+            {
+                return;
+            }
+
+            var fileName = "ResourcePacker_log_" + DateTime.Now.ToLocalTime();
+            fileName = string.Join("_", fileName.Split(Path.GetInvalidFileNameChars()));
+
+            var saveFileDialog = new SaveFileDialog
+            {
+                Filter = "Text files (*.txt)|*.txt|All files (*.*)|*.*",
+                FileName = fileName
+            };
+
+            var result = saveFileDialog.ShowDialog();
+            if (result != DialogResult.OK || string.IsNullOrEmpty(saveFileDialog.FileName))
+            {
+                return;
+            }
+
+            try
+            {
+                outputBox.SaveFile(saveFileDialog.FileName, RichTextBoxStreamType.PlainText);
+                Log.Information("Log entries exported to: {path}", saveFileDialog.FileName);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Could not export log entries. {ex.Message}", "Error",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void BtnFormattedText_Click(object sender, EventArgs e)
@@ -303,6 +347,16 @@ namespace ResourcePacker.Forms
             btnClearConsole.Enabled = outputBox.Lines.Length > 0;
         }
 
+        private void PackageExplorerTreeView_Leave(object sender, EventArgs e)
+        {
+            UpdateExtractButton();
+        }
+
+        private void PackageExplorerTreeView_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
+        {
+            UpdateExtractButton();
+        }
+
         private void PackageExplorerTreeView_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
         {
             if (e.Node.Tag == null)
@@ -365,7 +419,11 @@ namespace ResourcePacker.Forms
                 packageExplorerTreeView.CreateNodesFromAssets(filteredAssets, packageName,
                     _progressSecondary, ProgressReportInterval);
 
-                Invoke(() => progressBarSecondary.Value = 0);
+                Invoke(() =>
+                {
+                    progressBarSecondary.Value = 0;
+                    UpdateExtractButton();
+                });
             });
         }
 
@@ -543,55 +601,22 @@ namespace ResourcePacker.Forms
             progressBarSecondary.Style = ProgressBarStyle.Blocks;
         }
 
+        private void UpdateExtractButton()
+        {
+            var selectedNodeCount = packageExplorerTreeView.SelectedNodes.Count;
+            btnExtractSelected.Enabled = selectedNodeCount > 0;
+            btnExtractSelected.Text = "Extract selected";
+            if (selectedNodeCount > 0)
+            {
+                btnExtractSelected.Text += $" ({selectedNodeCount})";
+            }
+        }
+
         private void UpdateLoadProgress((int percentage, int amount) progress)
         {
             var (percentage, amount) = progress;
             progressBarPrimary.Value = percentage;
             lblResultCount.Text = $"{amount} " + (amount > 1 ? "Assets" : "Asset");
-        }
-
-        private void BtnDisplayOutput_Click(object sender, EventArgs e)
-        {
-            _displayOutputPanel = !_displayOutputPanel;
-
-            btnDisplayOutput.Image =
-                _displayOutputPanel ? Images.checkbox_checked : Images.checkbox_unchecked;
-
-            splitContainer2.Panel2Collapsed = !_displayOutputPanel;
-        }
-
-        private void BtnExportLogEntries_Click(object sender, EventArgs e)
-        {
-            if (outputBox.Lines.Length == 0)
-            {
-                return;
-            }
-
-            var fileName = "ResourcePacker_log_" + DateTime.Now.ToLocalTime();
-            fileName = string.Join("_", fileName.Split(Path.GetInvalidFileNameChars()));
-
-            var saveFileDialog = new SaveFileDialog
-            {
-                Filter = "Text files (*.txt)|*.txt|All files (*.*)|*.*",
-                FileName = fileName
-            };
-
-            var result = saveFileDialog.ShowDialog();
-            if (result != DialogResult.OK || string.IsNullOrEmpty(saveFileDialog.FileName))
-            {
-                return;
-            }
-
-            try
-            {
-                outputBox.SaveFile(saveFileDialog.FileName, RichTextBoxStreamType.PlainText);
-                Log.Information("Log entries exported to: {path}", saveFileDialog.FileName);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Could not export log entries. {ex.Message}", "Error",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
         }
     }
 }

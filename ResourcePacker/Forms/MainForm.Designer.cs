@@ -184,7 +184,9 @@ namespace ResourcePacker.Forms
             // 
             resources.ApplyResources(this.packageExplorerTreeView, "packageExplorerTreeView");
             this.packageExplorerTreeView.Name = "packageExplorerTreeView";
+            this.packageExplorerTreeView.NodeMouseClick += new System.EventHandler<System.Windows.Forms.TreeNodeMouseClickEventArgs>(this.PackageExplorerTreeView_NodeMouseClick);
             this.packageExplorerTreeView.NodeMouseDoubleClick += new System.EventHandler<System.Windows.Forms.TreeNodeMouseClickEventArgs>(this.PackageExplorerTreeView_NodeMouseDoubleClick);
+            this.packageExplorerTreeView.Leave += new System.EventHandler(this.PackageExplorerTreeView_Leave);
             // 
             // splitContainer2
             // 
