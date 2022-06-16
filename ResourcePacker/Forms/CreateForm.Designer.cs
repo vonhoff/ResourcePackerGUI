@@ -637,6 +637,8 @@ namespace ResourcePacker.Forms
             this.selectorTreeView.ReadOnly = false;
             this.selectorTreeView.Size = new System.Drawing.Size(614, 570);
             this.selectorTreeView.TabIndex = 0;
+            this.selectorTreeView.AfterStateChanged += new System.EventHandler<System.Windows.Forms.TreeViewEventArgs>(this.SelectorTreeView_AfterStateChanged);
+            this.selectorTreeView.NodeStateChanged += new System.EventHandler<System.Windows.Forms.TreeViewEventArgs>(this.SelectorTreeView_NodeStateChanged);
             // 
             // panel2
             // 

@@ -288,6 +288,7 @@ namespace ResourcePacker.Forms
             btnAssetExplore.Enabled = enabled;
             btnDefinitionsExplore.Enabled = enabled;
             btnPackageExplore.Enabled = enabled;
+            chkCreateDefinitionFile.Enabled = enabled;
             txtPassword.Enabled = enabled;
             selectorTreeView.ReadOnly = !enabled;
         }
@@ -454,12 +455,12 @@ namespace ResourcePacker.Forms
             }
         }
 
-        private void ExplorerTreeView_AfterStateChanged(object sender, TreeViewEventArgs e)
+        private void SelectorTreeView_AfterStateChanged(object sender, TreeViewEventArgs e)
         {
             btnCreate.Enabled = _assetsToInclude.Count != 0 && _packageLocation != string.Empty;
         }
 
-        private void ExplorerTreeView_NodeStateChanged(object sender, TreeViewEventArgs e)
+        private void SelectorTreeView_NodeStateChanged(object sender, TreeViewEventArgs e)
         {
             var node = e.Node;
             if (node is not { Tag: string })
