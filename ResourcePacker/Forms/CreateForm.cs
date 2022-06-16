@@ -192,16 +192,14 @@ namespace ResourcePacker.Forms
         {
             _cancellationTokenSource = new CancellationTokenSource();
 
+            btnCancel.Text = "Cancel";
+            lblStatus.Text = "Creating definitions...";
+            progressBarSecondary.Visible = true;
+            selectorTreeView.ReadOnly = true;
+
             Task.Run(() =>
             {
                 var definitionsLocation = _createDefinitionFile ? _definitionsLocation : string.Empty;
-
-                Invoke(() =>
-                {
-                    btnCancel.Text = "Cancel";
-                    lblStatus.Text = "Creating definitions...";
-                    progressBarSecondary.Visible = true;
-                });
 
                 var paths = DefinitionHelper.CreateDefinitionFile(
                     _assetsToInclude, _relativePackageLocationDepth, definitionsLocation,

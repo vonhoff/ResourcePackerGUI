@@ -634,10 +634,9 @@ namespace ResourcePacker.Forms
             this.selectorTreeView.Dock = System.Windows.Forms.DockStyle.Fill;
             this.selectorTreeView.Location = new System.Drawing.Point(6, 26);
             this.selectorTreeView.Name = "selectorTreeView";
+            this.selectorTreeView.ReadOnly = false;
             this.selectorTreeView.Size = new System.Drawing.Size(614, 570);
-            this.selectorTreeView.TabIndex = 2;
-            this.selectorTreeView.AfterStateChanged += new System.EventHandler<System.Windows.Forms.TreeViewEventArgs>(this.ExplorerTreeView_AfterStateChanged);
-            this.selectorTreeView.NodeStateChanged += new System.EventHandler<System.Windows.Forms.TreeViewEventArgs>(this.ExplorerTreeView_NodeStateChanged);
+            this.selectorTreeView.TabIndex = 0;
             // 
             // panel2
             // 

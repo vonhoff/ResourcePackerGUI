@@ -16,6 +16,8 @@
 
 #endregion
 
+using ResourcePacker.Extensions;
+
 namespace ResourcePacker.Controls
 {
     public partial class TriStateTreeView : UserControl
@@ -25,6 +27,8 @@ namespace ResourcePacker.Controls
         /// Do not set <c>e.Cancel = true</c> in <c>OnBeforeCheck</c>, the Checked state will be lost otherwise.
         /// </summary>
         private int _ignoreClickAction;
+
+        private bool _readOnly;
 
         public TriStateTreeView()
         {
@@ -46,6 +50,37 @@ namespace ResourcePacker.Controls
 
         public event EventHandler<TreeViewEventArgs>? NodeStateChanged;
 
+        public bool ReadOnly
+        {
+            get => _readOnly;
+            set
+            {
+                if (_readOnly == value)
+                {
+                    return;
+                }
+
+                _readOnly = value;
+                SetReadonlyGraphics(value);
+            }
+        }
+
+        private void SetReadonlyGraphics(bool enabled)
+        {
+            foreach (var node in treeView.Nodes.CollectAll())
+            {
+                switch (node.StateImageIndex)
+                {
+                    case <= 3 when enabled:
+                        node.StateImageIndex += 3;
+                        break;
+                    case > 3 when !enabled:
+                        node.StateImageIndex -= 3;
+                        break;
+                }
+            }
+        }
+
         /// <summary>
         /// CheckedState is an enum of all allowable nodes states.
         /// </summary>
@@ -54,21 +89,6 @@ namespace ResourcePacker.Controls
             Unchecked,
             Checked,
             Mixed
-        }
-
-        /// <summary>
-        /// <see cref="TriStateStyles"/> is an enum of all allowable tree styles. <br/>
-        /// </summary>
-        /// <remarks>
-        /// All styles check children when parent is checked.
-        /// Installer automatically checks parent if all children are checked,
-        /// and un-checks parent if all children are unchecked.
-        /// Standard never changes the checked status of a parent.
-        /// </remarks>
-        public enum TriStateStyles
-        {
-            Standard,
-            Installer
         }
 
         public TreeNodeCollection Nodes => treeView.Nodes;
@@ -248,11 +268,7 @@ namespace ResourcePacker.Controls
         private void InitializeCheckboxGraphics()
         {
             treeView.StateImageList ??= new ImageList();
-            if (treeView.StateImageList.Images.Count >= 3)
-            {
-                return;
-            }
-
+            
             for (var i = treeView.StateImageList.Images.Count; i < 3; i++)
             {
                 // Creates a bitmap which holds the relevant check box style
@@ -290,10 +306,32 @@ namespace ResourcePacker.Controls
 
                 treeView.StateImageList.Images.Add(bitmap);
             }
+
+            // Generate their disabled counterparts.
+            foreach (Bitmap image in treeView.StateImageList.Images)
+            {
+                var bitmap = new Bitmap(image);
+                for (var y = 0; y < bitmap.Height; y++)
+                {
+                    for (var x = 0; x < bitmap.Width; x++)
+                    {
+                        var c = bitmap.GetPixel(x, y);
+                        var rgb = (int)Math.Round((.292 * c.A) + (.299 * c.R) + (.292 * c.G) + (.114 * c.B));
+                        bitmap.SetPixel(x, y, Color.FromArgb(rgb, rgb, rgb, rgb));
+                    }
+                }
+
+                treeView.StateImageList.Images.Add(bitmap);
+            }
         }
 
         private void NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
         {
+            if (ReadOnly)
+            {
+                return;
+            }
+
             // Has the checkbox been clicked? If not, discard it.
             var info = treeView.HitTest(e.X, e.Y);
             if (info.Location != TreeViewHitTestLocations.StateImage)

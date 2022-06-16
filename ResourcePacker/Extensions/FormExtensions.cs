@@ -22,7 +22,7 @@ using System.Runtime.InteropServices;
 
 namespace ResourcePacker.Extensions
 {
-    public static class FormExtensions
+    internal static class FormExtensions
     {
         // Flash both the window caption and taskbar button.
         // This is equivalent to setting the FLASHW_CAPTION | FLASHW_TRAY flags.
@@ -38,7 +38,7 @@ namespace ResourcePacker.Extensions
         /// in the application that requires their attention.
         /// </remarks>
         /// </summary>
-        public static bool FlashNotification(this Form form)
+        internal static bool FlashNotification(this Form form)
         {
             if (form.InvokeRequired)
             {

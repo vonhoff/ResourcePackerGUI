@@ -19,6 +19,7 @@
 #endregion
 
 using ResourcePacker.Entities;
+using ResourcePacker.Extensions;
 using Winista.Mime;
 
 namespace ResourcePacker.Controls
@@ -77,6 +78,8 @@ namespace ResourcePacker.Controls
             using (var progressTimer = new System.Timers.Timer(progressReportInterval))
             {
                 var percentage = 0;
+
+                // ReSharper disable once AccessToModifiedClosure
                 progressTimer.Elapsed += delegate { progressSecondary!.Report(percentage); };
                 progressTimer.Enabled = progressSecondary != null;
 
@@ -119,7 +122,7 @@ namespace ResourcePacker.Controls
             }
 
             _nodes.Add(rootNode);
-            _nodes.AddRange(CollectAllNodes(rootNode.Nodes));
+            _nodes.AddRange(rootNode.Nodes.CollectAll());
 
             treeView.Invoke(() =>
             {
@@ -132,19 +135,6 @@ namespace ResourcePacker.Controls
             // Set the skip variable to false since it is only required
             // after the user requested an expansion or collapse action.
             _skipNextNodeUpdate = false;
-        }
-
-        private static IEnumerable<TreeNode> CollectAllNodes(TreeNodeCollection nodes)
-        {
-            foreach (TreeNode node in nodes)
-            {
-                yield return node;
-
-                foreach (var child in CollectAllNodes(node.Nodes))
-                {
-                    yield return child;
-                }
-            }
         }
 
         /// <summary>
@@ -211,7 +201,7 @@ namespace ResourcePacker.Controls
                 return;
             }
 
-            foreach (var child in CollectAllNodes(node.Nodes))
+            foreach (var child in node.Nodes.CollectAll())
             {
                 SelectedNodes.Remove(child);
             }
@@ -232,7 +222,7 @@ namespace ResourcePacker.Controls
                 return;
             }
 
-            foreach (var child in CollectAllNodes(node.Nodes))
+            foreach (var child in node.Nodes.CollectAll())
             {
                 AddNode(child);
             }
