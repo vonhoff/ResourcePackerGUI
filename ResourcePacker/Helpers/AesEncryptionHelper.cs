@@ -227,9 +227,9 @@ namespace ResourcePacker.Helpers
             MemoryHelper.CopyMemory(Iv, 0, ivBuffer, 0, BlockSize);
 
             var percentage = 0;
-            using var timer = new System.Timers.Timer(progressReportInterval);
-            timer.Elapsed += delegate { progress!.Report(percentage); };
-            timer.Enabled = progress != null;
+            using var progressTimer = new System.Timers.Timer(progressReportInterval);
+            progressTimer.Elapsed += delegate { progress!.Report(percentage); };
+            progressTimer.Enabled = progress != null;
 
             for (var index = 0; index < blocks; index++)
             {
@@ -273,9 +273,9 @@ namespace ResourcePacker.Helpers
             MemoryHelper.CopyMemory(Iv, 0, ivBuffer, 0, BlockSize);
 
             var percentage = 0;
-            using var timer = new System.Timers.Timer(progressReportInterval);
-            timer.Elapsed += delegate { progress!.Report(percentage); };
-            timer.Enabled = progress != null;
+            using var progressTimer = new System.Timers.Timer(progressReportInterval);
+            progressTimer.Elapsed += delegate { progress!.Report(percentage); };
+            progressTimer.Enabled = progress != null;
 
             for (var index = 0; index < blocks; index++)
             {
@@ -288,6 +288,7 @@ namespace ResourcePacker.Helpers
                 percentage = (int)((double)(index + 1) / blocks * 100);
             }
 
+            progress?.Report(100);
             return true;
         }
 

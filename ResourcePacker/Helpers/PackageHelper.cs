@@ -61,12 +61,12 @@ namespace ResourcePacker.Helpers
             var entries = new Entry[paths.Count];
             var offset = Unsafe.SizeOf<PackageHeader>() + (header.NumberOfEntries * Unsafe.SizeOf<Entry>());
 
-            using (var timer = new System.Timers.Timer(progressReportInterval))
+            using (var progressTimer = new System.Timers.Timer(progressReportInterval))
             {
                 var relativePath = string.Empty;
                 var percentage = 0;
-                timer.Elapsed += delegate { progressPrimary!.Report((percentage, relativePath)); };
-                timer.Enabled = progressPrimary != null;
+                progressTimer.Elapsed += delegate { progressPrimary!.Report((percentage, relativePath)); };
+                progressTimer.Enabled = progressPrimary != null;
 
                 foreach (var (absolutePath, name) in paths)
                 {
@@ -183,11 +183,11 @@ namespace ResourcePacker.Helpers
         {
             var entries = new List<Entry>();
            
-            using (var timer = new System.Timers.Timer(progressReportInterval))
+            using (var progressTimer = new System.Timers.Timer(progressReportInterval))
             {
                 var percentage = 0;
-                timer.Elapsed += delegate { progress!.Report(percentage); };
-                timer.Enabled = progress != null;
+                progressTimer.Elapsed += delegate { progress!.Report(percentage); };
+                progressTimer.Enabled = progress != null;
 
                 for (var i = 0; i < header.NumberOfEntries; i++)
                 {
@@ -238,12 +238,12 @@ namespace ResourcePacker.Helpers
             CancellationToken cancellationToken = default)
         {
             var assets = new List<Asset>();
-            using (var timer = new System.Timers.Timer(progressReportInterval))
+            using (var progressTimer = new System.Timers.Timer(progressReportInterval))
             {
                 var i = 0;
                 var percentage = 0;
-                timer.Elapsed += delegate { progressPrimary!.Report((percentage, i)); };
-                timer.Enabled = progressPrimary != null;
+                progressTimer.Elapsed += delegate { progressPrimary!.Report((percentage, i)); };
+                progressTimer.Enabled = progressPrimary != null;
 
                 for (i = 0; i < entries.Length; i++)
                 {

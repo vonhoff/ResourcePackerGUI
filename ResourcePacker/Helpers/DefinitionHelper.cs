@@ -82,9 +82,9 @@ namespace ResourcePacker.Helpers
                 new StreamWriter(definitionsLocation);
 
             var percentage = 0;
-            using var timer = new System.Timers.Timer(progressReportInterval);
-            timer.Elapsed += delegate { progress!.Report(percentage); };
-            timer.Enabled = progress != null;
+            using var progressTimer = new System.Timers.Timer(progressReportInterval);
+            progressTimer.Elapsed += delegate { progress!.Report(percentage); };
+            progressTimer.Enabled = progress != null;
 
             for (var i = 0; i < items.Count; i++)
             {

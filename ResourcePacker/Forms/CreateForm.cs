@@ -405,10 +405,12 @@ namespace ResourcePacker.Forms
         {
             var percentage = 0;
             var pathNodes = Array.Empty<string>();
-            using var timer = new System.Timers.Timer(ProgressReportInterval);
-            timer.Elapsed += delegate { _progressPrimary.Report((percentage, 
-                string.Join("/", pathNodes[relativeDepth..]))); };
-            timer.Enabled = true;
+            using var progressTimer = new System.Timers.Timer(ProgressReportInterval);
+            progressTimer.Elapsed += delegate
+            {
+                _progressPrimary.Report((percentage, string.Join("/", pathNodes[relativeDepth..])));
+            };
+            progressTimer.Enabled = true;
 
             for (var i = 0; i < files.Count; i++)
             {

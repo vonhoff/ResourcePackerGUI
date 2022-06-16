@@ -49,6 +49,12 @@ namespace ResourcePacker.Controls
             }
         }
 
+        public void Clear()
+        {
+            _nodes.Clear();
+            treeView.Nodes.Clear();
+        }
+
         public void CreateNodesFromAssets(IReadOnlyList<Asset> assets, string packageName,
                     IProgress<int>? progressSecondary = null, int progressReportInterval = 100)
         {
@@ -64,11 +70,11 @@ namespace ResourcePacker.Controls
                 SelectedImageIndex = 8
             };
 
-            using (var timer = new System.Timers.Timer(progressReportInterval))
+            using (var progressTimer = new System.Timers.Timer(progressReportInterval))
             {
                 var percentage = 0;
-                timer.Elapsed += delegate { progressSecondary!.Report(percentage); };
-                timer.Enabled = progressSecondary != null;
+                progressTimer.Elapsed += delegate { progressSecondary!.Report(percentage); };
+                progressTimer.Enabled = progressSecondary != null;
 
                 for (var i = 0; i < assets.Count; i++)
                 {
@@ -108,6 +114,7 @@ namespace ResourcePacker.Controls
                 }
             }
 
+            _nodes.Add(rootNode);
             _nodes.AddRange(CollectAllNodes(rootNode.Nodes));
 
             treeView.Invoke(() =>
@@ -176,6 +183,19 @@ namespace ResourcePacker.Controls
             foreach (var node in SelectedNodes)
             {
                 NodeToDefaultColors(node);
+            }
+        }
+
+        private void DeselectChildNodes(TreeNode node)
+        {
+            if (node.Nodes.Count <= 0 || node.Tag != null)
+            {
+                return;
+            }
+
+            foreach (var child in CollectAllNodes(node.Nodes))
+            {
+                SelectedNodes.Remove(child);
             }
         }
 
@@ -257,6 +277,7 @@ namespace ResourcePacker.Controls
                     {
                         _nodesToReset.Enqueue(node);
                         SelectedNodes.Remove(node);
+                        DeselectChildNodes(node);
                         break;
                     }
 
@@ -267,6 +288,7 @@ namespace ResourcePacker.Controls
                 default:
                     SelectedNodes.Clear();
                     SelectedNodes.Add(node);
+                    SelectChildNodes(node);
                     break;
             }
         }

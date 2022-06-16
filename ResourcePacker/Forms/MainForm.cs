@@ -39,26 +39,22 @@ namespace ResourcePacker.Forms
 {
     public partial class MainForm : Form
     {
-        // Progress variables
         private const int ProgressReportInterval = 25;
-
-        private readonly LoggingLevelSwitch _loggingLevelSwitch = new(LogEventLevel.Debug);
+        private readonly LoggingLevelSwitch _loggingLevelSwitch = new();
         private readonly IProgress<(int percentage, int amount)> _progressPrimary;
         private readonly IProgress<int> _progressSecondary;
         private readonly ActionDebouncer _scrollOutputToEndDebouncer;
         private readonly ActionDebouncer _searchDebouncer;
+        private Asset? _selectedPreviewAsset;
         private List<Asset>? _assets;
         private CancellationTokenSource _cancellationTokenSource;
-        private bool _formatPreviewText = true;
         private PackageHeader _packageHeader;
         private string _packagePath = string.Empty;
-
-        // Package configuration variables
         private string _password = string.Empty;
-
         private string _searchQuery = string.Empty;
-        private Asset? _selectedPreviewAsset;
-        private bool _showDebugMessages = true;
+        private bool _formatPreviewText = true;
+        private bool _showDebugMessages;
+        private bool _displayOutputPanel = true;
 
         public MainForm()
         {
@@ -79,6 +75,11 @@ namespace ResourcePacker.Forms
         private void BtnCancel_Click(object sender, EventArgs e)
         {
             _cancellationTokenSource.Cancel();
+        }
+
+        private void BtnClearConsole_Click(object sender, EventArgs e)
+        {
+            outputBox.Clear();
         }
 
         private void BtnCreate_Click(object sender, EventArgs e)
@@ -113,17 +114,19 @@ namespace ResourcePacker.Forms
             openFileDialog.Filter = "Text file (*.txt)|*.txt";
             openFileDialog.RestoreDirectory = true;
 
-            if (openFileDialog.ShowDialog() == DialogResult.OK)
+            if (openFileDialog.ShowDialog() != DialogResult.OK)
             {
-                IReadOnlyDictionary<uint, string> crcDictionary;
-                using (var fileStream = openFileDialog.OpenFile())
-                {
-                    crcDictionary = DefinitionHelper.CreateCrcDictionary(fileStream);
-                }
-
-                AssetHelper.UpdateAssetsWithDefinitions(_assets, crcDictionary);
-                RefreshPackageExplorer();
+                return;
             }
+
+            IReadOnlyDictionary<uint, string> crcDictionary;
+            using (var fileStream = openFileDialog.OpenFile())
+            {
+                crcDictionary = DefinitionHelper.CreateCrcDictionary(fileStream);
+            }
+
+            AssetHelper.UpdateAssetsWithDefinitions(_assets, crcDictionary);
+            RefreshPackageExplorer();
         }
 
         private void BtnOpen_Click(object sender, EventArgs e)
@@ -150,7 +153,6 @@ namespace ResourcePacker.Forms
                 return;
             }
 
-            outputBox.Clear();
             Log.Information("ResourcePackage: {@info}",
                 new { _packageHeader.Id, _packageHeader.NumberOfEntries });
 
@@ -192,6 +194,8 @@ namespace ResourcePacker.Forms
                     // Show the cancel button, hide the create and open button.
                     Invoke(() =>
                     {
+                        btnLoadDefinitions.Enabled = false;
+                        btnExtractAll.Enabled = false;
                         btnCancel.Visible = true;
                         btnCreate.Visible = false;
                         btnOpen.Visible = false;
@@ -208,11 +212,13 @@ namespace ResourcePacker.Forms
                     // When succeeded, show the action buttons.
                     Invoke(() =>
                     {
+                        btnLoadDefinitions.Enabled = false;
+                        btnExtractAll.Enabled = false;
+
                         lblResultCount.Text = $"{_assets.Count} " + (_assets.Count > 1 ? "Assets" : "Asset");
                         lblElapsed.Text = stopwatch.Elapsed.ToString(@"hh\:mm\:ss\.ffff");
-
                         btnLoadDefinitions.Enabled = true;
-                        btnExtract.Enabled = true;
+                        btnExtractAll.Enabled = true;
                     });
                 }
                 catch (OperationCanceledException ex)
@@ -290,6 +296,13 @@ namespace ResourcePacker.Forms
             ResumeLayout();
         }
 
+        private void OutputBox_TextChanged(object sender, EventArgs e)
+        {
+            lblLogEntries.Text = $"Log entries: {outputBox.Lines.Length}";
+            btnExportLogEntries.Enabled = outputBox.Lines.Length > 0;
+            btnClearConsole.Enabled = outputBox.Lines.Length > 0;
+        }
+
         private void PackageExplorerTreeView_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
         {
             if (e.Node.Tag == null)
@@ -337,6 +350,15 @@ namespace ResourcePacker.Forms
 
             var packageName = Path.GetFileNameWithoutExtension(_packagePath);
             var filteredAssets = _assets.Where(a => a.Name.Contains(_searchQuery)).ToList();
+
+            Invoke(() =>
+            {
+                lblNoResults.Visible = filteredAssets.Count == 0;
+                if (filteredAssets.Count == 0)
+                {
+                    packageExplorerTreeView.Clear();
+                }
+            });
 
             Task.Run(() =>
             {
@@ -526,6 +548,50 @@ namespace ResourcePacker.Forms
             var (percentage, amount) = progress;
             progressBarPrimary.Value = percentage;
             lblResultCount.Text = $"{amount} " + (amount > 1 ? "Assets" : "Asset");
+        }
+
+        private void BtnDisplayOutput_Click(object sender, EventArgs e)
+        {
+            _displayOutputPanel = !_displayOutputPanel;
+
+            btnDisplayOutput.Image =
+                _displayOutputPanel ? Images.checkbox_checked : Images.checkbox_unchecked;
+
+            splitContainer2.Panel2Collapsed = !_displayOutputPanel;
+        }
+
+        private void BtnExportLogEntries_Click(object sender, EventArgs e)
+        {
+            if (outputBox.Lines.Length == 0)
+            {
+                return;
+            }
+
+            var fileName = "ResourcePacker_log_" + DateTime.Now.ToLocalTime();
+            fileName = string.Join("_", fileName.Split(Path.GetInvalidFileNameChars()));
+
+            var saveFileDialog = new SaveFileDialog
+            {
+                Filter = "Text files (*.txt)|*.txt|All files (*.*)|*.*",
+                FileName = fileName
+            };
+
+            var result = saveFileDialog.ShowDialog();
+            if (result != DialogResult.OK || string.IsNullOrEmpty(saveFileDialog.FileName))
+            {
+                return;
+            }
+
+            try
+            {
+                outputBox.SaveFile(saveFileDialog.FileName, RichTextBoxStreamType.PlainText);
+                Log.Information("Log entries exported to: {path}", saveFileDialog.FileName);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Could not export log entries. {ex.Message}", "Error",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
     }
 }
