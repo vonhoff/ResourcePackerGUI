@@ -16,6 +16,7 @@
 
 #endregion
 
+using System.Drawing.Imaging;
 using ResourcePacker.Extensions;
 
 namespace ResourcePacker.Controls
@@ -268,7 +269,7 @@ namespace ResourcePacker.Controls
         private void InitializeCheckboxGraphics()
         {
             treeView.StateImageList ??= new ImageList();
-            
+
             for (var i = treeView.StateImageList.Images.Count; i < 3; i++)
             {
                 // Creates a bitmap which holds the relevant check box style
@@ -307,18 +308,33 @@ namespace ResourcePacker.Controls
                 treeView.StateImageList.Images.Add(bitmap);
             }
 
-            // Generate their disabled counterparts.
+            // Generate their disabled counterparts preserving the alpha channel.
             foreach (Bitmap image in treeView.StateImageList.Images)
             {
-                var bitmap = new Bitmap(image);
-                for (var y = 0; y < bitmap.Height; y++)
+                Image bitmap = new Bitmap(image.Width, image.Height, image.PixelFormat);
+
+                // Create the ImageAttributes object and apply the ColorMatrix
+                var attributes = new ImageAttributes();
+                var colorMatrix = new ColorMatrix(new[]
                 {
-                    for (var x = 0; x < bitmap.Width; x++)
-                    {
-                        var c = bitmap.GetPixel(x, y);
-                        var rgb = (int)Math.Round((.292 * c.A) + (.299 * c.R) + (.292 * c.G) + (.114 * c.B));
-                        bitmap.SetPixel(x, y, Color.FromArgb(rgb, rgb, rgb, rgb));
-                    }
+                    new[] {0.299f, 0.299f, 0.299f, 0f, 0f},
+                    new[] {0.587f, 0.587f, 0.587f, 0f, 0f},
+                    new[] {0.114f, 0.114f, 0.114f, 0f, 0f},
+                    new[] {0f, 0f, 0f, 1f, 0f},
+                    new[] {0f, 0f, 0f, 0f, 1f}
+                });
+
+                attributes.SetColorMatrix(colorMatrix);
+
+                // Use a new Graphics object from the new image.
+                using (var graphics = Graphics.FromImage(bitmap))
+                {
+                    // Draw the original image using the ImageAttributes created above.
+                    graphics.DrawImage(image,
+                        new Rectangle(0, 0, bitmap.Width, bitmap.Height),
+                        0, 0, bitmap.Width, bitmap.Height,
+                        GraphicsUnit.Pixel,
+                        attributes);
                 }
 
                 treeView.StateImageList.Images.Add(bitmap);

@@ -195,7 +195,7 @@ namespace ResourcePacker.Forms
             btnCancel.Text = "Cancel";
             lblStatus.Text = "Creating definitions...";
             progressBarSecondary.Visible = true;
-            selectorTreeView.ReadOnly = true;
+            SetConfigurationState(false);
 
             Task.Run(() =>
             {
@@ -240,6 +240,8 @@ namespace ResourcePacker.Forms
                         MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
 
+                Invoke(() => SetConfigurationState(true));
+
                 // Cleanup after cancellation.
                 if (_cancellationTokenSource.IsCancellationRequested)
                 {
@@ -279,6 +281,15 @@ namespace ResourcePacker.Forms
                 this.FlashNotification();
                 _cancellationTokenSource.Cancel();
             });
+        }
+
+        private void SetConfigurationState(bool enabled)
+        {
+            btnAssetExplore.Enabled = enabled;
+            btnDefinitionsExplore.Enabled = enabled;
+            btnPackageExplore.Enabled = enabled;
+            txtPassword.Enabled = enabled;
+            selectorTreeView.ReadOnly = !enabled;
         }
 
         private void BtnDefinitionsExplore_Click(object sender, EventArgs e)
