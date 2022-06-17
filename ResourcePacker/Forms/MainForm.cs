@@ -19,6 +19,7 @@
 #endregion
 
 using System.Diagnostics;
+using System.Media;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -169,7 +170,9 @@ namespace ResourcePacker.Forms
                 crcDictionary = DefinitionHelper.CreateCrcDictionary(fileStream);
             }
 
-            AssetHelper.UpdateAssetsWithDefinitions(_assets, crcDictionary);
+            btnLoadDefinitions.Enabled =
+                AssetHelper.UpdateAssetsWithDefinitions(_assets, crcDictionary) != _assets.Count;
+
             RefreshPackageExplorer();
         }
 
@@ -238,11 +241,13 @@ namespace ResourcePacker.Forms
                     // Show the cancel button, hide the create and open button.
                     Invoke(() =>
                     {
-                        btnLoadDefinitions.Enabled = false;
-                        btnExtractAll.Enabled = false;
                         btnCancel.Visible = true;
                         btnCreate.Visible = false;
                         btnOpen.Visible = false;
+
+                        btnLoadDefinitions.Enabled = false;
+                        btnExtractSelected.Enabled = false;
+                        btnExtractAll.Enabled = false;
                     });
 
                     // Load all assets from package.
@@ -256,9 +261,6 @@ namespace ResourcePacker.Forms
                     // When succeeded, show the action buttons.
                     Invoke(() =>
                     {
-                        btnLoadDefinitions.Enabled = false;
-                        btnExtractAll.Enabled = false;
-
                         lblResultCount.Text = $"{_assets.Count} " + (_assets.Count > 1 ? "Assets" : "Asset");
                         lblElapsed.Text = stopwatch.Elapsed.ToString(@"hh\:mm\:ss\.ffff");
                         btnLoadDefinitions.Enabled = true;
@@ -622,6 +624,93 @@ namespace ResourcePacker.Forms
             var (percentage, amount) = progress;
             progressBarPrimary.Value = percentage;
             lblResultCount.Text = $"{amount} " + (amount > 1 ? "Assets" : "Asset");
+        }
+
+        private void BtnExtractAll_Click(object sender, EventArgs e)
+        {
+            if (_assets is { Count: 0 })
+            {
+                MessageBox.Show("Could not extract the current package, there are no assets available.",
+                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            string baseExtractionPath;
+            using (var browserDialog = new FolderBrowserDialog())
+            {
+                var result = browserDialog.ShowDialog();
+
+                if (result != DialogResult.OK || string.IsNullOrWhiteSpace(browserDialog.SelectedPath))
+                {
+                    return;
+                }
+
+                baseExtractionPath = browserDialog.SelectedPath;
+            }
+
+            Task.Run(() =>
+            {
+                var previousBtnLoadDefinitionsState = btnLoadDefinitions.Enabled;
+                var previousBtnExtractAllState = btnExtractAll.Enabled;
+
+                Invoke(() =>
+                {
+                    btnCancel.Visible = true;
+                    btnCreate.Visible = false;
+                    btnOpen.Visible = false;
+
+                    btnLoadDefinitions.Enabled = false;
+                    btnExtractAll.Enabled = false;
+                });
+
+                try
+                {
+                    AssetHelper.ExtractAssetsToLocation(_assets!, baseExtractionPath,
+                        _progressPrimary, ProgressReportInterval, _cancellationTokenSource.Token);
+
+                    Process.Start(new ProcessStartInfo
+                    {
+                        FileName = baseExtractionPath,
+                        UseShellExecute = true,
+                        WindowStyle = ProcessWindowStyle.Normal,
+                        Verb = "open"
+                    });
+
+                    SystemSounds.Asterisk.Play();
+                    this.FlashNotification();
+                }
+                catch (OperationCanceledException ex)
+                {
+                    Log.Information("The operation has been canceled.");
+
+                    Invoke(() =>
+                    {
+                        lblResultCount.Text = "0 Assets";
+                        lblElapsed.Text = "00:00:00.0000";
+                    });
+
+                    MessageBox.Show(ex.Message, "Operation canceled",
+                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                catch (Exception ex)
+                {
+                    Log.Error(ex, "An exception occurred during extracting.");
+                }
+                
+                Invoke(() =>
+                {
+                    btnCancel.Visible = false;
+                    btnCreate.Visible = true;
+                    btnOpen.Visible = true;
+
+                    btnLoadDefinitions.Enabled = previousBtnLoadDefinitionsState;
+                    btnExtractAll.Enabled = previousBtnExtractAllState;
+
+                    // Set the progress bars to their initial state.
+                    progressBarPrimary.Style = ProgressBarStyle.Blocks;
+                    progressBarPrimary.Value = 0;
+                });
+            });
         }
     }
 }

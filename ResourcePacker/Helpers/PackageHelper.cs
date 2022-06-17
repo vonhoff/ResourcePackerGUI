@@ -210,7 +210,7 @@ namespace ResourcePacker.Helpers
 
             if (entries.Count == header.NumberOfEntries)
             {
-                Log.Information("Loaded {entryCount} entries.", entries.Count);
+                Log.Information("Loaded all {entryCount} entries.", entries.Count);
             }
             else
             {
@@ -266,7 +266,7 @@ namespace ResourcePacker.Helpers
 
             if (assets.Count == entries.Length)
             {
-                Log.Information("Loaded {assetCount} assets.", assets.Count);
+                Log.Information("Loaded all {assetCount} assets.", assets.Count);
             }
             else
             {

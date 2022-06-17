@@ -74,6 +74,62 @@ namespace ResourcePacker.Helpers
             }
         }
 
+        public static void ExtractAssetsToLocation(IReadOnlyList<Asset> assets, string basePath,
+            IProgress<(int percentage, int amount)>? progress = null, int progressReportInterval = 100,
+            CancellationToken cancellationToken = default)
+        {
+            if (!Path.EndsInDirectorySeparator(basePath))
+            {
+                basePath += Path.DirectorySeparatorChar;
+            }
+
+            using var progressTimer = new System.Timers.Timer(progressReportInterval);
+            var percentage = 0;
+            var i = 0;
+            var extracted = 0;
+            progressTimer.Elapsed += delegate { progress!.Report((percentage, i + 1)); };
+            progressTimer.Enabled = progress != null;
+
+            for (; i < assets.Count; i++)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                var asset = assets[i];
+                var fileInfo = new FileInfo(basePath + asset.Name);
+                fileInfo.Directory?.Create();
+
+                try
+                {
+                    var file = File.OpenWrite(fileInfo.FullName);
+                    using var binaryWriter = new BinaryWriter(file);
+                    binaryWriter.Write(asset.Data);
+                    binaryWriter.Flush();
+                    binaryWriter.Close();
+                    Log.Debug("Extracted {name} to {path}", 
+                        Path.GetFileName(asset.Name), fileInfo.FullName);
+                    extracted++;
+                }
+                catch (Exception ex)
+                {
+                    Log.Error(ex, "Could not extract asset: {path}", fileInfo.FullName);
+                }
+
+                percentage = (int)((double)(i + 1) / assets.Count * 100);
+            }
+
+            progress?.Report((100, assets.Count));
+
+            if (extracted == assets.Count)
+            {
+                Log.Information("Extracted {amount} files to {basePath}", 
+                    extracted, basePath);
+            }
+            else
+            {
+                Log.Warning("Extracted {amount} out of {expected} files to {basePath}.", 
+                    extracted, assets.Count, basePath);
+            }
+        }
+
         /// <summary>
         /// Updates the names of the provided assets from a dictionary of definitions.
         /// </summary>
@@ -121,7 +177,7 @@ namespace ResourcePacker.Helpers
 
             if (matches == source.Count)
             {
-                Log.Information("Updated {matchCount} asset names.", matches);
+                Log.Information("Updated all {matchCount} asset names.", matches);
             }
             else
             {

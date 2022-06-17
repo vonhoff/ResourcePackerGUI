@@ -496,6 +496,7 @@ namespace ResourcePacker.Forms
             this.btnExtractAll.Image = global::ResourcePacker.Properties.Images.compress;
             this.btnExtractAll.Name = "btnExtractAll";
             this.btnExtractAll.Padding = new System.Windows.Forms.Padding(3);
+            this.btnExtractAll.Click += new System.EventHandler(this.BtnExtractAll_Click);
             // 
             // btnExtractSelected
             // 
