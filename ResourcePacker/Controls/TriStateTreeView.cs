@@ -37,19 +37,21 @@ namespace ResourcePacker.Controls
             InitializeCheckboxGraphics();
         }
 
-        protected override CreateParams CreateParams
-        {
-            get
-            {
-                var cp = base.CreateParams;
-                cp.ExStyle |= 0x02000000;
-                return cp;
-            }
-        }
-
         public event EventHandler<TreeViewEventArgs>? AfterStateChanged;
 
         public event EventHandler<TreeViewEventArgs>? NodeStateChanged;
+
+        /// <summary>
+        /// CheckedState is an enum of all allowable nodes states.
+        /// </summary>
+        public enum CheckedState
+        {
+            Unchecked,
+            Checked,
+            Mixed
+        }
+
+        public TreeNodeCollection Nodes => treeView.Nodes;
 
         public bool ReadOnly
         {
@@ -66,33 +68,15 @@ namespace ResourcePacker.Controls
             }
         }
 
-        private void SetReadonlyGraphics(bool enabled)
+        protected override CreateParams CreateParams
         {
-            foreach (var node in treeView.Nodes.CollectAll())
+            get
             {
-                switch (node.StateImageIndex)
-                {
-                    case <= 3 when enabled:
-                        node.StateImageIndex += 3;
-                        break;
-                    case > 3 when !enabled:
-                        node.StateImageIndex -= 3;
-                        break;
-                }
+                var cp = base.CreateParams;
+                cp.ExStyle |= 0x02000000;
+                return cp;
             }
         }
-
-        /// <summary>
-        /// CheckedState is an enum of all allowable nodes states.
-        /// </summary>
-        public enum CheckedState
-        {
-            Unchecked,
-            Checked,
-            Mixed
-        }
-
-        public TreeNodeCollection Nodes => treeView.Nodes;
 
         /// <summary>
         /// Disables any redrawing of the tree view.
@@ -358,6 +342,23 @@ namespace ResourcePacker.Controls
             // Toggle the node's checked status. This will then fire OnAfterCheck.
             var treeNode = e.Node;
             treeNode.Checked = !treeNode.Checked;
+        }
+
+        private void SetReadonlyGraphics(bool enabled)
+        {
+            foreach (var node in treeView.Nodes.CollectAll())
+            {
+                switch (node.StateImageIndex)
+                {
+                    case <= 3 when enabled:
+                        node.StateImageIndex += 3;
+                        break;
+
+                    case > 3 when !enabled:
+                        node.StateImageIndex -= 3;
+                        break;
+                }
+            }
         }
     }
 }

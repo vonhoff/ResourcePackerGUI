@@ -260,6 +260,7 @@ namespace ResourcePacker.Forms
             this.previewTextBox.DetectUrls = false;
             resources.ApplyResources(this.previewTextBox, "previewTextBox");
             this.previewTextBox.Name = "previewTextBox";
+            this.previewTextBox.ReadOnly = true;
             // 
             // previewImageTab
             // 

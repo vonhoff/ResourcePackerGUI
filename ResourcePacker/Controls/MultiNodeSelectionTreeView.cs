@@ -291,7 +291,7 @@ namespace ResourcePacker.Controls
 
                     while (a != b)
                     {
-                        SelectedNodes.Add(_nodes[a]);
+                        AddNode(_nodes[a]);
                         a = a < b ? a + 1 : a - 1;
                     }
 

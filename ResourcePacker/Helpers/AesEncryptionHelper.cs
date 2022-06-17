@@ -163,7 +163,7 @@ namespace ResourcePacker.Helpers
             new byte[]{ 0xe7, 0x19, 0x4f, 0xa8, 0x9a, 0x83 }, new byte[]{ 0xe5, 0x1a, 0x46, 0xa3, 0x97, 0x8d }
         };
 
-        private static readonly byte[][] InvSbox = {
+        private static readonly byte[][] InvSBox = {
             new byte[]{ 0x52, 0x09, 0x6A, 0xD5, 0x30, 0x36, 0xA5, 0x38, 0xBF, 0x40, 0xA3, 0x9E, 0x81, 0xF3, 0xD7, 0xFB},
             new byte[]{ 0x7C, 0xE3, 0x39, 0x82, 0x9B, 0x2F, 0xFF, 0x87, 0x34, 0x8E, 0x43, 0x44, 0xC4, 0xDE, 0xE9, 0xCB},
             new byte[]{ 0x54, 0x7B, 0x94, 0x32, 0xA6, 0xC2, 0x23, 0x3D, 0xEE, 0x4C, 0x95, 0x0B, 0x42, 0xFA, 0xC3, 0x4E},
@@ -191,7 +191,7 @@ namespace ResourcePacker.Helpers
         /// This is the specified AES SBox. To look up a substitution value, put the first
         /// nibble in the first index (row) and the second nibble in the second index (column).
         /// </summary>
-        private static readonly byte[][] Sbox = {
+        private static readonly byte[][] SBox = {
             new byte[]{ 0x63, 0x7C, 0x77, 0x7B, 0xF2, 0x6B, 0x6F, 0xC5, 0x30, 0x01, 0x67, 0x2B, 0xFE, 0xD7, 0xAB, 0x76 },
             new byte[]{ 0xCA, 0x82, 0xC9, 0x7D, 0xFA, 0x59, 0x47, 0xF0, 0xAD, 0xD4, 0xA2, 0xAF, 0x9C, 0xA4, 0x72, 0xC0},
             new byte[]{ 0xB7, 0xFD, 0x93, 0x26, 0x36, 0x3F, 0xF7, 0xCC, 0x34, 0xA5, 0xE5, 0xF1, 0x71, 0xD8, 0x31, 0x15},
@@ -242,6 +242,7 @@ namespace ResourcePacker.Helpers
                 percentage = (int)((double)(index + 1) / blocks * 100);
             }
 
+            progress?.Report(100);
             return true;
         }
 
@@ -335,257 +336,133 @@ namespace ResourcePacker.Helpers
         {
             var subKey = new byte[4];
 
-            // SubKey 1
-            subKey[0] = (byte)(w[0] >> 24);
-            subKey[1] = (byte)(w[0] >> 16);
-            subKey[2] = (byte)(w[0] >> 8);
-            subKey[3] = (byte)w[0];
-            state[0][0] ^= subKey[0];
-            state[1][0] ^= subKey[1];
-            state[2][0] ^= subKey[2];
-            state[3][0] ^= subKey[3];
-
-            // SubKey 2
-            subKey[0] = (byte)(w[1] >> 24);
-            subKey[1] = (byte)(w[1] >> 16);
-            subKey[2] = (byte)(w[1] >> 8);
-            subKey[3] = (byte)w[1];
-            state[0][1] ^= subKey[0];
-            state[1][1] ^= subKey[1];
-            state[2][1] ^= subKey[2];
-            state[3][1] ^= subKey[3];
-
-            // SubKey 3
-            subKey[0] = (byte)(w[2] >> 24);
-            subKey[1] = (byte)(w[2] >> 16);
-            subKey[2] = (byte)(w[2] >> 8);
-            subKey[3] = (byte)w[2];
-            state[0][2] ^= subKey[0];
-            state[1][2] ^= subKey[1];
-            state[2][2] ^= subKey[2];
-            state[3][2] ^= subKey[3];
-
-            // SubKey 4
-            subKey[0] = (byte)(w[3] >> 24);
-            subKey[1] = (byte)(w[3] >> 16);
-            subKey[2] = (byte)(w[3] >> 8);
-            subKey[3] = (byte)w[3];
-            state[0][3] ^= subKey[0];
-            state[1][3] ^= subKey[1];
-            state[2][3] ^= subKey[2];
-            state[3][3] ^= subKey[3];
+            for (var i = 0; i < 4; ++i)
+            {
+                subKey[0] = (byte)(w[i] >> 24);
+                subKey[1] = (byte)(w[i] >> 16);
+                subKey[2] = (byte)(w[i] >> 8);
+                subKey[3] = (byte)w[i];
+                state[0][i] ^= subKey[0];
+                state[1][i] ^= subKey[1];
+                state[2][i] ^= subKey[2];
+                state[3][i] ^= subKey[3];
+            }
         }
 
         private static void Decrypt(IReadOnlyList<byte> input, ref byte[] output, uint[] key)
         {
-            var state = new byte[4][];
-            state[0] = new byte[4];
-            state[1] = new byte[4];
-            state[2] = new byte[4];
-            state[3] = new byte[4];
-
-            // Copy the input to the state.
-            state[0][0] = input[0];
-            state[1][0] = input[1];
-            state[2][0] = input[2];
-            state[3][0] = input[3];
-            state[0][1] = input[4];
-            state[1][1] = input[5];
-            state[2][1] = input[6];
-            state[3][1] = input[7];
-            state[0][2] = input[8];
-            state[1][2] = input[9];
-            state[2][2] = input[10];
-            state[3][2] = input[11];
-            state[0][3] = input[12];
-            state[1][3] = input[13];
-            state[2][3] = input[14];
-            state[3][3] = input[15];
+            // Copy input array (should be 16 bytes long) to a matrix
+            // (sequential bytes are ordered by row, not col) called "state" for processing.
+            var state = CopyInputToState(input);
 
             // Perform the necessary number of rounds. The round key is added first.
             // The last round does not perform the MixColumns step.
-            AddRoundKey(ref state, key[40..]);
-            InvShiftRows(ref state); InvSubBytes(ref state); AddRoundKey(ref state, key[36..]); InvMixColumns(ref state);
-            InvShiftRows(ref state); InvSubBytes(ref state); AddRoundKey(ref state, key[32..]); InvMixColumns(ref state);
-            InvShiftRows(ref state); InvSubBytes(ref state); AddRoundKey(ref state, key[28..]); InvMixColumns(ref state);
-            InvShiftRows(ref state); InvSubBytes(ref state); AddRoundKey(ref state, key[24..]); InvMixColumns(ref state);
-            InvShiftRows(ref state); InvSubBytes(ref state); AddRoundKey(ref state, key[20..]); InvMixColumns(ref state);
-            InvShiftRows(ref state); InvSubBytes(ref state); AddRoundKey(ref state, key[16..]); InvMixColumns(ref state);
-            InvShiftRows(ref state); InvSubBytes(ref state); AddRoundKey(ref state, key[12..]); InvMixColumns(ref state);
-            InvShiftRows(ref state); InvSubBytes(ref state); AddRoundKey(ref state, key[8..]); InvMixColumns(ref state);
-            InvShiftRows(ref state); InvSubBytes(ref state); AddRoundKey(ref state, key[4..]); InvMixColumns(ref state);
-            InvShiftRows(ref state); InvSubBytes(ref state); AddRoundKey(ref state, key);
+            for (var i = 40; i >= 0; i -= 4)
+            {
+                if (i < 40)
+                {
+                    InvShiftRows(ref state);
+                    InvSubBytes(ref state);
+                }
+
+                AddRoundKey(ref state, key[i..]);
+
+                if (i is < 40 and > 0)
+                {
+                    InvMixColumns(ref state);
+                }
+            }
 
             // Copy the state to the output array.
-            output[0] = state[0][0];
-            output[1] = state[1][0];
-            output[2] = state[2][0];
-            output[3] = state[3][0];
-            output[4] = state[0][1];
-            output[5] = state[1][1];
-            output[6] = state[2][1];
-            output[7] = state[3][1];
-            output[8] = state[0][2];
-            output[9] = state[1][2];
-            output[10] = state[2][2];
-            output[11] = state[3][2];
-            output[12] = state[0][3];
-            output[13] = state[1][3];
-            output[14] = state[2][3];
-            output[15] = state[3][3];
+            CopyStateToOutput(ref output, state);
         }
 
         private static void Encrypt(IReadOnlyList<byte> input, ref byte[] output, uint[] key)
         {
-            // Copy input array (should be 16 bytes long) to a matrix (sequential bytes are ordered
-            // by row, not col) called "state" for processing.
-            var state = new byte[4][];
-            state[0] = new byte[4];
-            state[1] = new byte[4];
-            state[2] = new byte[4];
-            state[3] = new byte[4];
-
-            state[0][0] = input[0];
-            state[1][0] = input[1];
-            state[2][0] = input[2];
-            state[3][0] = input[3];
-            state[0][1] = input[4];
-            state[1][1] = input[5];
-            state[2][1] = input[6];
-            state[3][1] = input[7];
-            state[0][2] = input[8];
-            state[1][2] = input[9];
-            state[2][2] = input[10];
-            state[3][2] = input[11];
-            state[0][3] = input[12];
-            state[1][3] = input[13];
-            state[2][3] = input[14];
-            state[3][3] = input[15];
+            // Copy input array (should be 16 bytes long) to a matrix
+            // (sequential bytes are ordered by row, not col) called "state" for processing.
+            var state = CopyInputToState(input);
 
             // Perform the necessary number of rounds. The round key is added first.
             // The last round does not perform the MixColumns step.
-            AddRoundKey(ref state, key);
-            SubBytes(ref state); ShiftRows(ref state); MixColumns(ref state); AddRoundKey(ref state, key[4..]);
-            SubBytes(ref state); ShiftRows(ref state); MixColumns(ref state); AddRoundKey(ref state, key[8..]);
-            SubBytes(ref state); ShiftRows(ref state); MixColumns(ref state); AddRoundKey(ref state, key[12..]);
-            SubBytes(ref state); ShiftRows(ref state); MixColumns(ref state); AddRoundKey(ref state, key[16..]);
-            SubBytes(ref state); ShiftRows(ref state); MixColumns(ref state); AddRoundKey(ref state, key[20..]);
-            SubBytes(ref state); ShiftRows(ref state); MixColumns(ref state); AddRoundKey(ref state, key[24..]);
-            SubBytes(ref state); ShiftRows(ref state); MixColumns(ref state); AddRoundKey(ref state, key[28..]);
-            SubBytes(ref state); ShiftRows(ref state); MixColumns(ref state); AddRoundKey(ref state, key[32..]);
-            SubBytes(ref state); ShiftRows(ref state); MixColumns(ref state); AddRoundKey(ref state, key[36..]);
-            SubBytes(ref state); ShiftRows(ref state); AddRoundKey(ref state, key[40..]);
+            for (var i = 0; i <= 40; i += 4)
+            {
+                if (i > 0)
+                {
+                    SubBytes(ref state);
+                    ShiftRows(ref state);
+                }
+
+                if (i is > 0 and < 40)
+                {
+                    MixColumns(ref state);
+                }
+
+                AddRoundKey(ref state, key[i..]);
+            }
 
             // Copy the state to the output array.
-            output[0] = state[0][0];
-            output[1] = state[1][0];
-            output[2] = state[2][0];
-            output[3] = state[3][0];
-            output[4] = state[0][1];
-            output[5] = state[1][1];
-            output[6] = state[2][1];
-            output[7] = state[3][1];
-            output[8] = state[0][2];
-            output[9] = state[1][2];
-            output[10] = state[2][2];
-            output[11] = state[3][2];
-            output[12] = state[0][3];
-            output[13] = state[1][3];
-            output[14] = state[2][3];
-            output[15] = state[3][3];
+            CopyStateToOutput(ref output, state);
+        }
+
+        private static void CopyStateToOutput(ref byte[] output, IReadOnlyList<byte[]> state)
+        {
+            var k = 0;
+            for (var i = 0; i < 4; ++i)
+            {
+                for (var j = 0; j < 4; ++j)
+                {
+                    output[k++] = state[j][i];
+                }
+            }
+        }
+
+        private static byte[][] CopyInputToState(IReadOnlyList<byte> input)
+        {
+            var state = new byte[4][];
+            var k = 0;
+            for (var i = 0; i < 4; ++i)
+            {
+                for (var j = 0; j < 4; ++j)
+                {
+                    if (i == 0)
+                    {
+                        state[j] = new byte[4];
+                    }
+
+                    state[j][i] = input[k++];
+                }
+            }
+
+            return state;
         }
 
         private static void InvMixColumns(ref byte[][] state)
         {
             var col = new byte[4];
-
-            // Column 1
-            col[0] = state[0][0];
-            col[1] = state[1][0];
-            col[2] = state[2][0];
-            col[3] = state[3][0];
-            state[0][0] = GfMul[col[0]][5];
-            state[0][0] ^= GfMul[col[1]][3];
-            state[0][0] ^= GfMul[col[2]][4];
-            state[0][0] ^= GfMul[col[3]][2];
-            state[1][0] = GfMul[col[0]][2];
-            state[1][0] ^= GfMul[col[1]][5];
-            state[1][0] ^= GfMul[col[2]][3];
-            state[1][0] ^= GfMul[col[3]][4];
-            state[2][0] = GfMul[col[0]][4];
-            state[2][0] ^= GfMul[col[1]][2];
-            state[2][0] ^= GfMul[col[2]][5];
-            state[2][0] ^= GfMul[col[3]][3];
-            state[3][0] = GfMul[col[0]][3];
-            state[3][0] ^= GfMul[col[1]][4];
-            state[3][0] ^= GfMul[col[2]][2];
-            state[3][0] ^= GfMul[col[3]][5];
-
-            // Column 2
-            col[0] = state[0][1];
-            col[1] = state[1][1];
-            col[2] = state[2][1];
-            col[3] = state[3][1];
-            state[0][1] = GfMul[col[0]][5];
-            state[0][1] ^= GfMul[col[1]][3];
-            state[0][1] ^= GfMul[col[2]][4];
-            state[0][1] ^= GfMul[col[3]][2];
-            state[1][1] = GfMul[col[0]][2];
-            state[1][1] ^= GfMul[col[1]][5];
-            state[1][1] ^= GfMul[col[2]][3];
-            state[1][1] ^= GfMul[col[3]][4];
-            state[2][1] = GfMul[col[0]][4];
-            state[2][1] ^= GfMul[col[1]][2];
-            state[2][1] ^= GfMul[col[2]][5];
-            state[2][1] ^= GfMul[col[3]][3];
-            state[3][1] = GfMul[col[0]][3];
-            state[3][1] ^= GfMul[col[1]][4];
-            state[3][1] ^= GfMul[col[2]][2];
-            state[3][1] ^= GfMul[col[3]][5];
-
-            // Column 3
-            col[0] = state[0][2];
-            col[1] = state[1][2];
-            col[2] = state[2][2];
-            col[3] = state[3][2];
-            state[0][2] = GfMul[col[0]][5];
-            state[0][2] ^= GfMul[col[1]][3];
-            state[0][2] ^= GfMul[col[2]][4];
-            state[0][2] ^= GfMul[col[3]][2];
-            state[1][2] = GfMul[col[0]][2];
-            state[1][2] ^= GfMul[col[1]][5];
-            state[1][2] ^= GfMul[col[2]][3];
-            state[1][2] ^= GfMul[col[3]][4];
-            state[2][2] = GfMul[col[0]][4];
-            state[2][2] ^= GfMul[col[1]][2];
-            state[2][2] ^= GfMul[col[2]][5];
-            state[2][2] ^= GfMul[col[3]][3];
-            state[3][2] = GfMul[col[0]][3];
-            state[3][2] ^= GfMul[col[1]][4];
-            state[3][2] ^= GfMul[col[2]][2];
-            state[3][2] ^= GfMul[col[3]][5];
-
-            // Column 4
-            col[0] = state[0][3];
-            col[1] = state[1][3];
-            col[2] = state[2][3];
-            col[3] = state[3][3];
-            state[0][3] = GfMul[col[0]][5];
-            state[0][3] ^= GfMul[col[1]][3];
-            state[0][3] ^= GfMul[col[2]][4];
-            state[0][3] ^= GfMul[col[3]][2];
-            state[1][3] = GfMul[col[0]][2];
-            state[1][3] ^= GfMul[col[1]][5];
-            state[1][3] ^= GfMul[col[2]][3];
-            state[1][3] ^= GfMul[col[3]][4];
-            state[2][3] = GfMul[col[0]][4];
-            state[2][3] ^= GfMul[col[1]][2];
-            state[2][3] ^= GfMul[col[2]][5];
-            state[2][3] ^= GfMul[col[3]][3];
-            state[3][3] = GfMul[col[0]][3];
-            state[3][3] ^= GfMul[col[1]][4];
-            state[3][3] ^= GfMul[col[2]][2];
-            state[3][3] ^= GfMul[col[3]][5];
+            for (var i = 0; i < 4; ++i)
+            {
+                col[0] = state[0][i];
+                col[1] = state[1][i];
+                col[2] = state[2][i];
+                col[3] = state[3][i];
+                state[0][i] = GfMul[col[0]][5];
+                state[0][i] ^= GfMul[col[1]][3];
+                state[0][i] ^= GfMul[col[2]][4];
+                state[0][i] ^= GfMul[col[3]][2];
+                state[1][i] = GfMul[col[0]][2];
+                state[1][i] ^= GfMul[col[1]][5];
+                state[1][i] ^= GfMul[col[2]][3];
+                state[1][i] ^= GfMul[col[3]][4];
+                state[2][i] = GfMul[col[0]][4];
+                state[2][i] ^= GfMul[col[1]][2];
+                state[2][i] ^= GfMul[col[2]][5];
+                state[2][i] ^= GfMul[col[3]][3];
+                state[3][i] = GfMul[col[0]][3];
+                state[3][i] ^= GfMul[col[1]][4];
+                state[3][i] ^= GfMul[col[2]][2];
+                state[3][i] ^= GfMul[col[3]][5];
+            }
         }
 
         /// <summary>
@@ -619,22 +496,13 @@ namespace ResourcePacker.Helpers
 
         private static void InvSubBytes(ref byte[][] state)
         {
-            state[0][0] = InvSbox[state[0][0] >> 4][state[0][0] & 0x0F];
-            state[0][1] = InvSbox[state[0][1] >> 4][state[0][1] & 0x0F];
-            state[0][2] = InvSbox[state[0][2] >> 4][state[0][2] & 0x0F];
-            state[0][3] = InvSbox[state[0][3] >> 4][state[0][3] & 0x0F];
-            state[1][0] = InvSbox[state[1][0] >> 4][state[1][0] & 0x0F];
-            state[1][1] = InvSbox[state[1][1] >> 4][state[1][1] & 0x0F];
-            state[1][2] = InvSbox[state[1][2] >> 4][state[1][2] & 0x0F];
-            state[1][3] = InvSbox[state[1][3] >> 4][state[1][3] & 0x0F];
-            state[2][0] = InvSbox[state[2][0] >> 4][state[2][0] & 0x0F];
-            state[2][1] = InvSbox[state[2][1] >> 4][state[2][1] & 0x0F];
-            state[2][2] = InvSbox[state[2][2] >> 4][state[2][2] & 0x0F];
-            state[2][3] = InvSbox[state[2][3] >> 4][state[2][3] & 0x0F];
-            state[3][0] = InvSbox[state[3][0] >> 4][state[3][0] & 0x0F];
-            state[3][1] = InvSbox[state[3][1] >> 4][state[3][1] & 0x0F];
-            state[3][2] = InvSbox[state[3][2] >> 4][state[3][2] & 0x0F];
-            state[3][3] = InvSbox[state[3][3] >> 4][state[3][3] & 0x0F];
+            for (var i = 0; i < 4; ++i)
+            {
+                for (var j = 0; j < 4; ++j)
+                {
+                    state[i][j] = InvSBox[state[i][j] >> 4][state[i][j] & 0x0F];
+                }
+            }
         }
 
         /// <summary>
@@ -648,93 +516,29 @@ namespace ResourcePacker.Helpers
         {
             var col = new byte[4];
 
-            // Column 1
-            col[0] = state[0][0];
-            col[1] = state[1][0];
-            col[2] = state[2][0];
-            col[3] = state[3][0];
-            state[0][0] = GfMul[col[0]][0];
-            state[0][0] ^= GfMul[col[1]][1];
-            state[0][0] ^= col[2];
-            state[0][0] ^= col[3];
-            state[1][0] = col[0];
-            state[1][0] ^= GfMul[col[1]][0];
-            state[1][0] ^= GfMul[col[2]][1];
-            state[1][0] ^= col[3];
-            state[2][0] = col[0];
-            state[2][0] ^= col[1];
-            state[2][0] ^= GfMul[col[2]][0];
-            state[2][0] ^= GfMul[col[3]][1];
-            state[3][0] = GfMul[col[0]][1];
-            state[3][0] ^= col[1];
-            state[3][0] ^= col[2];
-            state[3][0] ^= GfMul[col[3]][0];
-
-            // Column 2
-            col[0] = state[0][1];
-            col[1] = state[1][1];
-            col[2] = state[2][1];
-            col[3] = state[3][1];
-            state[0][1] = GfMul[col[0]][0];
-            state[0][1] ^= GfMul[col[1]][1];
-            state[0][1] ^= col[2];
-            state[0][1] ^= col[3];
-            state[1][1] = col[0];
-            state[1][1] ^= GfMul[col[1]][0];
-            state[1][1] ^= GfMul[col[2]][1];
-            state[1][1] ^= col[3];
-            state[2][1] = col[0];
-            state[2][1] ^= col[1];
-            state[2][1] ^= GfMul[col[2]][0];
-            state[2][1] ^= GfMul[col[3]][1];
-            state[3][1] = GfMul[col[0]][1];
-            state[3][1] ^= col[1];
-            state[3][1] ^= col[2];
-            state[3][1] ^= GfMul[col[3]][0];
-
-            // Column 3
-            col[0] = state[0][2];
-            col[1] = state[1][2];
-            col[2] = state[2][2];
-            col[3] = state[3][2];
-            state[0][2] = GfMul[col[0]][0];
-            state[0][2] ^= GfMul[col[1]][1];
-            state[0][2] ^= col[2];
-            state[0][2] ^= col[3];
-            state[1][2] = col[0];
-            state[1][2] ^= GfMul[col[1]][0];
-            state[1][2] ^= GfMul[col[2]][1];
-            state[1][2] ^= col[3];
-            state[2][2] = col[0];
-            state[2][2] ^= col[1];
-            state[2][2] ^= GfMul[col[2]][0];
-            state[2][2] ^= GfMul[col[3]][1];
-            state[3][2] = GfMul[col[0]][1];
-            state[3][2] ^= col[1];
-            state[3][2] ^= col[2];
-            state[3][2] ^= GfMul[col[3]][0];
-
-            // Column 4
-            col[0] = state[0][3];
-            col[1] = state[1][3];
-            col[2] = state[2][3];
-            col[3] = state[3][3];
-            state[0][3] = GfMul[col[0]][0];
-            state[0][3] ^= GfMul[col[1]][1];
-            state[0][3] ^= col[2];
-            state[0][3] ^= col[3];
-            state[1][3] = col[0];
-            state[1][3] ^= GfMul[col[1]][0];
-            state[1][3] ^= GfMul[col[2]][1];
-            state[1][3] ^= col[3];
-            state[2][3] = col[0];
-            state[2][3] ^= col[1];
-            state[2][3] ^= GfMul[col[2]][0];
-            state[2][3] ^= GfMul[col[3]][1];
-            state[3][3] = GfMul[col[0]][1];
-            state[3][3] ^= col[1];
-            state[3][3] ^= col[2];
-            state[3][3] ^= GfMul[col[3]][0];
+            for (var i = 0; i < 4; ++i)
+            {
+                col[0] = state[0][i];
+                col[1] = state[1][i];
+                col[2] = state[2][i];
+                col[3] = state[3][i];
+                state[0][i] = GfMul[col[0]][0];
+                state[0][i] ^= GfMul[col[1]][1];
+                state[0][i] ^= col[2];
+                state[0][i] ^= col[3];
+                state[1][i] = col[0];
+                state[1][i] ^= GfMul[col[1]][0];
+                state[1][i] ^= GfMul[col[2]][1];
+                state[1][i] ^= col[3];
+                state[2][i] = col[0];
+                state[2][i] ^= col[1];
+                state[2][i] ^= GfMul[col[2]][0];
+                state[2][i] ^= GfMul[col[3]][1];
+                state[3][i] = GfMul[col[0]][1];
+                state[3][i] ^= col[1];
+                state[3][i] ^= col[2];
+                state[3][i] ^= GfMul[col[3]][0];
+            }
         }
 
         private static uint RotateWord(uint x)
@@ -778,30 +582,21 @@ namespace ResourcePacker.Helpers
         /// <param name="state">The state for which to perform the sub-bytes step.</param>
         private static void SubBytes(ref byte[][] state)
         {
-            state[0][0] = Sbox[state[0][0] >> 4][state[0][0] & 0x0F];
-            state[0][1] = Sbox[state[0][1] >> 4][state[0][1] & 0x0F];
-            state[0][2] = Sbox[state[0][2] >> 4][state[0][2] & 0x0F];
-            state[0][3] = Sbox[state[0][3] >> 4][state[0][3] & 0x0F];
-            state[1][0] = Sbox[state[1][0] >> 4][state[1][0] & 0x0F];
-            state[1][1] = Sbox[state[1][1] >> 4][state[1][1] & 0x0F];
-            state[1][2] = Sbox[state[1][2] >> 4][state[1][2] & 0x0F];
-            state[1][3] = Sbox[state[1][3] >> 4][state[1][3] & 0x0F];
-            state[2][0] = Sbox[state[2][0] >> 4][state[2][0] & 0x0F];
-            state[2][1] = Sbox[state[2][1] >> 4][state[2][1] & 0x0F];
-            state[2][2] = Sbox[state[2][2] >> 4][state[2][2] & 0x0F];
-            state[2][3] = Sbox[state[2][3] >> 4][state[2][3] & 0x0F];
-            state[3][0] = Sbox[state[3][0] >> 4][state[3][0] & 0x0F];
-            state[3][1] = Sbox[state[3][1] >> 4][state[3][1] & 0x0F];
-            state[3][2] = Sbox[state[3][2] >> 4][state[3][2] & 0x0F];
-            state[3][3] = Sbox[state[3][3] >> 4][state[3][3] & 0x0F];
+            for (var i = 0; i < 4; ++i)
+            {
+                for (var j = 0; j < 4; ++j)
+                {
+                    state[i][j] = SBox[state[i][j] >> 4][state[i][j] & 0x0F];
+                }
+            }
         }
 
         private static uint SubWord(uint word)
         {
-            var result = (uint)Sbox[(word >> 4) & 0x0000000F][word & 0x0000000F];
-            result += (uint)Sbox[(word >> 12) & 0x0000000F][(word >> 8) & 0x0000000F] << 8;
-            result += (uint)Sbox[(word >> 20) & 0x0000000F][(word >> 16) & 0x0000000F] << 16;
-            result += (uint)Sbox[(word >> 28) & 0x0000000F][(word >> 24) & 0x0000000F] << 24;
+            var result = (uint)SBox[(word >> 4) & 0x0000000F][word & 0x0000000F];
+            result += (uint)SBox[(word >> 12) & 0x0000000F][(word >> 8) & 0x0000000F] << 8;
+            result += (uint)SBox[(word >> 20) & 0x0000000F][(word >> 16) & 0x0000000F] << 16;
+            result += (uint)SBox[(word >> 28) & 0x0000000F][(word >> 24) & 0x0000000F] << 24;
             return result;
         }
 
