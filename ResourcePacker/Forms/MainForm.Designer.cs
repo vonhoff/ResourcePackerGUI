@@ -350,7 +350,7 @@ namespace ResourcePacker.Forms
             // btnToggleDebugMessages
             // 
             this.btnToggleDebugMessages.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
-            this.btnToggleDebugMessages.Image = global::ResourcePacker.Properties.Images.checkbox_unchecked;
+            this.btnToggleDebugMessages.Image = global::ResourcePacker.Properties.Images.checkbox_checked;
             this.btnToggleDebugMessages.Name = "btnToggleDebugMessages";
             this.btnToggleDebugMessages.Padding = new System.Windows.Forms.Padding(3);
             resources.ApplyResources(this.btnToggleDebugMessages, "btnToggleDebugMessages");

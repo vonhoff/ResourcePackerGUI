@@ -148,7 +148,7 @@ namespace ResourcePacker.Forms
                 }
                 catch (OperationCanceledException ex)
                 {
-                    Log.Information("Canceled the current operation.");
+                    Log.Information("The operation has been canceled.");
                     MessageBox.Show(ex.Message, "Operation canceled",
                         MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
@@ -216,25 +216,23 @@ namespace ResourcePacker.Forms
                 }
                 catch (OperationCanceledException ex)
                 {
-                    Log.Information("Canceled the current operation.");
+                    Log.Information("The operation has been canceled.");
                     GC.Collect();
                     MessageBox.Show(ex.Message, "Operation canceled",
                         MessageBoxButtons.OK, MessageBoxIcon.Information);
 
-                    if (IsDisposed)
+                    if (!IsDisposed)
                     {
-                        return;
+                        Invoke(() =>
+                        {
+                            lblStatus.Text = "Ready";
+                            lblPercentage.Text = "0%";
+                            lblStatusFile.Text = string.Empty;
+                            progressBarPrimary.Value = 0;
+                            progressBarSecondary.Visible = false;
+                            btnCancel.Text = "Close";
+                        });
                     }
-
-                    Invoke(() =>
-                    {
-                        lblStatus.Text = "Ready";
-                        lblPercentage.Text = "0%";
-                        lblStatusFile.Text = string.Empty;
-                        progressBarPrimary.Value = 0;
-                        progressBarSecondary.Visible = false;
-                        btnCancel.Text = "Close";
-                    });
                 }
                 catch (Exception ex)
                 {
@@ -242,30 +240,14 @@ namespace ResourcePacker.Forms
                         MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
 
-                Invoke(() => SetConfigurationState(true));
+                if (!IsDisposed)
+                {
+                    Invoke(() => SetConfigurationState(true));
+                }
 
-                // Cleanup after cancellation.
                 if (_cancellationTokenSource.IsCancellationRequested)
                 {
-                    try
-                    {
-                        if (File.Exists(_packageLocation))
-                        {
-                            File.Delete(_packageLocation);
-                            Log.Information("Deleted package file during cleanup: {path}", _packageLocation);
-                        }
-
-                        if (File.Exists(_definitionsLocation))
-                        {
-                            File.Delete(_definitionsLocation);
-                            Log.Information("Deleted definitions file during cleanup: {path}", _packageLocation);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Log.Error(ex, "An exception occurred during cleanup.");
-                    }
-
+                    CleanUpUnfinishedFiles();
                     return;
                 }
 
@@ -286,8 +268,31 @@ namespace ResourcePacker.Forms
             });
         }
 
+        private void CleanUpUnfinishedFiles()
+        {
+            try
+            {
+                if (File.Exists(_packageLocation))
+                {
+                    File.Delete(_packageLocation);
+                    Log.Information("Unfinished package file deleted: {path}", _packageLocation);
+                }
+
+                if (File.Exists(_definitionsLocation))
+                {
+                    File.Delete(_definitionsLocation);
+                    Log.Information("Unfinished definitions file deleted: {path}", _definitionsLocation);
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "An exception occurred during cleanup.");
+            }
+        }
+
         private void SetConfigurationState(bool enabled)
         {
+            btnCreate.Enabled = enabled;
             btnAssetExplore.Enabled = enabled;
             btnDefinitionsExplore.Enabled = enabled;
             btnPackageExplore.Enabled = enabled;

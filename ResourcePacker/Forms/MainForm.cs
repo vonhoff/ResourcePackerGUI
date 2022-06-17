@@ -40,7 +40,7 @@ namespace ResourcePacker.Forms
     public partial class MainForm : Form
     {
         private const int ProgressReportInterval = 25;
-        private readonly LoggingLevelSwitch _loggingLevelSwitch = new();
+        private readonly LoggingLevelSwitch _loggingLevelSwitch = new(LogEventLevel.Debug);
         private readonly IProgress<(int percentage, int amount)> _progressPrimary;
         private readonly IProgress<int> _progressSecondary;
         private readonly ActionDebouncer _scrollOutputToEndDebouncer;
@@ -54,7 +54,7 @@ namespace ResourcePacker.Forms
         private string _password = string.Empty;
         private string _searchQuery = string.Empty;
         private Asset? _selectedPreviewAsset;
-        private bool _showDebugMessages;
+        private bool _showDebugMessages = true;
 
         public MainForm()
         {
@@ -267,7 +267,7 @@ namespace ResourcePacker.Forms
                 }
                 catch (OperationCanceledException ex)
                 {
-                    Log.Information("Canceled the current operation.");
+                    Log.Information("The operation has been canceled.");
 
                     Invoke(() =>
                     {
