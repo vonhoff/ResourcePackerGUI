@@ -267,6 +267,8 @@ namespace ResourcePacker.Forms
                 }
                 catch (OperationCanceledException ex)
                 {
+                    Log.Information("Canceled the current operation.");
+
                     Invoke(() =>
                     {
                         lblResultCount.Text = "0 Assets";
@@ -301,6 +303,9 @@ namespace ResourcePacker.Forms
                     progressBarPrimary.Value = 0;
                     progressBarSecondary.Style = ProgressBarStyle.Blocks;
                     progressBarSecondary.Value = 0;
+
+                    // Create a flash notification.
+                    this.FlashNotification();
                 });
             });
         }

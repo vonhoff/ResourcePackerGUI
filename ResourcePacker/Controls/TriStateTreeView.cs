@@ -354,7 +354,7 @@ namespace ResourcePacker.Controls
                         node.StateImageIndex += 3;
                         break;
 
-                    case > 3 when !enabled:
+                    case >= 3 when !enabled:
                         node.StateImageIndex -= 3;
                         break;
                 }

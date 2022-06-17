@@ -18,6 +18,7 @@
 
 #endregion
 
+using System.Media;
 using System.Runtime.InteropServices;
 
 namespace ResourcePacker.Extensions
@@ -45,6 +46,12 @@ namespace ResourcePacker.Extensions
                 return form.Invoke(() => FlashNotification(form));
             }
 
+            if (ApplicationIsActivated())
+            {
+                return false;
+            }
+
+            SystemSounds.Asterisk.Play();
             var hWnd = form.Handle;
             var fInfo = new FLASHWINFO();
 
@@ -57,10 +64,30 @@ namespace ResourcePacker.Extensions
             return FlashWindowEx(ref fInfo);
         }
 
+        private static bool ApplicationIsActivated()
+        {
+            var activatedHandle = GetForegroundWindow();
+
+            // No window is currently activated
+            if (activatedHandle == IntPtr.Zero)
+            {
+                return false;
+            }
+
+            GetWindowThreadProcessId(activatedHandle, out var processId);
+            return processId == Environment.ProcessId;
+        }
+
         // To support flashing.
         [DllImport("user32.dll", CallingConvention = CallingConvention.Cdecl)]
         [return: MarshalAs(UnmanagedType.Bool)]
         private static extern bool FlashWindowEx(ref FLASHWINFO pwfi);
+
+        [DllImport("user32.dll", CharSet = CharSet.Auto, ExactSpelling = true)]
+        private static extern IntPtr GetForegroundWindow();
+
+        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        private static extern int GetWindowThreadProcessId(IntPtr handle, out int processId);
 
         [StructLayout(LayoutKind.Sequential)]
         private struct FLASHWINFO

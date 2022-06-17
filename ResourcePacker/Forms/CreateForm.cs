@@ -148,6 +148,7 @@ namespace ResourcePacker.Forms
                 }
                 catch (OperationCanceledException ex)
                 {
+                    Log.Information("Canceled the current operation.");
                     MessageBox.Show(ex.Message, "Operation canceled",
                         MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
@@ -215,6 +216,7 @@ namespace ResourcePacker.Forms
                 }
                 catch (OperationCanceledException ex)
                 {
+                    Log.Information("Canceled the current operation.");
                     GC.Collect();
                     MessageBox.Show(ex.Message, "Operation canceled",
                         MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -250,16 +252,18 @@ namespace ResourcePacker.Forms
                         if (File.Exists(_packageLocation))
                         {
                             File.Delete(_packageLocation);
+                            Log.Information("Deleted package file during cleanup: {path}", _packageLocation);
                         }
 
                         if (File.Exists(_definitionsLocation))
                         {
                             File.Delete(_definitionsLocation);
+                            Log.Information("Deleted definitions file during cleanup: {path}", _packageLocation);
                         }
                     }
                     catch (Exception ex)
                     {
-                        Log.Error(ex, "An exception occurred during cleanup after cancellation.");
+                        Log.Error(ex, "An exception occurred during cleanup.");
                     }
 
                     return;
@@ -277,7 +281,6 @@ namespace ResourcePacker.Forms
                     btnCancel.Focus();
                 });
 
-                SystemSounds.Asterisk.Play();
                 this.FlashNotification();
                 _cancellationTokenSource.Cancel();
             });
