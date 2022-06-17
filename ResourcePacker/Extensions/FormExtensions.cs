@@ -51,7 +51,6 @@ namespace ResourcePacker.Extensions
                 return false;
             }
 
-            SystemSounds.Asterisk.Play();
             var hWnd = form.Handle;
             var fInfo = new FLASHWINFO();
 

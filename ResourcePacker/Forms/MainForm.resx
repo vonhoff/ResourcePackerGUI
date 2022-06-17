@@ -597,7 +597,7 @@ indentations in the preview panel</value>
     <value>Fill</value>
   </data>
   <data name="outputBox.Font" type="System.Drawing.Font, System.Drawing">
-    <value>Consolas, 9pt, style=Bold</value>
+    <value>Cascadia Code SemiBold, 9pt, style=Bold</value>
   </data>
   <data name="outputBox.Location" type="System.Drawing.Point, System.Drawing">
     <value>3, 36</value>

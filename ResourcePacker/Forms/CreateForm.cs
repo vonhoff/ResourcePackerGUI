@@ -38,6 +38,7 @@ namespace ResourcePacker.Forms
 
         // Progress variables
         private const int ProgressReportInterval = 25;
+
         private readonly IProgress<(int percentage, string path)> _progressPrimary;
         private readonly IProgress<int> _progressSecondary;
 
@@ -139,7 +140,7 @@ namespace ResourcePacker.Forms
                             lblPercentage.Text = "0%";
                             progressBarPrimary.Value = 0;
                             btnCreate.Enabled = _packageLocation != string.Empty;
-                            
+
                             lblAvailableItems.Text = $"Available items: {_assetsToInclude.Count}";
                             lblSelectedItems.Text = $"Selected items: {_assetsToInclude.Count}";
                             this.FlashNotification();
@@ -217,7 +218,6 @@ namespace ResourcePacker.Forms
                 catch (OperationCanceledException ex)
                 {
                     Log.Information("The operation has been canceled.");
-                    GC.Collect();
                     MessageBox.Show(ex.Message, "Operation canceled",
                         MessageBoxButtons.OK, MessageBoxIcon.Information);
 
@@ -263,6 +263,9 @@ namespace ResourcePacker.Forms
                     btnCancel.Focus();
                 });
 
+                Log.Information("Created new resource package: {path}", _packageLocation);
+                Log.Information("Created new definitions file: {path}", _definitionsLocation);
+                SystemSounds.Asterisk.Play();
                 this.FlashNotification();
                 _cancellationTokenSource.Cancel();
             });
