@@ -113,6 +113,7 @@ namespace ResourcePacker.Forms
                     }
                     else
                     {
+                        Log.Information("Collected {amount} items available for packaging.", files.Length);
                         CreateSelectorNodes(rootNode, _relativePackageLocationDepth, files);
                         _cancellationTokenSource.Token.ThrowIfCancellationRequested();
 
@@ -149,7 +150,7 @@ namespace ResourcePacker.Forms
                 }
                 catch (OperationCanceledException ex)
                 {
-                    Log.Information("The operation has been canceled.");
+                    Log.Information("The asset collection operation has been canceled.");
                     MessageBox.Show(ex.Message, "Operation canceled",
                         MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
@@ -217,7 +218,7 @@ namespace ResourcePacker.Forms
                 }
                 catch (OperationCanceledException ex)
                 {
-                    Log.Information("The operation has been canceled.");
+                    Log.Information("The package construction operation has been cancelled.");
                     MessageBox.Show(ex.Message, "Operation canceled",
                         MessageBoxButtons.OK, MessageBoxIcon.Information);
 

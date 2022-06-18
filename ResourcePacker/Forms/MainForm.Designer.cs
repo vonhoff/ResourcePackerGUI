@@ -527,7 +527,6 @@ namespace ResourcePacker.Forms
             this.Controls.Add(this.statusStrip);
             this.Controls.Add(this.toolStrip);
             this.Name = "MainForm";
-            this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
             this.Load += new System.EventHandler(this.MainForm_Load);
             this.ResizeBegin += new System.EventHandler(this.MainForm_ResizeBegin);
             this.ResizeEnd += new System.EventHandler(this.MainForm_ResizeEnd);

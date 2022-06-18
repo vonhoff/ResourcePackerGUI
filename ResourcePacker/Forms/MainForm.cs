@@ -56,6 +56,7 @@ namespace ResourcePacker.Forms
         private string _searchQuery = string.Empty;
         private Asset? _selectedPreviewAsset;
         private bool _showDebugMessages = true;
+        private string _packageName = string.Empty;
 
         public MainForm()
         {
@@ -227,7 +228,7 @@ namespace ResourcePacker.Forms
                         var passwordDialog = new PasswordForm();
                         if (passwordDialog.ShowDialog() != DialogResult.OK)
                         {
-                            throw new OperationCanceledException();
+                            _cancellationTokenSource.Cancel(true);
                         }
 
                         _password = passwordDialog.Password;
@@ -269,7 +270,7 @@ namespace ResourcePacker.Forms
                 }
                 catch (OperationCanceledException ex)
                 {
-                    Log.Information("The operation has been canceled.");
+                    Log.Information("The package loading operation has been cancelled.");
 
                     Invoke(() =>
                     {
@@ -285,6 +286,7 @@ namespace ResourcePacker.Forms
                 }
                 catch (Exception ex)
                 {
+                    Log.Error($"Could not open resource package. {ex.Message}");
                     MessageBox.Show($"Could not open resource package. {ex.Message}",
                         "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
@@ -409,7 +411,7 @@ namespace ResourcePacker.Forms
                 return;
             }
 
-            var packageName = Path.GetFileNameWithoutExtension(_packagePath);
+            _packageName = Path.GetFileNameWithoutExtension(_packagePath);
             var filteredAssets = _assets.Where(a => a.Name.Contains(_searchQuery)).ToList();
 
             Invoke(() =>
@@ -423,7 +425,7 @@ namespace ResourcePacker.Forms
 
             Task.Run(() =>
             {
-                packageExplorerTreeView.CreateNodesFromAssets(filteredAssets, packageName,
+                packageExplorerTreeView.CreateNodesFromAssets(filteredAssets, _packageName,
                     _progressSecondary, ProgressReportInterval);
 
                 Invoke(() =>
@@ -645,9 +647,10 @@ namespace ResourcePacker.Forms
                     return;
                 }
 
-                baseExtractionPath = browserDialog.SelectedPath;
+                baseExtractionPath = browserDialog.SelectedPath + Path.DirectorySeparatorChar + _packageName;
             }
 
+            _cancellationTokenSource = new CancellationTokenSource();
             Task.Run(() =>
             {
                 var previousBtnLoadDefinitionsState = btnLoadDefinitions.Enabled;
@@ -665,6 +668,21 @@ namespace ResourcePacker.Forms
 
                 try
                 {
+                    if (Directory.Exists(baseExtractionPath) &&
+                        Directory.EnumerateFileSystemEntries(baseExtractionPath,
+                            string.Empty, SearchOption.AllDirectories).Any())
+                    {
+                        var dialogResult = MessageBox.Show($"The destination already contains a folder named '{_packageName}' which is not empty. " +
+                                                           "If there are files with the same name, you will be asked if you want to replace these files. \n\n" +
+                                                           "Do you want to continue extracting to this folder?",
+                                                           "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation);
+
+                        if (dialogResult != DialogResult.Yes)
+                        {
+                            _cancellationTokenSource.Cancel(true);
+                        }
+                    }
+
                     AssetHelper.ExtractAssetsToLocation(_assets!, baseExtractionPath,
                         _progressPrimary, ProgressReportInterval, _cancellationTokenSource.Token);
 
@@ -681,7 +699,7 @@ namespace ResourcePacker.Forms
                 }
                 catch (OperationCanceledException ex)
                 {
-                    Log.Information("The operation has been canceled.");
+                    Log.Information("The package extraction operation has been canceled.");
 
                     Invoke(() =>
                     {
@@ -694,7 +712,7 @@ namespace ResourcePacker.Forms
                 }
                 catch (Exception ex)
                 {
-                    Log.Error(ex, "An exception occurred during extracting.");
+                    Log.Error(ex, "An exception occurred during extraction.");
                 }
                 
                 Invoke(() =>
