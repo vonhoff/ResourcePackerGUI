@@ -23,6 +23,7 @@ using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 using HeyRed.Mime;
 using ResourcePacker.Entities;
+using ResourcePacker.Forms;
 using Serilog;
 using Winista.Mime;
 
@@ -87,6 +88,7 @@ namespace ResourcePacker.Helpers
             var percentage = 0;
             var i = 0;
             var extracted = 0;
+            DialogResult? resultForAllCases = null;
             progressTimer.Elapsed += delegate { progress!.Report((percentage, i + 1)); };
             progressTimer.Enabled = progress != null;
 
@@ -95,6 +97,34 @@ namespace ResourcePacker.Helpers
                 cancellationToken.ThrowIfCancellationRequested();
                 var asset = assets[i];
                 var fileInfo = new FileInfo(basePath + asset.Name);
+                if (fileInfo.Exists)
+                {
+                    var availableFileName = FilenameHelper.NextAvailableFilename(fileInfo.FullName);
+                    var replaceDialog = resultForAllCases == null
+                        ? new ReplaceDialog(fileInfo.FullName, availableFileName)
+                        : null;
+
+                    var dialogResult = resultForAllCases ?? replaceDialog!.ShowDialog();
+                    if (dialogResult == DialogResult.Continue)
+                    {
+                        fileInfo = new FileInfo(availableFileName);
+                    }
+                    else if (dialogResult != DialogResult.OK && dialogResult != DialogResult.Ignore)
+                    {
+                        throw new OperationCanceledException();
+                    }
+
+                    if (replaceDialog is { UseForAllCases: true })
+                    {
+                        resultForAllCases = dialogResult;
+                    }
+
+                    if (dialogResult == DialogResult.Ignore)
+                    {
+                        continue;
+                    }
+                }
+
                 fileInfo.Directory?.Create();
 
                 try
@@ -104,7 +134,7 @@ namespace ResourcePacker.Helpers
                     binaryWriter.Write(asset.Data);
                     binaryWriter.Flush();
                     binaryWriter.Close();
-                    Log.Debug("Extracted {name} to {path}", 
+                    Log.Debug("Extracted {name} to {path}",
                         Path.GetFileName(asset.Name), fileInfo.FullName);
                     extracted++;
                 }
@@ -120,12 +150,12 @@ namespace ResourcePacker.Helpers
 
             if (extracted == assets.Count)
             {
-                Log.Information("Extracted {amount} files to {basePath}", 
+                Log.Information("Extracted {amount} files to {basePath}",
                     extracted, basePath);
             }
             else
             {
-                Log.Warning("Extracted {amount} out of {expected} files to {basePath}.", 
+                Log.Warning("Extracted {amount} out of {expected} files to {basePath}.",
                     extracted, assets.Count, basePath);
             }
         }
