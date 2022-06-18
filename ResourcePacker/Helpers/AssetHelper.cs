@@ -75,7 +75,7 @@ namespace ResourcePacker.Helpers
             }
         }
 
-        public static void ExtractAssetsToLocation(IReadOnlyList<Asset> assets, string basePath,
+        public static int ExtractAssetsToLocation(IReadOnlyList<Asset> assets, string basePath,
             IProgress<(int percentage, int amount)>? progress = null, int progressReportInterval = 100,
             CancellationToken cancellationToken = default)
         {
@@ -188,6 +188,8 @@ namespace ResourcePacker.Helpers
                                 "{failed} " + b + " failed to extract.",
                     ignored, failed);
             }
+
+            return extracted;
         }
 
         /// <summary>

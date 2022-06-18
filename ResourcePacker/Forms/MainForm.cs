@@ -695,16 +695,25 @@ namespace ResourcePacker.Forms
                         }
                     }
 
-                    AssetHelper.ExtractAssetsToLocation(_assets!, baseExtractionPath,
+                    var extractedItems = AssetHelper.ExtractAssetsToLocation(_assets!, baseExtractionPath,
                         _progressPrimary, ProgressReportInterval, _cancellationTokenSource.Token);
+
+                    if (extractedItems == 0)
+                    {
+                        MessageBox.Show("None of the assets could be extracted from the package. \n" +
+                                        "All assets either failed to extract or were ignored.",
+                            "Extraction completed", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+
+                        return;
+                    }
 
                     SystemSounds.Asterisk.Play();
                     this.FlashNotification();
 
                     var extractionCompleteDialogResult =
-                        MessageBox.Show("The assets have been successfully extracted to the destination folder. " +
+                        MessageBox.Show("The assets have been successfully extracted to the destination folder. \n" +
                                         "Do you want to view the extracted assets?",
-                            "Extraction complete", MessageBoxButtons.YesNo, MessageBoxIcon.Asterisk);
+                            "Extraction completed", MessageBoxButtons.YesNo, MessageBoxIcon.Asterisk);
 
                     if (extractionCompleteDialogResult == DialogResult.Yes)
                     {
