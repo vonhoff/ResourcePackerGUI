@@ -236,7 +236,7 @@
             this.MinimizeBox = false;
             this.Name = "ReplaceDialog";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "Duplicate file";
+            this.Text = "Duplicate file names";
             this.splitContainer1.Panel1.ResumeLayout(false);
             this.splitContainer1.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
