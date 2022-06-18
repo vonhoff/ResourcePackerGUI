@@ -78,8 +78,8 @@ namespace ResourcePacker.Helpers
             int progressReportInterval = 100)
         {
             var processedItems = new Dictionary<string, string>();
-            var file = string.IsNullOrEmpty(definitionsLocation) ? null :
-                new StreamWriter(definitionsLocation);
+            var file = string.IsNullOrEmpty(definitionsLocation) ?
+                null : new StreamWriter(definitionsLocation);
 
             var percentage = 0;
             using var progressTimer = new System.Timers.Timer(progressReportInterval);
@@ -89,7 +89,6 @@ namespace ResourcePacker.Helpers
             for (var i = 0; i < items.Count; i++)
             {
                 var absolutePath = items[i];
-
                 if (absolutePath.Equals(packageLocation))
                 {
                     Log.Warning("File to pack is the same as the package file: {path}", absolutePath);

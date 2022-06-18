@@ -18,7 +18,6 @@
 
 #endregion
 
-using System.Media;
 using System.Runtime.InteropServices;
 
 namespace ResourcePacker.Extensions
@@ -73,7 +72,7 @@ namespace ResourcePacker.Extensions
                 return false;
             }
 
-            GetWindowThreadProcessId(activatedHandle, out var processId);
+            _ = GetWindowThreadProcessId(activatedHandle, out var processId);
             return processId == Environment.ProcessId;
         }
 

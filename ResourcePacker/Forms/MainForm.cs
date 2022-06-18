@@ -20,6 +20,7 @@
 
 using System.Diagnostics;
 using System.Media;
+using System.Security.Authentication;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -165,15 +166,10 @@ namespace ResourcePacker.Forms
                 return;
             }
 
-            IReadOnlyDictionary<uint, string> crcDictionary;
-            using (var fileStream = openFileDialog.OpenFile())
-            {
-                crcDictionary = DefinitionHelper.CreateCrcDictionary(fileStream);
-            }
-
-            btnLoadDefinitions.Enabled =
-                AssetHelper.UpdateAssetsWithDefinitions(_assets, crcDictionary) != _assets.Count;
-
+            var fileStream = openFileDialog.OpenFile();
+            var crcDictionary = DefinitionHelper.CreateCrcDictionary(fileStream);
+            var matches = AssetHelper.UpdateAssetsWithDefinitions(_assets, crcDictionary);
+            btnLoadDefinitions.Enabled = matches != _assets.Count;
             RefreshPackageExplorer();
         }
 
@@ -235,7 +231,7 @@ namespace ResourcePacker.Forms
                         if (!PackageHelper.LoadSingleFromPackage(binaryReader, smallestEntry, out _,
                                 _password, _progressSecondary))
                         {
-                            throw new Exception("The password is incorrect.");
+                            throw new InvalidCredentialException();
                         }
                     }
 
@@ -255,6 +251,16 @@ namespace ResourcePacker.Forms
                     _assets = PackageHelper.LoadAssetsFromPackage(entries, binaryReader, _password,
                         _progressPrimary, _progressSecondary, ProgressReportInterval, _cancellationTokenSource.Token);
 
+                    var candidateDefinitionsFile = _packagePath + ".txt";
+                    var matches = 0;
+                    if (File.Exists(candidateDefinitionsFile))
+                    {
+                        Log.Information("Attempting to create name definitions from: {path}", candidateDefinitionsFile);
+                        var definitionsFileStream = File.OpenRead(candidateDefinitionsFile);
+                        var crcDictionary = DefinitionHelper.CreateCrcDictionary(definitionsFileStream);
+                        matches = AssetHelper.UpdateAssetsWithDefinitions(_assets, crcDictionary);
+                    }
+
                     // Stop stopwatch and refresh file tree.
                     stopwatch.Stop();
                     RefreshPackageExplorer();
@@ -264,7 +270,7 @@ namespace ResourcePacker.Forms
                     {
                         lblResultCount.Text = $"{_assets.Count} " + (_assets.Count > 1 ? "Assets" : "Asset");
                         lblElapsed.Text = stopwatch.Elapsed.ToString(@"hh\:mm\:ss\.ffff");
-                        btnLoadDefinitions.Enabled = true;
+                        btnLoadDefinitions.Enabled = matches != _assets.Count;
                         btnExtractAll.Enabled = true;
                     });
                 }
@@ -284,9 +290,15 @@ namespace ResourcePacker.Forms
                             "Operation canceled", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
                 }
+                catch (InvalidCredentialException)
+                {
+                    Log.Error("The password entered is incorrect.");
+                    MessageBox.Show("The password entered is incorrect.",
+                        "Incorrect password", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
                 catch (Exception ex)
                 {
-                    Log.Error($"Could not open resource package. {ex.Message}");
+                    Log.Error(ex, "An exception occurred while opening the specified package.");
                     MessageBox.Show($"Could not open resource package. {ex.Message}",
                         "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
@@ -529,9 +541,9 @@ namespace ResourcePacker.Forms
                 memoryStream.Dispose();
                 previewImageBox.Image = bitmap;
             }
-            catch (Exception exception)
+            catch (Exception ex)
             {
-                Log.Error("Could not convert byte array to bitmap: \n{exception}", exception);
+                Log.Error(ex, "Could not convert byte array to bitmap.");
             }
         }
 
@@ -580,7 +592,7 @@ namespace ResourcePacker.Forms
                     }
                     catch (Exception ex)
                     {
-                        Log.Error(ex.Message);
+                        Log.Error(ex, "Could not parse text to XML.");
                         previewTextBox.Text = text;
                     }
 
@@ -672,12 +684,12 @@ namespace ResourcePacker.Forms
                         Directory.EnumerateFileSystemEntries(baseExtractionPath,
                             string.Empty, SearchOption.AllDirectories).Any())
                     {
-                        var dialogResult = MessageBox.Show($"The destination already contains a folder named '{_packageName}' which is not empty. " +
+                        var existsDialogResult = MessageBox.Show($"The destination already contains a folder named '{_packageName}' which is not empty. " +
                                                            "If there are files with the same name, you will be asked if you want to replace these files. \n\n" +
                                                            "Do you want to continue extracting to this folder?",
                                                            "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation);
 
-                        if (dialogResult != DialogResult.Yes)
+                        if (existsDialogResult != DialogResult.Yes)
                         {
                             _cancellationTokenSource.Cancel(true);
                         }
@@ -686,16 +698,24 @@ namespace ResourcePacker.Forms
                     AssetHelper.ExtractAssetsToLocation(_assets!, baseExtractionPath,
                         _progressPrimary, ProgressReportInterval, _cancellationTokenSource.Token);
 
-                    Process.Start(new ProcessStartInfo
-                    {
-                        FileName = baseExtractionPath,
-                        UseShellExecute = true,
-                        WindowStyle = ProcessWindowStyle.Normal,
-                        Verb = "open"
-                    });
-
                     SystemSounds.Asterisk.Play();
                     this.FlashNotification();
+
+                    var extractionCompleteDialogResult =
+                        MessageBox.Show("The assets have been successfully extracted to the destination folder. " +
+                                        "Do you want to view the extracted assets?",
+                            "Extraction complete", MessageBoxButtons.YesNo, MessageBoxIcon.Asterisk);
+
+                    if (extractionCompleteDialogResult == DialogResult.Yes)
+                    {
+                        Process.Start(new ProcessStartInfo
+                        {
+                            FileName = baseExtractionPath,
+                            UseShellExecute = true,
+                            WindowStyle = ProcessWindowStyle.Normal,
+                            Verb = "open"
+                        });
+                    }
                 }
                 catch (OperationCanceledException ex)
                 {
@@ -714,7 +734,7 @@ namespace ResourcePacker.Forms
                 {
                     Log.Error(ex, "An exception occurred during extraction.");
                 }
-                
+
                 Invoke(() =>
                 {
                     btnCancel.Visible = false;

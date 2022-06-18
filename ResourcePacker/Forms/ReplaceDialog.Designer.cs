@@ -68,11 +68,11 @@
             // chkRepeatAll
             // 
             this.chkRepeatAll.AutoSize = true;
-            this.chkRepeatAll.Location = new System.Drawing.Point(15, 248);
+            this.chkRepeatAll.Location = new System.Drawing.Point(15, 250);
             this.chkRepeatAll.Name = "chkRepeatAll";
-            this.chkRepeatAll.Size = new System.Drawing.Size(203, 24);
+            this.chkRepeatAll.Size = new System.Drawing.Size(229, 24);
             this.chkRepeatAll.TabIndex = 1;
-            this.chkRepeatAll.Text = "Do this for all occurrences";
+            this.chkRepeatAll.Text = "Do this for the next 5 conflicts";
             this.chkRepeatAll.UseVisualStyleBackColor = true;
             this.chkRepeatAll.CheckedChanged += new System.EventHandler(this.ChkRepeatAll_CheckedChanged);
             // 
@@ -92,8 +92,8 @@
             // 
             this.splitContainer1.Panel2.Controls.Add(this.lblReplaceFileDescription);
             this.splitContainer1.Panel2.Padding = new System.Windows.Forms.Padding(3);
-            this.splitContainer1.Size = new System.Drawing.Size(508, 54);
-            this.splitContainer1.SplitterDistance = 175;
+            this.splitContainer1.Size = new System.Drawing.Size(558, 54);
+            this.splitContainer1.SplitterDistance = 191;
             this.splitContainer1.TabIndex = 2;
             // 
             // btnReplace
@@ -102,7 +102,7 @@
             this.btnReplace.Dock = System.Windows.Forms.DockStyle.Fill;
             this.btnReplace.Location = new System.Drawing.Point(3, 3);
             this.btnReplace.Name = "btnReplace";
-            this.btnReplace.Size = new System.Drawing.Size(169, 48);
+            this.btnReplace.Size = new System.Drawing.Size(185, 48);
             this.btnReplace.TabIndex = 0;
             this.btnReplace.Text = "Replace file";
             this.btnReplace.UseVisualStyleBackColor = true;
@@ -113,7 +113,7 @@
             this.lblReplaceFileDescription.Location = new System.Drawing.Point(3, 3);
             this.lblReplaceFileDescription.Name = "lblReplaceFileDescription";
             this.lblReplaceFileDescription.Padding = new System.Windows.Forms.Padding(0, 3, 0, 0);
-            this.lblReplaceFileDescription.Size = new System.Drawing.Size(323, 48);
+            this.lblReplaceFileDescription.Size = new System.Drawing.Size(357, 48);
             this.lblReplaceFileDescription.TabIndex = 0;
             this.lblReplaceFileDescription.Text = "Replace the file in the destination folder with \r\nthe asset that will be extracte" +
     "d.";
@@ -134,8 +134,8 @@
             // 
             this.splitContainer2.Panel2.Controls.Add(this.lblBothFilesDescription);
             this.splitContainer2.Panel2.Padding = new System.Windows.Forms.Padding(3);
-            this.splitContainer2.Size = new System.Drawing.Size(508, 54);
-            this.splitContainer2.SplitterDistance = 175;
+            this.splitContainer2.Size = new System.Drawing.Size(558, 54);
+            this.splitContainer2.SplitterDistance = 191;
             this.splitContainer2.TabIndex = 3;
             // 
             // btnKeep
@@ -144,7 +144,7 @@
             this.btnKeep.Dock = System.Windows.Forms.DockStyle.Fill;
             this.btnKeep.Location = new System.Drawing.Point(3, 3);
             this.btnKeep.Name = "btnKeep";
-            this.btnKeep.Size = new System.Drawing.Size(169, 48);
+            this.btnKeep.Size = new System.Drawing.Size(185, 48);
             this.btnKeep.TabIndex = 0;
             this.btnKeep.Text = "Keep both files";
             this.btnKeep.UseVisualStyleBackColor = true;
@@ -155,14 +155,14 @@
             this.lblBothFilesDescription.Location = new System.Drawing.Point(3, 3);
             this.lblBothFilesDescription.Name = "lblBothFilesDescription";
             this.lblBothFilesDescription.Padding = new System.Windows.Forms.Padding(0, 3, 0, 0);
-            this.lblBothFilesDescription.Size = new System.Drawing.Size(323, 48);
+            this.lblBothFilesDescription.Size = new System.Drawing.Size(357, 48);
             this.lblBothFilesDescription.TabIndex = 0;
             this.lblBothFilesDescription.Text = "The asset will be extracted and \r\nrenamed to \'File (2).txt\'.";
             // 
             // btnCancel
             // 
             this.btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.btnCancel.Location = new System.Drawing.Point(426, 245);
+            this.btnCancel.Location = new System.Drawing.Point(476, 247);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(94, 29);
             this.btnCancel.TabIndex = 4;
@@ -185,8 +185,8 @@
             // 
             this.splitContainer3.Panel2.Controls.Add(this.lblNoExtractDescription);
             this.splitContainer3.Panel2.Padding = new System.Windows.Forms.Padding(3);
-            this.splitContainer3.Size = new System.Drawing.Size(508, 54);
-            this.splitContainer3.SplitterDistance = 175;
+            this.splitContainer3.Size = new System.Drawing.Size(558, 54);
+            this.splitContainer3.SplitterDistance = 191;
             this.splitContainer3.TabIndex = 5;
             // 
             // btnSkip
@@ -195,7 +195,7 @@
             this.btnSkip.Dock = System.Windows.Forms.DockStyle.Fill;
             this.btnSkip.Location = new System.Drawing.Point(3, 3);
             this.btnSkip.Name = "btnSkip";
-            this.btnSkip.Size = new System.Drawing.Size(169, 48);
+            this.btnSkip.Size = new System.Drawing.Size(185, 48);
             this.btnSkip.TabIndex = 0;
             this.btnSkip.Text = "Don\'t extract";
             this.btnSkip.UseVisualStyleBackColor = true;
@@ -206,7 +206,7 @@
             this.lblNoExtractDescription.Location = new System.Drawing.Point(3, 3);
             this.lblNoExtractDescription.Name = "lblNoExtractDescription";
             this.lblNoExtractDescription.Padding = new System.Windows.Forms.Padding(0, 3, 0, 0);
-            this.lblNoExtractDescription.Size = new System.Drawing.Size(323, 48);
+            this.lblNoExtractDescription.Size = new System.Drawing.Size(357, 48);
             this.lblNoExtractDescription.TabIndex = 0;
             this.lblNoExtractDescription.Text = "The asset will not be extracted to \r\nthe destination folder.";
             // 
@@ -215,7 +215,7 @@
             this.txtFilePath.Location = new System.Drawing.Point(12, 31);
             this.txtFilePath.Name = "txtFilePath";
             this.txtFilePath.ReadOnly = true;
-            this.txtFilePath.Size = new System.Drawing.Size(508, 27);
+            this.txtFilePath.Size = new System.Drawing.Size(558, 27);
             this.txtFilePath.TabIndex = 6;
             this.txtFilePath.Text = "C:\\path\\file.txt";
             // 
@@ -223,7 +223,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(532, 286);
+            this.ClientSize = new System.Drawing.Size(582, 288);
             this.Controls.Add(this.txtFilePath);
             this.Controls.Add(this.splitContainer3);
             this.Controls.Add(this.btnCancel);

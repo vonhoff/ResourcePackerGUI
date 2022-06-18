@@ -1,4 +1,5 @@
-﻿<root>
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
   <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
     <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
     <xsd:element name="root" msdata:IsDataSet="true">
@@ -356,7 +357,7 @@
     <value>2</value>
   </data>
   <data name="previewTextBox.Text" xml:space="preserve">
-    <value />
+    <value> </value>
   </data>
   <data name="&gt;&gt;previewTextBox.Name" xml:space="preserve">
     <value>previewTextBox</value>
@@ -609,7 +610,7 @@ indentations in the preview panel</value>
     <value>1</value>
   </data>
   <data name="outputBox.Text" xml:space="preserve">
-    <value />
+    <value> </value>
   </data>
   <data name="&gt;&gt;outputBox.Name" xml:space="preserve">
     <value>outputBox</value>

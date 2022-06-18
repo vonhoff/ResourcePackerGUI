@@ -84,10 +84,20 @@ namespace ResourcePacker.Helpers
                 basePath += Path.DirectorySeparatorChar;
             }
 
+            var duplicates = assets.Count(asset => File.Exists(basePath + asset.Name));
+
+            if (duplicates > 0)
+            {
+                var a = duplicates == 1 ? "conflict" : "conflicts";
+                Log.Warning("{amount} file " + a + " found.", duplicates);
+            }
+
             using var progressTimer = new System.Timers.Timer(progressReportInterval);
             var percentage = 0;
             var i = 0;
             var extracted = 0;
+            var failed = 0;
+            var ignored = 0;
             DialogResult? resultForAllCases = null;
             progressTimer.Elapsed += delegate { progress!.Report((percentage, i + 1)); };
             progressTimer.Enabled = progress != null;
@@ -96,12 +106,23 @@ namespace ResourcePacker.Helpers
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 var asset = assets[i];
-                var fileInfo = new FileInfo(basePath + asset.Name);
+
+                FileInfo fileInfo;
+                try
+                {
+                    fileInfo = new FileInfo(basePath + asset.Name);
+                }
+                catch (Exception ex)
+                {
+                    Log.Error(ex, "Could not get file information from: {path}", basePath + asset.Name);
+                    continue;
+                }
+
                 if (fileInfo.Exists)
                 {
                     var availableFileName = FilenameHelper.NextAvailableFilename(fileInfo.FullName);
                     var replaceDialog = resultForAllCases == null
-                        ? new ReplaceDialog(fileInfo.FullName, availableFileName)
+                        ? new ReplaceDialog(fileInfo.FullName, availableFileName, duplicates--)
                         : null;
 
                     var dialogResult = resultForAllCases ?? replaceDialog!.ShowDialog();
@@ -121,6 +142,8 @@ namespace ResourcePacker.Helpers
 
                     if (dialogResult == DialogResult.Ignore)
                     {
+                        Log.Debug("Ignored: {name}", Path.GetFileName(asset.Name));
+                        ignored++;
                         continue;
                     }
                 }
@@ -134,12 +157,13 @@ namespace ResourcePacker.Helpers
                     binaryWriter.Write(asset.Data);
                     binaryWriter.Flush();
                     binaryWriter.Close();
-                    Log.Debug("Extracted {name} to {path}",
+                    Log.Debug("Extracted {name} to: {path}",
                         Path.GetFileName(asset.Name), fileInfo.FullName);
                     extracted++;
                 }
                 catch (Exception ex)
                 {
+                    failed++;
                     Log.Error(ex, "Could not extract asset: {path}", fileInfo.FullName);
                 }
 
@@ -150,13 +174,19 @@ namespace ResourcePacker.Helpers
 
             if (extracted == assets.Count)
             {
-                Log.Information("Extracted {amount} files to {basePath}",
+                Log.Information("Extracted all {amount} files to: {basePath}",
                     extracted, basePath);
             }
             else
             {
-                Log.Warning("Extracted {amount} out of {expected} files to {basePath}.",
+                Log.Information("Extracted {amount} out of {expected} files to: {basePath}",
                     extracted, assets.Count, basePath);
+
+                var a = ignored == 1 ? "asset" : "assets";
+                var b = failed == 1 ? "asset" : "assets";
+                Log.Information("{ignored} " + a + " ignored for extraction. " +
+                                "{failed} " + b + " failed to extract.",
+                    ignored, failed);
             }
         }
 

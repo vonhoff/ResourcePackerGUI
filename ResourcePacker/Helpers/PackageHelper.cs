@@ -178,11 +178,11 @@ namespace ResourcePacker.Helpers
         /// <param name="progress"></param>
         /// <returns>A <see cref="Package"/> instance containing all information about a package.</returns>
         /// <exception cref="InvalidDataException">When the provided file stream is corrupted.</exception>
-        public static Entry[] LoadAllEntryInformation(PackageHeader header, BinaryReader binaryReader, 
+        public static Entry[] LoadAllEntryInformation(PackageHeader header, BinaryReader binaryReader,
             IProgress<int>? progress = null, int progressReportInterval = 100, CancellationToken cancellationToken = default)
         {
             var entries = new List<Entry>();
-           
+
             using (var progressTimer = new System.Timers.Timer(progressReportInterval))
             {
                 var percentage = 0;
