@@ -2,9 +2,9 @@
 
 namespace ResourcePackerGUI.Application.Definitions.Queries
 {
-    public class CreateChecksumDictionaryQuery : IRequest<IReadOnlyDictionary<uint, string>>
+    public class CreateChecksumDefinitionsQuery : IRequest<IReadOnlyDictionary<uint, string>>
     {
-        public CreateChecksumDictionaryQuery(Stream fileStream)
+        public CreateChecksumDefinitionsQuery(Stream fileStream)
         {
             FileStream = fileStream;
         }

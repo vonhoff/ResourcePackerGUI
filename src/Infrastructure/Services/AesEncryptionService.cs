@@ -218,7 +218,7 @@ namespace ResourcePackerGUI.Infrastructure.Services
             CancellationToken cancellationToken = default)
         {
             var packSize = input.Length;
-            if (packSize % BlockSize != 0)
+            if (packSize % BlockSize != 0 || key.Length == 0)
             {
                 output = Array.Empty<byte>();
                 return false;
@@ -266,7 +266,7 @@ namespace ResourcePackerGUI.Infrastructure.Services
                 packSize += BlockSize;
             }
 
-            if (packSize % BlockSize != 0)
+            if (packSize % BlockSize != 0 || key.Length == 0)
             {
                 output = Array.Empty<byte>();
                 return false;

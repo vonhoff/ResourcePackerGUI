@@ -6,25 +6,25 @@ using ResourcePackerGUI.Application.Definitions.Queries;
 
 namespace ResourcePackerGUI.Application.Definitions.Handlers
 {
-    public class CreateChecksumDictionaryQueryHandler : IRequestHandler<CreateChecksumDictionaryQuery, IReadOnlyDictionary<uint, string>>
+    public class CreateChecksumDefinitionsQueryHandler : IRequestHandler<CreateChecksumDefinitionsQuery, IReadOnlyDictionary<uint, string>>
     {
         private readonly ICrc32Service _crc32Service;
-        private readonly ILogger<CreateChecksumDictionaryQueryHandler> _logger;
+        private readonly ILogger<CreateChecksumDefinitionsQueryHandler> _logger;
 
-        public CreateChecksumDictionaryQueryHandler(ICrc32Service crc32Service, ILogger<CreateChecksumDictionaryQueryHandler> logger)
+        public CreateChecksumDefinitionsQueryHandler(ICrc32Service crc32Service, ILogger<CreateChecksumDefinitionsQueryHandler> logger)
         {
             _crc32Service = crc32Service;
             _logger = logger;
         }
 
-        public Task<IReadOnlyDictionary<uint, string>> Handle(CreateChecksumDictionaryQuery request, CancellationToken cancellationToken)
+        public Task<IReadOnlyDictionary<uint, string>> Handle(CreateChecksumDefinitionsQuery request, CancellationToken cancellationToken)
         {
             return Task.Run(() =>
             {
                 IReadOnlyDictionary<uint, string> crcDictionary;
                 using (var reader = new StreamReader(request.FileStream))
                 {
-                    crcDictionary = CreateDefinitionsDictionary(reader, cancellationToken);
+                    crcDictionary = CreateChecksumDictionary(reader, cancellationToken);
                 }
                 
                 _logger.LogInformation("Computed {definitionCount} checksum definitions.", crcDictionary.Count);
@@ -32,7 +32,7 @@ namespace ResourcePackerGUI.Application.Definitions.Handlers
             }, cancellationToken);
         }
 
-        private IReadOnlyDictionary<uint, string> CreateDefinitionsDictionary(StreamReader reader, CancellationToken cancellationToken)
+        private IReadOnlyDictionary<uint, string> CreateChecksumDictionary(StreamReader reader, CancellationToken cancellationToken)
         {
             var crcDictionary = new Dictionary<uint, string>();
             while (!reader.EndOfStream)

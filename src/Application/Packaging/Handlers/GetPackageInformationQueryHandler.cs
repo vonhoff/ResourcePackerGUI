@@ -1,16 +1,16 @@
 ﻿using MediatR;
 using Microsoft.Extensions.Logging;
-using ResourcePackerGUI.Application.Common.Exceptions;
 using ResourcePackerGUI.Application.Common.Extensions;
 using ResourcePackerGUI.Application.Packaging.Queries;
 using ResourcePackerGUI.Domain.Entities;
+using ResourcePackerGUI.Domain.Exceptions;
 using ResourcePackerGUI.Domain.ValueObjects;
 
 namespace ResourcePackerGUI.Application.Packaging.Handlers
 {
     public class GetPackageInformationQueryHandler : IRequestHandler<GetPackageInformationQuery, Package>
     {
-        private const ulong PackHeaderId = 0x6B636150736552;
+        private const ulong PackHeaderId = 30227092120757586;
         private readonly ILogger<GetPackageInformationQueryHandler> _logger;
 
         public GetPackageInformationQueryHandler(ILogger<GetPackageInformationQueryHandler> logger)

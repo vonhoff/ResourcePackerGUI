@@ -79,7 +79,7 @@ namespace ResourcePackerGUI.Application.Packaging.Handlers
                 assets.Add(asset);
                 percentage = (int)((double)(i + 1) / entries.Count * 100);
                 _logger.LogDebug("Added asset: {@asset}", 
-                    new { asset.Name, MediaType = asset.MediaType });
+                    new { asset.Name, asset.MediaType });
             }
 
             return assets;

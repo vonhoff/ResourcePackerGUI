@@ -1,10 +1,11 @@
 ﻿using MediatR;
+using ResourcePackerGUI.Domain.ValueObjects;
 
-namespace ResourcePackerGUI.Application.Definitions.Queries
+namespace ResourcePackerGUI.Application.PathEntries.Queries
 {
-    public class CreateDefinitionsQuery : IRequest<IReadOnlyDictionary<string, string>>
+    public class CreatePathEntriesQuery : IRequest<IReadOnlySet<PathEntry>>
     {
-        public CreateDefinitionsQuery(IReadOnlyList<string> filePaths, int relativeFilePathDepth)
+        public CreatePathEntriesQuery(IReadOnlyList<string> filePaths, int relativeFilePathDepth)
         {
             FilePaths = filePaths;
             RelativeFilePathDepth = relativeFilePathDepth;

@@ -1,4 +1,4 @@
-﻿namespace ResourcePackerGUI.Application.Common.Exceptions
+﻿namespace ResourcePackerGUI.Domain.Exceptions
 {
     public class InvalidHeaderException : Exception
     {

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ResourcePackerGUI.Application.Resources.Queries
 {
-    internal class ExportResourcesQuery
+    public class ExportResourcesQuery
     {
     }
 }
