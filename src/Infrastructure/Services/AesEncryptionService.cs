@@ -185,9 +185,6 @@ namespace ResourcePackerGUI.Infrastructure.Services
             new byte[]{ 0x17, 0x2B, 0x04, 0x7E, 0xBA, 0x77, 0xD6, 0x26, 0xE1, 0x69, 0x14, 0x63, 0x55, 0x21, 0x0C, 0x7D}
         };
 
-        /// <summary>
-        /// Default IV when a custom value is not assigned.
-        /// </summary>
         private static readonly byte[] Iv = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f };
 
         /// <summary>
@@ -214,8 +211,8 @@ namespace ResourcePackerGUI.Infrastructure.Services
         };
 
         public bool DecryptCbc(byte[] input, out byte[] output, uint[] key,
-                    IProgress<int>? progress = null, int progressReportInterval = 100,
-            CancellationToken cancellationToken = default)
+            IProgress<int>? progress, int progressReportInterval,
+            CancellationToken cancellationToken)
         {
             var packSize = input.Length;
             if (packSize % BlockSize != 0 || key.Length == 0)
@@ -257,8 +254,8 @@ namespace ResourcePackerGUI.Infrastructure.Services
         }
 
         public bool EncryptCbc(byte[] input, out byte[] output, uint[] key,
-            IProgress<int>? progress = null, int progressReportInterval = 100,
-            CancellationToken cancellationToken = default)
+            IProgress<int>? progress, int progressReportInterval,
+            CancellationToken cancellationToken)
         {
             var packSize = (input.Length + BlockSize - 1) & ~(BlockSize - 1);
             if (packSize == input.Length)
@@ -519,7 +516,7 @@ namespace ResourcePackerGUI.Infrastructure.Services
             {
                 for (var j = 0; j < 4; ++j)
                 {
-                    state[i][j] = InvSBox[state[i][j] >> 4][state[i][j] & 0x0F];
+                    state[i][j] = InvSBox[state[i][j] >> 4][state[i][j] & 0xF];
                 }
             }
         }
@@ -605,17 +602,17 @@ namespace ResourcePackerGUI.Infrastructure.Services
             {
                 for (var j = 0; j < 4; ++j)
                 {
-                    state[i][j] = SBox[state[i][j] >> 4][state[i][j] & 0x0F];
+                    state[i][j] = SBox[state[i][j] >> 4][state[i][j] & 0xF];
                 }
             }
         }
 
         private static uint SubWord(uint word)
         {
-            var result = (uint)SBox[(word >> 4) & 0x0000000F][word & 0x0000000F];
-            result += (uint)SBox[(word >> 12) & 0x0000000F][(word >> 8) & 0x0000000F] << 8;
-            result += (uint)SBox[(word >> 20) & 0x0000000F][(word >> 16) & 0x0000000F] << 16;
-            result += (uint)SBox[(word >> 28) & 0x0000000F][(word >> 24) & 0x0000000F] << 24;
+            var result = (uint)SBox[(word >> 4) & 0xF][word & 0xF];
+            result += (uint)SBox[(word >> 12) & 0xF][(word >> 8) & 0xF] << 8;
+            result += (uint)SBox[(word >> 20) & 0xF][(word >> 16) & 0xF] << 16;
+            result += (uint)SBox[(word >> 28) & 0xF][(word >> 24) & 0xF] << 24;
             return result;
         }
 

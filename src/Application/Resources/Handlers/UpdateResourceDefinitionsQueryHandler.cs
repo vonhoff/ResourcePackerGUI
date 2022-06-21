@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ResourcePackerGUI.Application.Resources.Handlers
 {
-    internal class UpdateResourceDefinitionsQueryHandler
+    public class UpdateResourceDefinitionsQueryHandler
     {
     }
 }
