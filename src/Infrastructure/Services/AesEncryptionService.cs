@@ -217,7 +217,7 @@ namespace ResourcePackerGUI.Infrastructure.Services
             var packSize = input.Length;
             if (packSize % BlockSize != 0 || key.Length == 0)
             {
-                output = Array.Empty<byte>();
+                output = input;
                 return false;
             }
 
@@ -265,7 +265,7 @@ namespace ResourcePackerGUI.Infrastructure.Services
 
             if (packSize % BlockSize != 0 || key.Length == 0)
             {
-                output = Array.Empty<byte>();
+                output = input;
                 return false;
             }
 

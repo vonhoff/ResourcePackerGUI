@@ -42,12 +42,11 @@ namespace ResourcePackerGUI.Application.Packaging.Handlers
                 using (var outputStream = _fileSystem.File.OpenWrite(request.Output))
                 {
                     using var binaryWriter = new BinaryWriter(outputStream);
-                    var initialOffset = Unsafe.SizeOf<PackageHeader>() +
-                                        (header.NumberOfEntries * Unsafe.SizeOf<Entry>());
+                    var initialOffset = Unsafe.SizeOf<PackageHeader>() + (header.NumberOfEntries * Unsafe.SizeOf<Entry>());
+                    var key = _aesEncryptionService.KeySetup(request.Password);
 
                     // Write all assets to file and retrieve their associated entry data.
-                    var entries =
-                        WriteAssets(request, initialOffset, binaryWriter, cancellationToken);
+                    var entries = WriteAssets(request, initialOffset, key, binaryWriter, cancellationToken);
 
                     // Write header to file.
                     binaryWriter.Seek(0, SeekOrigin.Begin);
@@ -121,16 +120,16 @@ namespace ResourcePackerGUI.Application.Packaging.Handlers
         /// <summary>
         /// Writes assets from the provided settings in <see cref="BuildPackageQuery"/>.
         /// </summary>
-        /// <param name="request">The request instance for retrieving all required values.</param>
+        /// <param name="request">The request containing the entries and progress instances.</param>
         /// <param name="offset">The initial offset for writing the assets.</param>
+        /// <param name="key"></param>
         /// <param name="binaryWriter">The writer is responsible for writing the assets.</param>
         /// <param name="cancellationToken">A cancellation token that can be used to cancel the process if necessary.</param>
         /// <returns>The entries created for the assets.</returns>
-        private IEnumerable<Entry> WriteAssets(BuildPackageQuery request, int offset,
+        private IEnumerable<Entry> WriteAssets(BuildPackageQuery request, int offset, uint[] key,
             BinaryWriter binaryWriter, CancellationToken cancellationToken)
         {
             var entries = new Entry[request.PathEntries.Count];
-            var key = _aesEncryptionService.KeySetup(request.Password);
             var percentage = 0;
 
             using var progressTimer = new System.Timers.Timer(request.ProgressReportInterval);
@@ -141,22 +140,20 @@ namespace ResourcePackerGUI.Application.Packaging.Handlers
 
             for (var i = 0; i < request.PathEntries.Count; i++)
             {
-                var path = request.PathEntries[i];
+                var pathEntry = request.PathEntries[i];
                 cancellationToken.ThrowIfCancellationRequested();
-
-                if (!TryGetFileContents(path.AbsolutePath, request.Output, out var fileContent))
+                if (!TryGetFileContents(pathEntry.AbsolutePath, request.Output, out var fileContent))
                 {
                     continue;
                 }
 
                 // Create a new entry with the original file content.
-                var entry = CreateEntry(offset, fileContent, path.RelativePath);
+                var entry = CreateEntry(offset, fileContent, pathEntry.RelativePath);
 
-                // Apply encryption when it is needed.
-                if (key.Length > 0)
+                // Apply encryption when a key is provided and encryption is successful.
+                if (key.Length > 0 && _aesEncryptionService.EncryptCbc(fileContent, out var output, key,
+                        request.ProgressSecondary, request.ProgressReportInterval, cancellationToken))
                 {
-                    _aesEncryptionService.EncryptCbc(fileContent, out var output, key,
-                        request.ProgressSecondary, request.ProgressReportInterval, cancellationToken);
                     fileContent = output;
                 }
 

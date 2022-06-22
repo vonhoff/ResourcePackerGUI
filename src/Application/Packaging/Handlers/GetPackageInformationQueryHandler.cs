@@ -39,6 +39,12 @@ namespace ResourcePackerGUI.Application.Packaging.Handlers
             }, cancellationToken);
         }
 
+        /// <summary>
+        /// Retrieves and validates the header of the provided <see cref="BinaryReader"/>.
+        /// </summary>
+        /// <param name="binaryReader">The binary reader of the specified file stream.</param>
+        /// <returns>A <see cref="PackageHeader"/> instance containing information about the header.</returns>
+        /// <exception cref="InvalidHeaderException">When the header of the provided stream is invalid.</exception>
         private static PackageHeader GetHeader(BinaryReader binaryReader)
         {
             var header = binaryReader.ReadStruct<PackageHeader>();
@@ -50,19 +56,27 @@ namespace ResourcePackerGUI.Application.Packaging.Handlers
             return header;
         }
 
-        private List<Entry> GetEntries(GetPackageInformationQuery request, PackageHeader header, CancellationToken cancellationToken)
+        /// <summary>
+        /// Retrieves all entries from the package binary reader.
+        /// </summary>
+        /// <param name="request">The request containing the binary reader and progress instances.</param>
+        /// <param name="header">The package header containing all package information.</param>
+        /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
+        /// <returns>A read-only list of entries.</returns>
+        private IReadOnlyList<Entry> GetEntries(GetPackageInformationQuery request, PackageHeader header, CancellationToken cancellationToken)
         {
-            var percentage = 0;
-            var entries = new List<Entry>();
             using var progressTimer = new System.Timers.Timer(request.ProgressReportInterval);
+
+            var percentage = 0;
             // ReSharper disable once AccessToModifiedClosure
             progressTimer.Elapsed += delegate { request.Progress!.Report(percentage); };
             progressTimer.Enabled = request.Progress != null;
 
+            var entries = new List<Entry>();
             for (var i = 0; i < header.NumberOfEntries; i++)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                if (!GetEntry(request, out var entry))
+                if (!GetEntry(request.BinaryReader, out var entry))
                 {
                     continue;
                 }
@@ -75,9 +89,15 @@ namespace ResourcePackerGUI.Application.Packaging.Handlers
             return entries;
         }
 
-        private bool GetEntry(GetPackageInformationQuery request, out Entry entry)
+        /// <summary>
+        /// Reads the next entry from the binary stream.
+        /// </summary>
+        /// <param name="binaryReader">The binary reader of the specified file stream.</param>
+        /// <param name="entry">The resulting entry.</param>
+        /// <returns><see langword="true"/> when successful, <see langword="false"/> otherwise.</returns>
+        private bool GetEntry(BinaryReader binaryReader, out Entry entry)
         {
-            entry = request.BinaryReader.ReadStruct<Entry>();
+            entry = binaryReader.ReadStruct<Entry>();
             if (entry.Id != 0)
             {
                 return true;

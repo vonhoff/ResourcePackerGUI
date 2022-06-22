@@ -7,17 +7,17 @@ using ResourcePackerGUI.Domain.Structures;
 
 namespace ResourcePackerGUI.Application.Packaging.Handlers
 {
-    public class GetResourceListQueryHandler : IRequestHandler<GetResourceListQuery, IReadOnlyList<Resource>>
+    public class GetResourcesQueryHandler : IRequestHandler<GetResourcesQuery, IReadOnlyList<Resource>>
     {
         private readonly IAesEncryptionService _aesEncryptionService;
         private readonly ICrc32Service _crc32Service;
-        private readonly ILogger<GetResourceListQueryHandler> _logger;
+        private readonly ILogger<GetResourcesQueryHandler> _logger;
         private readonly IMimeTypeService _mimeTypeService;
 
-        public GetResourceListQueryHandler(IAesEncryptionService aesEncryptionService,
+        public GetResourcesQueryHandler(IAesEncryptionService aesEncryptionService,
             ICrc32Service crc32Service,
             IMimeTypeService mimeTypeService,
-            ILogger<GetResourceListQueryHandler> logger)
+            ILogger<GetResourcesQueryHandler> logger)
         {
             _aesEncryptionService = aesEncryptionService;
             _crc32Service = crc32Service;
@@ -25,11 +25,11 @@ namespace ResourcePackerGUI.Application.Packaging.Handlers
             _logger = logger;
         }
 
-        public Task<IReadOnlyList<Resource>> Handle(GetResourceListQuery request, CancellationToken cancellationToken)
+        public Task<IReadOnlyList<Resource>> Handle(GetResourcesQuery request, CancellationToken cancellationToken)
         {
             return Task.Run(() =>
             {
-                var assets = GetAssetList(request, cancellationToken);
+                var assets = GetResources(request, cancellationToken);
                 var entryCount = request.Package.Entries.Count;
 
                 if (assets.Count == entryCount)
@@ -46,12 +46,15 @@ namespace ResourcePackerGUI.Application.Packaging.Handlers
             }, cancellationToken);
         }
 
-        private IReadOnlyList<Resource> GetAssetList(GetResourceListQuery request, CancellationToken cancellationToken)
+        private IReadOnlyList<Resource> GetResources(GetResourcesQuery request, CancellationToken cancellationToken)
         {
             using var progressTimer = new System.Timers.Timer(request.ProgressReportInterval);
             var assets = new List<Resource>();
             var percentage = 0;
             var entries = request.Package.Entries;
+            var key = string.IsNullOrEmpty(request.Password)
+                ? Array.Empty<uint>()
+                : _aesEncryptionService.KeySetup(request.Password);
 
             // ReSharper disable once AccessToModifiedClosure
             progressTimer.Elapsed += delegate { request.ProgressPrimary!.Report(percentage); };
@@ -63,7 +66,7 @@ namespace ResourcePackerGUI.Application.Packaging.Handlers
                 var entry = entries[i];
 
                 request.BinaryReader.BaseStream.Position = entry.Offset;
-                if (!TryLoadAsset(request, entry, out var buffer, cancellationToken))
+                if (!TryLoadResource(request, entry, out var buffer, key, cancellationToken))
                 {
                     continue;
                 }
@@ -85,8 +88,8 @@ namespace ResourcePackerGUI.Application.Packaging.Handlers
             return assets;
         }
 
-        private bool TryLoadAsset(GetResourceListQuery request, Entry entry, out byte[] buffer, 
-            CancellationToken cancellationToken)
+        private bool TryLoadResource(GetResourcesQuery request, Entry entry, out byte[] buffer,
+            uint[] key, CancellationToken cancellationToken)
         {
             try
             {
@@ -98,12 +101,11 @@ namespace ResourcePackerGUI.Application.Packaging.Handlers
                 return false;
             }
             
-            if (string.IsNullOrEmpty(request.Password))
+            if (key.Length == 0)
             {
                 return true;
             }
 
-            var key = _aesEncryptionService.KeySetup(request.Password);
             if (!_aesEncryptionService.DecryptCbc(buffer, out var output, key,
                     request.ProgressSecondary, request.ProgressReportInterval, cancellationToken))
             {

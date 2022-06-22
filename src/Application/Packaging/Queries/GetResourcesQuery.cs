@@ -5,6 +5,12 @@ namespace ResourcePackerGUI.Application.Packaging.Queries
 {
     public class GetResourceListQuery : IRequest<IReadOnlyList<Resource>>
     {
+        /// <summary>
+        /// Constructor for the <see cref="GetResourceListQuery"/> class.
+        /// </summary>
+        /// <param name="package"></param>
+        /// <param name="binaryReader"></param>
+        /// <param name="password"></param>
         public GetResourceListQuery(Package package, BinaryReader binaryReader, string password = "")
         {
             Package = package;
@@ -12,8 +18,8 @@ namespace ResourcePackerGUI.Application.Packaging.Queries
             Password = password;
         }
 
-        public BinaryReader BinaryReader { get; init; }
         public Package Package { get; init; }
+        public BinaryReader BinaryReader { get; init; }
         public string Password { get; init; }
         public IProgress<int>? ProgressPrimary { get; init; }
         public IProgress<int>? ProgressSecondary { get; init; }

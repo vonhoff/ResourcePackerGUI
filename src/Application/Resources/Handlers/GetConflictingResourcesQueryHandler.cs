@@ -42,6 +42,7 @@ namespace ResourcePackerGUI.Application.Resources.Handlers
                     percentage = (int)((double)(i + 1) / request.Resources.Count * 100);
                 }
 
+                _logger.LogInformation("{amount} conflicts found.", list.Count);
                 return (IReadOnlyList<Resource>) list;
             }, cancellationToken);
         }
