@@ -1,10 +1,10 @@
 ﻿using MediatR;
 using Microsoft.Extensions.Logging;
+using ResourcePackerGUI.Application.Common.Exceptions;
 using ResourcePackerGUI.Application.Common.Extensions;
 using ResourcePackerGUI.Application.Packaging.Queries;
 using ResourcePackerGUI.Domain.Entities;
-using ResourcePackerGUI.Domain.Exceptions;
-using ResourcePackerGUI.Domain.ValueObjects;
+using ResourcePackerGUI.Domain.Structures;
 
 namespace ResourcePackerGUI.Application.Packaging.Handlers
 {
@@ -44,7 +44,7 @@ namespace ResourcePackerGUI.Application.Packaging.Handlers
             var header = binaryReader.ReadStruct<PackageHeader>();
             if (header.Id != PackHeaderId || header.NumberOfEntries <= 0)
             {
-                throw new InvalidHeaderException("The header of the provided stream is invalid.");
+                throw new InvalidHeaderException("The header of the provided stream is invalid.", header.Id);
             }
 
             return header;
@@ -52,16 +52,16 @@ namespace ResourcePackerGUI.Application.Packaging.Handlers
 
         private List<Entry> GetEntries(GetPackageInformationQuery request, PackageHeader header, CancellationToken cancellationToken)
         {
+            var percentage = 0;
             var entries = new List<Entry>();
             using var progressTimer = new System.Timers.Timer(request.ProgressReportInterval);
-            var percentage = 0;
+            // ReSharper disable once AccessToModifiedClosure
             progressTimer.Elapsed += delegate { request.Progress!.Report(percentage); };
             progressTimer.Enabled = request.Progress != null;
 
             for (var i = 0; i < header.NumberOfEntries; i++)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-
                 if (!GetEntry(request, out var entry))
                 {
                     continue;

@@ -18,15 +18,14 @@
 
 #endregion
 
-using System.Runtime.InteropServices;
-
 namespace ResourcePackerGUI.Domain.Entities
 {
-    [StructLayout(LayoutKind.Sequential)]
-    public struct PackageHeader
+    public class MediaType
     {
-        public ulong Id;
-        public int Reserved;
-        public int NumberOfEntries;
+        public string Name => $"{PrimaryType}/{SubType}";
+        public string Description { get; init; } = string.Empty;
+        public string[] Extensions { get; init; } = Array.Empty<string>();
+        public string PrimaryType { get; init; } = string.Empty;
+        public string SubType { get; init; } = string.Empty;
     }
 }

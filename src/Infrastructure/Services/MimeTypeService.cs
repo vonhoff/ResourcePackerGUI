@@ -3,7 +3,7 @@ using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 using HeyRed.Mime;
 using ResourcePackerGUI.Application.Common.Interfaces;
-using ResourcePackerGUI.Domain.ValueObjects;
+using ResourcePackerGUI.Domain.Entities;
 using Winista.Mime;
 
 namespace ResourcePackerGUI.Infrastructure.Services

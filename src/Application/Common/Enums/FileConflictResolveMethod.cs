@@ -1,6 +1,6 @@
 ﻿namespace ResourcePackerGUI.Application.Common.Enums
 {
-    public enum PreferredReplacementType
+    public enum FileConflictResolveMethod
     {
         None,
         Replace,

@@ -26,6 +26,7 @@ namespace ResourcePackerGUI.Application.PathEntries.Handlers
 
                 var percentage = 0;
                 using var progressTimer = new System.Timers.Timer(request.ProgressReportInterval);
+                // ReSharper disable once AccessToModifiedClosure
                 progressTimer.Elapsed += delegate { request.Progress!.Report(percentage); };
                 progressTimer.Enabled = request.Progress != null;
 

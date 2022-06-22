@@ -316,9 +316,9 @@ namespace ResourcePackerGUI.Infrastructure.Services
                 key = md5.ComputeHash(inputBytes);
             }
 
-            uint[] rcon = { 0x01000000,0x02000000,0x04000000,0x08000000,0x10000000,0x20000000,
-                0x40000000,0x80000000,0x1b000000,0x36000000,0x6c000000,0xd8000000,
-                0xab000000,0x4d000000,0x9a000000 };
+            uint[] rcon = { 0x1000000,0x2000000,0x4000000,0x8000000,0x10000000,0x20000000,
+                0x40000000,0x80000000,0x1B000000,0x36000000,0x6C000000,0xD8000000,
+                0xAB000000,0x4D000000,0x9A000000 };
 
             var result = new uint[60];
             for (var index = 0; index < 4; ++index)

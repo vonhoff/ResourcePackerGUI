@@ -18,12 +18,11 @@
 
 #endregion
 
-using ResourcePackerGUI.Domain.Common;
-using ResourcePackerGUI.Domain.Entities;
+using ResourcePackerGUI.Domain.Structures;
 
-namespace ResourcePackerGUI.Domain.ValueObjects
+namespace ResourcePackerGUI.Domain.Entities
 {
-    public class Resource : ValueObject
+    public class Resource
     {
         private string _name = string.Empty;
 
@@ -35,9 +34,7 @@ namespace ResourcePackerGUI.Domain.ValueObjects
         }
 
         public byte[] Data { get; init; }
-
         public Entry Entry { get; init; }
-        
         public MediaType? MediaType { get; set; }
 
         public string Name
@@ -59,11 +56,6 @@ namespace ResourcePackerGUI.Domain.ValueObjects
                 return name;
             }
             set => _name = value;
-        }
-
-        protected override IEnumerable<object> GetEqualityComponents()
-        {
-            yield return Entry;
         }
     }
 }

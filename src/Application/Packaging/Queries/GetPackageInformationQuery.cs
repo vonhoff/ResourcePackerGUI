@@ -1,5 +1,5 @@
 ﻿using MediatR;
-using ResourcePackerGUI.Domain.ValueObjects;
+using ResourcePackerGUI.Domain.Entities;
 
 namespace ResourcePackerGUI.Application.Packaging.Queries
 {

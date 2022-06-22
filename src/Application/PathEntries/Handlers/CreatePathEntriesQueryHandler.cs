@@ -1,8 +1,9 @@
 ﻿using System.IO.Abstractions;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using ResourcePackerGUI.Application.Common.Models;
 using ResourcePackerGUI.Application.PathEntries.Queries;
-using ResourcePackerGUI.Domain.ValueObjects;
+using ResourcePackerGUI.Domain.Entities;
 
 namespace ResourcePackerGUI.Application.PathEntries.Handlers
 {
@@ -47,6 +48,8 @@ namespace ResourcePackerGUI.Application.PathEntries.Handlers
         {
             var percentage = 0;
             using var progressTimer = new System.Timers.Timer(request.ProgressReportInterval);
+
+            // ReSharper disable once AccessToModifiedClosure
             progressTimer.Elapsed += delegate { request.Progress!.Report(percentage); };
             progressTimer.Enabled = request.Progress != null;
 

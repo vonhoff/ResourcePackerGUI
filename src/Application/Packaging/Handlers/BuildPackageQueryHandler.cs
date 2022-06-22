@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 using ResourcePackerGUI.Application.Common.Extensions;
 using ResourcePackerGUI.Application.Common.Interfaces;
 using ResourcePackerGUI.Application.Packaging.Queries;
-using ResourcePackerGUI.Domain.Entities;
+using ResourcePackerGUI.Domain.Structures;
 
 namespace ResourcePackerGUI.Application.Packaging.Handlers
 {
