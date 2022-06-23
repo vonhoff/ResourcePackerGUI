@@ -23,7 +23,7 @@ using ResourcePackerGUI.Infrastructure.Utilities;
 
 namespace ResourcePackerGUI.Infrastructure.Services
 {
-    internal class AesEncryptionService : IAesEncryptionService
+    public class AesEncryptionService : IAesEncryptionService
     {
         /// <summary>
         /// AES operates on 16 bytes at a time.
