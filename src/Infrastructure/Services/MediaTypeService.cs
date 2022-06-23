@@ -8,7 +8,7 @@ using Winista.Mime;
 
 namespace ResourcePackerGUI.Infrastructure.Services
 {
-    public class MimeTypeService : IMimeTypeService
+    public class MediaTypeService : IMediaTypeService
     {
         // The default value returned by the mapper from "HeyRed.Mime" when a mime type was not found.
         private const string InvalidMimeType = "application/octet-stream";

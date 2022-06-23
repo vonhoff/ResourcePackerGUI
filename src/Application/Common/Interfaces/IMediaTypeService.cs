@@ -2,7 +2,7 @@
 
 namespace ResourcePackerGUI.Application.Common.Interfaces
 {
-    public interface IMimeTypeService
+    public interface IMediaTypeService
     {
         /// <summary>
         /// Attempts to retrieve a <see cref="MediaType"/> by the provided byte array.

@@ -12,16 +12,16 @@ namespace ResourcePackerGUI.Application.Packaging.Handlers
         private readonly IAesEncryptionService _aesEncryptionService;
         private readonly ICrc32Service _crc32Service;
         private readonly ILogger<GetResourcesQueryHandler> _logger;
-        private readonly IMimeTypeService _mimeTypeService;
+        private readonly IMediaTypeService _mediaTypeService;
 
         public GetResourcesQueryHandler(IAesEncryptionService aesEncryptionService,
             ICrc32Service crc32Service,
-            IMimeTypeService mimeTypeService,
+            IMediaTypeService mediaTypeService,
             ILogger<GetResourcesQueryHandler> logger)
         {
             _aesEncryptionService = aesEncryptionService;
             _crc32Service = crc32Service;
-            _mimeTypeService = mimeTypeService;
+            _mediaTypeService = mediaTypeService;
             _logger = logger;
         }
 
@@ -74,7 +74,7 @@ namespace ResourcePackerGUI.Application.Packaging.Handlers
                     continue;
                 }
 
-                var mimeType = _mimeTypeService.GetTypeByData(buffer);
+                var mimeType = _mediaTypeService.GetTypeByData(buffer);
                 var asset = new Resource(buffer, entry, mimeType);
                 assets.Add(asset);
                 percentage = (int)((double)(i + 1) / request.Entries.Count * 100);
