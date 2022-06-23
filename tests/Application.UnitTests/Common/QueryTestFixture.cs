@@ -18,10 +18,8 @@ namespace Application.UnitTests.Common
             AesEncryptionService = new AesEncryptionService();
             Crc32Service = new Crc32Service();
             MediaTypeService = new MediaTypeService();
-            LoggerFactory = new LoggerFactory();
         }
 
-        public LoggerFactory LoggerFactory { get; }
         public IAesEncryptionService AesEncryptionService { get; }
         public ICrc32Service Crc32Service { get; }
         public IMediaTypeService MediaTypeService { get; }
