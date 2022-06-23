@@ -1,6 +1,5 @@
 ﻿using MediatR;
 using ResourcePackerGUI.Application.Common.Models;
-using ResourcePackerGUI.Domain.Entities;
 
 namespace ResourcePackerGUI.Application.Packaging.Queries
 {
@@ -28,19 +27,19 @@ namespace ResourcePackerGUI.Application.Packaging.Queries
         /// The password used to encrypt the data located at the path entries.
         /// </summary>
         public string Password { get; init; }
-        
+
         /// <summary>
         /// A read-only collection of <see cref="PathEntry"/> instances.
         /// </summary>
         public IReadOnlyList<PathEntry> PathEntries { get; init; }
 
         /// <summary>
-        /// A secondary progress instance to keep track of the encryption progress.
+        /// An optional secondary progress instance to keep track of the encryption progress.
         /// </summary>
         public IProgress<int>? ProgressSecondary { get; init; }
 
         /// <summary>
-        /// A primary progress instance to keep track of the amount of files processed.
+        /// An optional primary progress instance to keep track of the amount of files processed.
         /// </summary>
         public IProgress<int>? ProgressPrimary { get; init; }
 
@@ -48,6 +47,5 @@ namespace ResourcePackerGUI.Application.Packaging.Queries
         /// The interval in milliseconds for updating the progress instances when present.
         /// </summary>
         public int ProgressReportInterval { get; init; } = 100;
-
     }
 }

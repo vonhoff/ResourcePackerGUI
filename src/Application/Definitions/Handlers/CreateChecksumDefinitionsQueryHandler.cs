@@ -26,12 +26,18 @@ namespace ResourcePackerGUI.Application.Definitions.Handlers
                 {
                     crcDictionary = CreateChecksumDictionary(reader, cancellationToken);
                 }
-                
+
                 _logger.LogInformation("Computed {definitionCount} checksum definitions.", crcDictionary.Count);
                 return crcDictionary;
             }, cancellationToken);
         }
 
+        /// <summary>
+        /// Creates a checksum dictionary of checksum values and their original entries.
+        /// </summary>
+        /// <param name="reader">The stream reader containing all definition entries.</param>
+        /// <param name="cancellationToken">A cancellation token to cancel the stream reading process.</param>
+        /// <returns>A read-only dictionary of checksum values and their original entries.</returns>
         private IReadOnlyDictionary<uint, string> CreateChecksumDictionary(StreamReader reader, CancellationToken cancellationToken)
         {
             var crcDictionary = new Dictionary<uint, string>();
@@ -61,6 +67,12 @@ namespace ResourcePackerGUI.Application.Definitions.Handlers
             return crcDictionary;
         }
 
+        /// <summary>
+        /// Normalizes the provided definition by replacing all backslashes with forward slashes, <br/>
+        /// trimming the text, and setting all text to lowercase.
+        /// </summary>
+        /// <param name="definition">The text to normalize.</param>
+        /// <returns>The normalized text.</returns>
         private static string NormalizeFilePath(string definition)
         {
             return definition.Replace(@"\", "/").Trim().ToLowerInvariant();

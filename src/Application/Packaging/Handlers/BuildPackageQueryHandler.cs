@@ -89,7 +89,7 @@ namespace ResourcePackerGUI.Application.Packaging.Handlers
         }
 
         /// <summary>
-        /// Tries to get the file contents of the specified path.
+        /// Attempts to retrieve the file contents of the specified path.
         /// </summary>
         /// <param name="absolutePath">The location to read the file contents from.</param>
         /// <param name="packageOutput">The output of the package.</param>

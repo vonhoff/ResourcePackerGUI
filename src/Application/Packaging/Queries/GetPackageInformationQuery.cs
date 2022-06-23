@@ -20,7 +20,7 @@ namespace ResourcePackerGUI.Application.Packaging.Queries
         public BinaryReader BinaryReader { get; init; }
 
         /// <summary>
-        /// A progress instance to keep track of the amount of entries being loaded.
+        /// An optional progress instance to keep track of the amount of entries being loaded.
         /// </summary>
         public IProgress<int>? Progress { get; init; }
 

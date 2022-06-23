@@ -30,16 +30,14 @@ namespace ResourcePackerGUI.Application.Packaging.Handlers
             return Task.Run(() =>
             {
                 var assets = GetResources(request, cancellationToken);
-                var entryCount = request.Package.Entries.Count;
-
-                if (assets.Count == entryCount)
+                if (assets.Count == request.Entries.Count)
                 {
                     _logger.LogInformation("Loaded all {assetCount} assets.", assets.Count);
                 }
                 else
                 {
                     _logger.LogWarning("Loaded {assetCount} out of {entryCount} assets.",
-                        assets.Count, entryCount);
+                        assets.Count, request.Entries.Count);
                 }
 
                 return assets;
@@ -51,7 +49,6 @@ namespace ResourcePackerGUI.Application.Packaging.Handlers
             using var progressTimer = new System.Timers.Timer(request.ProgressReportInterval);
             var assets = new List<Resource>();
             var percentage = 0;
-            var entries = request.Package.Entries;
             var key = string.IsNullOrEmpty(request.Password)
                 ? Array.Empty<uint>()
                 : _aesEncryptionService.KeySetup(request.Password);
@@ -60,13 +57,13 @@ namespace ResourcePackerGUI.Application.Packaging.Handlers
             progressTimer.Elapsed += delegate { request.ProgressPrimary!.Report(percentage); };
             progressTimer.Enabled = request.ProgressPrimary != null;
 
-            for (var i = 0; i < entries.Count; i++)
+            for (var i = 0; i < request.Entries.Count; i++)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                var entry = entries[i];
+                var entry = request.Entries[i];
 
                 request.BinaryReader.BaseStream.Position = entry.Offset;
-                if (!TryLoadResource(request, entry, out var buffer, key, cancellationToken))
+                if (!TryLoadResourceData(request, entry, out var buffer, key, cancellationToken))
                 {
                     continue;
                 }
@@ -80,15 +77,15 @@ namespace ResourcePackerGUI.Application.Packaging.Handlers
                 var mimeType = _mimeTypeService.GetTypeByData(buffer);
                 var asset = new Resource(buffer, entry, mimeType);
                 assets.Add(asset);
-                percentage = (int)((double)(i + 1) / entries.Count * 100);
-                _logger.LogDebug("Added asset: {@asset}", 
+                percentage = (int)((double)(i + 1) / request.Entries.Count * 100);
+                _logger.LogDebug("Added asset: {@asset}",
                     new { asset.Name, asset.MediaType });
             }
 
             return assets;
         }
 
-        private bool TryLoadResource(GetResourcesQuery request, Entry entry, out byte[] buffer,
+        private bool TryLoadResourceData(GetResourcesQuery request, Entry entry, out byte[] buffer,
             uint[] key, CancellationToken cancellationToken)
         {
             try
@@ -100,7 +97,7 @@ namespace ResourcePackerGUI.Application.Packaging.Handlers
                 buffer = Array.Empty<byte>();
                 return false;
             }
-            
+
             if (key.Length == 0)
             {
                 return true;

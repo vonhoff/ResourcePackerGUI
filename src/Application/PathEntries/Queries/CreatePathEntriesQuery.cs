@@ -1,20 +1,39 @@
 ﻿using MediatR;
 using ResourcePackerGUI.Application.Common.Models;
-using ResourcePackerGUI.Domain.Entities;
 
 namespace ResourcePackerGUI.Application.PathEntries.Queries
 {
-    public class CreatePathEntriesQuery : IRequest<IReadOnlySet<PathEntry>>
+    public class CreatePathEntriesQuery : IRequest<IReadOnlyList<PathEntry>>
     {
-        public CreatePathEntriesQuery(IReadOnlyList<string> filePaths, int relativeFilePathDepth)
+        /// <summary>
+        /// Constructor for the <see cref="CreatePathEntriesQuery"/> class.
+        /// </summary>
+        /// <param name="absoluteFilePaths">A list of absolute file paths to create relative paths from.</param>
+        /// <param name="relativeFilePathDepth">The relative file path depth.</param>
+        public CreatePathEntriesQuery(IReadOnlyList<string> absoluteFilePaths, int relativeFilePathDepth)
         {
-            FilePaths = filePaths;
+            AbsoluteFilePaths = absoluteFilePaths;
             RelativeFilePathDepth = relativeFilePathDepth;
         }
 
-        public IReadOnlyList<string> FilePaths { get; init; }
-        public IProgress<int>? Progress { get; init; }
-        public int ProgressReportInterval { get; init; } = 100;
+        /// <summary>
+        /// A list of absolute file paths to create relative paths from.
+        /// </summary>
+        public IReadOnlyList<string> AbsoluteFilePaths { get; init; }
+
+        /// <summary>
+        /// The relative file path depth.
+        /// </summary>
         public int RelativeFilePathDepth { get; init; }
+
+        /// <summary>
+        /// An optional progress instance to keep track of the path creation process.
+        /// </summary>
+        public IProgress<int>? Progress { get; init; }
+
+        /// <summary>
+        /// The interval in milliseconds for updating the progress instances when present.
+        /// </summary>
+        public int ProgressReportInterval { get; init; } = 100;
     }
 }

@@ -1,12 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using MediatR;
+using ResourcePackerGUI.Application.Resources.Queries;
 
 namespace ResourcePackerGUI.Application.Resources.Handlers
 {
-    public class UpdateResourceDefinitionsQueryHandler
+    public class UpdateResourceDefinitionsQueryHandler : IRequestHandler<UpdateResourceDefinitionsQuery>
     {
+        public Task<Unit> Handle(UpdateResourceDefinitionsQuery request, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

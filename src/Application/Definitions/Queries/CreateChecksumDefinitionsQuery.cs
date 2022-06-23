@@ -16,9 +16,6 @@ namespace ResourcePackerGUI.Application.Definitions.Queries
         /// <summary>
         /// The stream of the specified definition file.
         /// </summary>
-        /// <remarks>
-        /// A checksum gets created for every line inside the provided stream.
-        /// </remarks>
         public Stream FileStream { get; init; }
     }
 }
