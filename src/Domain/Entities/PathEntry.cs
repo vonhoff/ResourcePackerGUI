@@ -18,7 +18,7 @@
 
 #endregion
 
-namespace ResourcePackerGUI.Application.Common.Models
+namespace ResourcePackerGUI.Domain.Entities
 {
     public class PathEntry
     {

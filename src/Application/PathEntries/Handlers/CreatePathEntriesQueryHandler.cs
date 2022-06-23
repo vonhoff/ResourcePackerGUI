@@ -1,8 +1,8 @@
 ﻿using System.IO.Abstractions;
 using MediatR;
 using Microsoft.Extensions.Logging;
-using ResourcePackerGUI.Application.Common.Models;
 using ResourcePackerGUI.Application.PathEntries.Queries;
+using ResourcePackerGUI.Domain.Entities;
 
 namespace ResourcePackerGUI.Application.PathEntries.Handlers
 {
