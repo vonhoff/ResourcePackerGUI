@@ -12,6 +12,7 @@
   <ItemGroup>
     <PackageReference Include="Crc32.NET" Version="1.2.0" />
     <PackageReference Include="MimeTypesMap" Version="1.0.8" />
+    <PackageReference Include="System.IO.Abstractions" Version="17.0.18" />
     <PackageReference Include="Winista.MimeDetect" Version="1.0.1" />
   </ItemGroup>
 
