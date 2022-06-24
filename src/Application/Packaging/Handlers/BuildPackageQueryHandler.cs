@@ -155,6 +155,7 @@ namespace ResourcePackerGUI.Application.Packaging.Handlers
                         request.ProgressSecondary, request.ProgressReportInterval, cancellationToken))
                 {
                     fileContent = output;
+                    entry.PackSize = output.Length;
                 }
 
                 // Write the file contents to the specified offset.
