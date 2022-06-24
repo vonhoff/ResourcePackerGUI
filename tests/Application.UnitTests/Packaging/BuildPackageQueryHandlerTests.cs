@@ -1,5 +1,4 @@
-﻿using System.IO.Abstractions;
-using System.IO.Abstractions.TestingHelpers;
+﻿using System.IO.Abstractions.TestingHelpers;
 using Application.UnitTests.Common;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -115,7 +114,7 @@ namespace Application.UnitTests.Packaging
             68, 174, 66, 96, 130
         };
 
-        #endregion
+        #endregion Expected resource packages
 
         private static readonly byte[] SampleBasePng = {
             137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, 0, 128,
@@ -167,8 +166,8 @@ namespace Application.UnitTests.Packaging
 
         private readonly Dictionary<string, MockFileData> _mockFiles = new()
         {
-            {"F:\\repos\\ResourcePacker\\Debug\\assets\\base.png", new MockFileData(SampleBasePng)},
-            {"F:\\repos\\ResourcePacker\\Debug\\assets\\mushroom-red.png", new MockFileData(SampleMushroomRedPng)},
+            { "F:\\repos\\ResourcePacker\\Debug\\assets\\base.png", new MockFileData(SampleBasePng) },
+            { "F:\\repos\\ResourcePacker\\Debug\\assets\\mushroom-red.png", new MockFileData(SampleMushroomRedPng) },
         };
 
         public BuildPackageQueryHandlerTests(QueryTestFixture fixture)
@@ -183,6 +182,7 @@ namespace Application.UnitTests.Packaging
         {
             var fileSystem = new MockFileSystem(_mockFiles, "F:\\repos\\ResourcePacker\\Debug\\");
             const string output = "F:\\repos\\ResourcePacker\\Debug\\assets.dat";
+
             var query = new BuildPackageQuery(_pathEntries, output);
             var sut = new BuildPackageQueryHandler(fileSystem, _aesEncryptionService, _crc32Service, _logger);
             await sut.Handle(query, default);
@@ -191,6 +191,22 @@ namespace Application.UnitTests.Packaging
             var outputFile = fileSystem.GetFile(output);
             Assert.NotNull(outputFile);
             Assert.Equal(ExpectedResourcePack, outputFile.Contents);
+        }
+
+        [Fact]
+        public async Task BuildPackage_WithEncryption()
+        {
+            var fileSystem = new MockFileSystem(_mockFiles, "F:\\repos\\ResourcePacker\\Debug\\");
+            const string output = "F:\\repos\\ResourcePacker\\Debug\\assets.dat";
+
+            var query = new BuildPackageQuery(_pathEntries, output, "test123");
+            var sut = new BuildPackageQueryHandler(fileSystem, _aesEncryptionService, _crc32Service, _logger);
+            await sut.Handle(query, default);
+            Assert.True(fileSystem.FileExists(output));
+
+            var outputFile = fileSystem.GetFile(output);
+            Assert.NotNull(outputFile);
+            Assert.Equal(ExpectedResourcePackEncrypted, outputFile.Contents);
         }
     }
 }

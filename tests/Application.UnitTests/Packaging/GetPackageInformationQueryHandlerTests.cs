@@ -13,14 +13,19 @@ namespace Application.UnitTests.Packaging
     [Collection(QueryCollection.CollectionName)]
     public class GetPackageInformationQueryHandlerTests
     {
-        private const ulong PackHeaderId = 30227092120757586;
-
         private static readonly byte[] SampleResourcePackage =
         {
             82, 101, 115, 80, 97, 99, 107, 0, 0, 0, 0, 0, 2, 0, 0, 0, 126, 51, 41, 241,
             130, 137, 209, 247, 5, 0, 0, 0, 5, 0, 0, 0, 56, 0, 0, 0, 174, 73, 137, 182,
             222, 157, 40, 118, 6, 0, 0, 0, 6, 0, 0, 0, 61, 0, 0, 0, 72, 101, 108, 108,
             111, 87, 111, 114, 108, 100, 33
+        };
+
+        private static readonly PackageHeader ExpectedPackageHeader = new()
+        {
+            Id = 30227092120757586,
+            Reserved = 0,
+            NumberOfEntries = 2
         };
 
         private static readonly Entry ExpectedFirstEntry = new()
@@ -57,11 +62,10 @@ namespace Application.UnitTests.Packaging
             var sut = new GetPackageInformationQueryHandler(_logger);
             var result = await sut.Handle(query, default);
             Assert.NotNull(result);
-            Assert.True(result.Header.Id == PackHeaderId);
-            Assert.True(result.Header.NumberOfEntries == 2);
-            Assert.True(result.Entries.Count == 2);
-            Assert.True(result.Entries[0].Equals(ExpectedFirstEntry));
-            Assert.True(result.Entries[1].Equals(ExpectedSecondEntry));
+            Assert.Equal(ExpectedPackageHeader, result.Header);
+            Assert.Equal(2, result.Entries.Count);
+            Assert.Equal(ExpectedFirstEntry, result.Entries[0]);
+            Assert.Equal(ExpectedSecondEntry, result.Entries[1]);
         }
 
         [Fact]
