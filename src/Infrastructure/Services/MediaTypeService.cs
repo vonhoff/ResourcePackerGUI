@@ -22,7 +22,6 @@ namespace ResourcePackerGUI.Infrastructure.Services
             SubType = "json"
         };
 
-        private static readonly Regex InvalidCharactersRegex = new(@"[^\t\r\n -~]", RegexOptions.Compiled);
         private static readonly MimeTypes MimeTypes = new();
 
         public MediaType? GetTypeByData(byte[] data)
@@ -71,7 +70,6 @@ namespace ResourcePackerGUI.Infrastructure.Services
             try
             {
                 var text = Encoding.UTF8.GetString(data);
-                text = InvalidCharactersRegex.Replace(text, string.Empty);
                 JsonNode.Parse(text);
                 return true;
             }
