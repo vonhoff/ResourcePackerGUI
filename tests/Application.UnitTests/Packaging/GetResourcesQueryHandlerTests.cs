@@ -54,6 +54,21 @@ namespace Application.UnitTests.Packaging
             Assert.Equal(ExpectedSmwBackgroundPng, result[2].Data);
         }
 
+        [Fact]
+        public async Task GetResources_WithEncryption()
+        {
+            await using var stream = new MemoryStream(SampleResourcePackageEncrypted);
+            using var binaryReader = new BinaryReader(stream);
+            var query = new GetResourcesQuery(EntriesEncrypted, binaryReader, "Welkom01!");
+            var sut = new GetResourcesQueryHandler(_aesEncryptionService, _crc32Service, _mediaTypeService, _logger);
+            var result = await sut.Handle(query, default);
+            Assert.NotNull(result);
+            Assert.Equal(3, result.Count);
+            Assert.Equal(ExpectedMushroomBrownPng, result[0].Data);
+            Assert.Equal(ExpectedPlantPng, result[1].Data);
+            Assert.Equal(ExpectedSmwBackgroundPng, result[2].Data);
+        }
+
         #region Sample resource packages
 
         /// <summary>
