@@ -74,7 +74,7 @@ namespace ResourcePackerGUI.Application.Packaging.Handlers
                 }
 
                 var mimeType = _mediaTypeService.GetTypeByData(buffer);
-                var asset = new Resource(buffer, entry, mimeType);
+                var asset = new Resource(buffer[..entry.DataSize], entry, mimeType);
                 assets.Add(asset);
                 percentage = (int)((double)(i + 1) / request.Entries.Count * 100);
                 _logger.LogDebug("Added asset: {@asset}",
