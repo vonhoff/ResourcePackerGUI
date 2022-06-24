@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text;
 using Application.UnitTests.Common;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -19,7 +15,7 @@ namespace Application.UnitTests.Packaging
     {
         private const ulong PackHeaderId = 30227092120757586;
 
-        private static readonly byte[] SampleResPack =
+        private static readonly byte[] SampleResourcePackage =
         {
             82, 101, 115, 80, 97, 99, 107, 0, 0, 0, 0, 0, 2, 0, 0, 0, 126, 51, 41, 241,
             130, 137, 209, 247, 5, 0, 0, 0, 5, 0, 0, 0, 56, 0, 0, 0, 174, 73, 137, 182,
@@ -55,7 +51,7 @@ namespace Application.UnitTests.Packaging
         [Fact]
         public async Task GetPackageInformation_OnValidPackage()
         {
-            await using var stream = new MemoryStream(SampleResPack);
+            await using var stream = new MemoryStream(SampleResourcePackage);
             using var binaryReader = new BinaryReader(stream);
             var query = new GetPackageInformationQuery(binaryReader);
             var sut = new GetPackageInformationQueryHandler(_logger);

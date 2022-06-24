@@ -6,6 +6,7 @@
     <Nullable>enable</Nullable>
     <RootNamespace>ResourcePackerGUI.Domain</RootNamespace>
     <AssemblyName>ResourcePackerGUI.Domain</AssemblyName>
+    <Platforms>AnyCPU;x64;x86</Platforms>
   </PropertyGroup>
 
 </Project>
