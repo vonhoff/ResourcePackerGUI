@@ -62,7 +62,6 @@ namespace ResourcePackerGUI.Application.Packaging.Handlers
                 cancellationToken.ThrowIfCancellationRequested();
                 var entry = request.Entries[i];
 
-                request.BinaryReader.BaseStream.Position = entry.Offset;
                 if (!TryLoadResourceData(request, entry, out var buffer, key, cancellationToken))
                 {
                     continue;
@@ -90,6 +89,7 @@ namespace ResourcePackerGUI.Application.Packaging.Handlers
         {
             try
             {
+                request.BinaryReader.BaseStream.Position = entry.Offset;
                 buffer = request.BinaryReader.ReadBytes(entry.PackSize);
             }
             catch

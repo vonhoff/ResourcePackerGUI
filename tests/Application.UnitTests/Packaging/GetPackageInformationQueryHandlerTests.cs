@@ -13,6 +13,43 @@ namespace Application.UnitTests.Packaging
     [Collection(QueryCollection.CollectionName)]
     public class GetPackageInformationQueryHandlerTests
     {
+        private readonly ILogger<GetPackageInformationQueryHandler> _logger;
+
+        public GetPackageInformationQueryHandlerTests()
+        {
+            _logger = new NullLogger<GetPackageInformationQueryHandler>();
+        }
+
+        [Fact]
+        public async Task GetPackageInformation_OnInvalidPackage_ThrowsInvalidHeaderException()
+        {
+            await using var stream = new MemoryStream(Encoding.UTF8.GetBytes("Great tools help make great games."));
+            using var binaryReader = new BinaryReader(stream);
+            var query = new GetPackageInformationQuery(binaryReader);
+            var sut = new GetPackageInformationQueryHandler(_logger);
+            await Assert.ThrowsAsync<InvalidHeaderException>(() => sut.Handle(query, default));
+        }
+
+        [Fact]
+        public async Task GetPackageInformation_OnValidPackage()
+        {
+            await using var stream = new MemoryStream(SampleResourcePackage);
+            using var binaryReader = new BinaryReader(stream);
+            var query = new GetPackageInformationQuery(binaryReader);
+            var sut = new GetPackageInformationQueryHandler(_logger);
+            var result = await sut.Handle(query, default);
+            Assert.NotNull(result);
+            Assert.Equal(ExpectedPackageHeader, result.Header);
+            Assert.Equal(2, result.Entries.Count);
+            Assert.Equal(ExpectedFirstEntry, result.Entries[0]);
+            Assert.Equal(ExpectedSecondEntry, result.Entries[1]);
+        }
+
+        #region Sample resource package
+
+        /// <summary>
+        /// A resource package created with the original command-line tool.
+        /// </summary>
         private static readonly byte[] SampleResourcePackage =
         {
             82, 101, 115, 80, 97, 99, 107, 0, 0, 0, 0, 0, 2, 0, 0, 0, 126, 51, 41, 241,
@@ -20,6 +57,10 @@ namespace Application.UnitTests.Packaging
             222, 157, 40, 118, 6, 0, 0, 0, 6, 0, 0, 0, 61, 0, 0, 0, 72, 101, 108, 108,
             111, 87, 111, 114, 108, 100, 33
         };
+
+        #endregion Sample resource package
+
+        #region Expected entities
 
         private static readonly PackageHeader ExpectedPackageHeader = new()
         {
@@ -46,36 +87,6 @@ namespace Application.UnitTests.Packaging
             PackSize = 6
         };
 
-        private readonly ILogger<GetPackageInformationQueryHandler> _logger;
-
-        public GetPackageInformationQueryHandlerTests()
-        {
-            _logger = new NullLogger<GetPackageInformationQueryHandler>();
-        }
-
-        [Fact]
-        public async Task GetPackageInformation_OnValidPackage()
-        {
-            await using var stream = new MemoryStream(SampleResourcePackage);
-            using var binaryReader = new BinaryReader(stream);
-            var query = new GetPackageInformationQuery(binaryReader);
-            var sut = new GetPackageInformationQueryHandler(_logger);
-            var result = await sut.Handle(query, default);
-            Assert.NotNull(result);
-            Assert.Equal(ExpectedPackageHeader, result.Header);
-            Assert.Equal(2, result.Entries.Count);
-            Assert.Equal(ExpectedFirstEntry, result.Entries[0]);
-            Assert.Equal(ExpectedSecondEntry, result.Entries[1]);
-        }
-
-        [Fact]
-        public async Task GetPackageInformation_OnInvalidPackage_ThrowsInvalidHeaderException()
-        {
-            await using var stream = new MemoryStream(Encoding.UTF8.GetBytes("Great tools help make great games."));
-            using var binaryReader = new BinaryReader(stream);
-            var query = new GetPackageInformationQuery(binaryReader);
-            var sut = new GetPackageInformationQueryHandler(_logger);
-            await Assert.ThrowsAsync<InvalidHeaderException>(() => sut.Handle(query, default));
-        }
+        #endregion Expected entities
     }
 }
