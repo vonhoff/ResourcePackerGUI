@@ -1,6 +1,7 @@
 ﻿using Application.UnitTests.Common;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using ResourcePackerGUI.Application.Common.Exceptions;
 using ResourcePackerGUI.Application.Common.Interfaces;
 using ResourcePackerGUI.Application.Packaging.Handlers;
 using ResourcePackerGUI.Application.Packaging.Queries;
@@ -67,6 +68,16 @@ namespace Application.UnitTests.Packaging
             Assert.Equal(ExpectedMushroomBrownPng, result[0].Data);
             Assert.Equal(ExpectedPlantPng, result[1].Data);
             Assert.Equal(ExpectedSmwBackgroundPng, result[2].Data);
+        }
+
+        [Fact]
+        public async Task GetResources_EnteredInvalidPassword_ThrowsInvalidPasswordException()
+        {
+            await using var stream = new MemoryStream(SampleResourcePackageEncrypted);
+            using var binaryReader = new BinaryReader(stream);
+            var query = new GetResourcesQuery(EntriesEncrypted, binaryReader, "Password123!");
+            var sut = new GetResourcesQueryHandler(_aesEncryptionService, _crc32Service, _mediaTypeService, _logger);
+            await Assert.ThrowsAsync<InvalidPasswordException>(() => sut.Handle(query, default));
         }
 
         #region Sample resource packages

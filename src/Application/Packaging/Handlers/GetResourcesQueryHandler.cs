@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using Microsoft.Extensions.Logging;
+using ResourcePackerGUI.Application.Common.Exceptions;
 using ResourcePackerGUI.Application.Common.Interfaces;
 using ResourcePackerGUI.Application.Packaging.Queries;
 using ResourcePackerGUI.Domain.Entities;
@@ -70,6 +71,11 @@ namespace ResourcePackerGUI.Application.Packaging.Handlers
                 var crc = _crc32Service.Compute(buffer, 0, entry.DataSize);
                 if (entry.Crc != crc)
                 {
+                    if (key.Length > 0)
+                    {
+                        throw new InvalidPasswordException("The password entered is incorrect.", request.Password.GetHashCode());
+                    }
+                   
                     continue;
                 }
 
