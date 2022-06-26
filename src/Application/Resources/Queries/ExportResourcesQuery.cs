@@ -1,5 +1,4 @@
 ﻿using MediatR;
-using ResourcePackerGUI.Application.Common.Enums;
 using ResourcePackerGUI.Domain.Entities;
 
 namespace ResourcePackerGUI.Application.Resources.Queries
@@ -11,19 +10,19 @@ namespace ResourcePackerGUI.Application.Resources.Queries
         /// </summary>
         /// <param name="basePath">The root folder to write the resources to.</param>
         /// <param name="resources">The resources to export.</param>
-        /// <param name="conflictResolveActions">A dictionary of resolve methods for conflicting file encounters.</param>
+        /// <param name="conflictingNameReplacements">A dictionary of resolve methods for conflicting file encounters.</param>
         public ExportResourcesQuery(string basePath, IReadOnlyList<Resource> resources,
-            IReadOnlyDictionary<Resource, FileConflictResolveMethod>? conflictResolveActions)
+            IReadOnlyDictionary<Resource, string>? conflictingNameReplacements)
         {
             Resources = resources;
-            ConflictResolveActions = conflictResolveActions;
+            ConflictingNameReplacements = conflictingNameReplacements;
             BasePath = basePath;
         }
 
         /// <summary>
-        /// A dictionary of resolve methods for conflicting file encounters.
+        /// A dictionary of file names for conflicting encounters.
         /// </summary>
-        public IReadOnlyDictionary<Resource, FileConflictResolveMethod>? ConflictResolveActions { get; init; }
+        public IReadOnlyDictionary<Resource, string>? ConflictingNameReplacements { get; init; }
 
         /// <summary>
         /// The resources to export.
