@@ -8,7 +8,6 @@ using Xunit;
 
 namespace Application.UnitTests.PathEntries
 {
-    [Collection(QueryCollection.CollectionName)]
     public class ExportPathEntriesQueryHandlerTests
     {
         private readonly List<PathEntry> _pathEntries = new()
@@ -30,12 +29,11 @@ namespace Application.UnitTests.PathEntries
                 "assets/mushroom-red.png" + Environment.NewLine;
 
             await sut.Handle(query, default);
-            Assert.True(fileSystem.FileExists(output));
             Assert.Equal(expectedOutput, fileSystem.GetFile(output).TextContents);
         }
 
         [Fact]
-        public async Task ExportPathEntries_NoOutput_ThrowsInvalidDataException()
+        public async Task ExportPathEntries_NoOutput_ThrowsInvalidOutputException()
         {
             var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>(),
                 "F:\\repos\\ResourcePacker\\Debug\\assets\\");

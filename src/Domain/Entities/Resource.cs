@@ -24,13 +24,14 @@ namespace ResourcePackerGUI.Domain.Entities
 {
     public class Resource
     {
-        private string _name = string.Empty;
+        private string _name;
 
-        public Resource(byte[] data, Entry entry, MediaType? mediaType = null)
+        public Resource(byte[] data, Entry entry, MediaType? mediaType = null, string name = "")
         {
             Data = data;
             Entry = entry;
             MediaType = mediaType;
+            Name = name;
         }
 
         public byte[] Data { get; init; }
