@@ -12,7 +12,7 @@ namespace ResourcePackerGUI.Application.Resources.Queries
         /// <param name="resources">The resources to export.</param>
         /// <param name="conflictingNameReplacements">A dictionary of resolve methods for conflicting file encounters.</param>
         public ExportResourcesQuery(string basePath, IReadOnlyList<Resource> resources,
-            IReadOnlyDictionary<Resource, string>? conflictingNameReplacements)
+            IReadOnlyDictionary<Resource, string>? conflictingNameReplacements = null)
         {
             Resources = resources;
             ConflictingNameReplacements = conflictingNameReplacements;
