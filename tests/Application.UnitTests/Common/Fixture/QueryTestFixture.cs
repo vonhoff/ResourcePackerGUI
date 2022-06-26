@@ -1,7 +1,7 @@
 ﻿using ResourcePackerGUI.Application.Common.Interfaces;
 using ResourcePackerGUI.Infrastructure.Services;
 
-namespace Application.UnitTests.Common
+namespace Application.UnitTests.Common.Fixture
 {
     public class QueryTestFixture
     {

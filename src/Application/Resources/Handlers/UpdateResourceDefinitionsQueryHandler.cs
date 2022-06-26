@@ -23,13 +23,7 @@ namespace ResourcePackerGUI.Application.Resources.Handlers
             {
                 if (request.ChecksumDefinitions.Count == 0 || request.Resources.Count == 0)
                 {
-                    _logger.LogError("Could not update assets with definitions: {@info}",
-                        new
-                        {
-                            ResourcesCount = request.Resources.Count,
-                            DefinitionCount = request.ChecksumDefinitions.Count
-                        });
-                    return Unit.Value;
+                    throw new InvalidDataException("The provided data is invalid.");
                 }
 
                 foreach (var asset in request.Resources)
@@ -37,8 +31,8 @@ namespace ResourcePackerGUI.Application.Resources.Handlers
                     if (request.ChecksumDefinitions.TryGetValue(asset.Entry.Id, out var filePath))
                     {
                         // If the media type has not been found before,
-                        // try to find the media type by the file extension.
-                        asset.MediaType ??= _mediaTypeService.GetTypeByName(asset.Name);
+                        // try to find the media type by its file extension.
+                        asset.MediaType ??= _mediaTypeService.GetTypeByName(filePath);
                         asset.Name = filePath;
                     }
                     else

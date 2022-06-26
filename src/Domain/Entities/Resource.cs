@@ -31,7 +31,7 @@ namespace ResourcePackerGUI.Domain.Entities
             Data = data;
             Entry = entry;
             MediaType = mediaType;
-            Name = name;
+            _name = name;
         }
 
         public byte[] Data { get; init; }

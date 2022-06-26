@@ -1,4 +1,5 @@
 ﻿using Application.UnitTests.Common;
+using Application.UnitTests.Common.Fixture;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using ResourcePackerGUI.Application.Common.Exceptions;

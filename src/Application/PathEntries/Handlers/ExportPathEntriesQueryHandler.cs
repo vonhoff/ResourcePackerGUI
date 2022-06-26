@@ -22,7 +22,7 @@ namespace ResourcePackerGUI.Application.PathEntries.Handlers
                 if (string.IsNullOrWhiteSpace(request.Output) ||
                     request.Output.IndexOfAny(Path.GetInvalidPathChars()) >= 0)
                 {
-                    throw new InvalidOutputException("The specified output is invalid.", request.Output);
+                    throw new InvalidPathException("The specified output is invalid.", request.Output);
                 }
 
                 var file = _fileSystem.FileStream.Create(request.Output, FileMode.Create);

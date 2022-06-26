@@ -8,11 +8,18 @@ namespace ResourcePackerGUI.Application.Resources.Queries
         /// <summary>
         /// Constructor for the <see cref="GetConflictingResourcesQuery"/> class.
         /// </summary>
+        /// <param name="basePath">The base folder to check for conflicts.</param>
         /// <param name="resources">The collection of resources.</param>
-        public GetConflictingResourcesQuery(IReadOnlyList<Resource> resources)
+        public GetConflictingResourcesQuery(string basePath, IReadOnlyList<Resource> resources)
         {
+            BasePath = basePath;
             Resources = resources;
         }
+
+        /// <summary>
+        /// The root folder to check for conflicts.
+        /// </summary>
+        public string BasePath { get; init; }
 
         /// <summary>
         /// The collection of resources to check if a file

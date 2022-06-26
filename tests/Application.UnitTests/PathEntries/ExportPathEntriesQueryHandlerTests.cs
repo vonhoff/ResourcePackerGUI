@@ -39,7 +39,7 @@ namespace Application.UnitTests.PathEntries
                 "F:\\repos\\ResourcePacker\\Debug\\assets\\");
             var query = new ExportPathEntriesQuery(_pathEntries, string.Empty);
             var sut = new ExportPathEntriesQueryHandler(fileSystem);
-            await Assert.ThrowsAsync<InvalidOutputException>(() => sut.Handle(query, default));
+            await Assert.ThrowsAsync<InvalidPathException>(() => sut.Handle(query, default));
         }
     }
 }
