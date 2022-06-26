@@ -44,8 +44,9 @@ namespace ResourcePackerGUI.Application.PathEntries.Handlers
             var processedItems = new List<PathEntry>();
             for (var i = 0; i < request.AbsoluteFilePaths.Count; i++)
             {
+                percentage = (int)((double)(i + 1) / request.AbsoluteFilePaths.Count * 100);
                 var absolutePath = request.AbsoluteFilePaths[i];
-
+                
                 if (!_fileSystem.File.Exists(absolutePath))
                 {
                     _logger.LogWarning("File does not exist: {path}", absolutePath);
@@ -59,7 +60,6 @@ namespace ResourcePackerGUI.Application.PathEntries.Handlers
                 }
 
                 processedItems.Add(new PathEntry(absolutePath, relativePath));
-                percentage = (int)((double)(i + 1) / request.AbsoluteFilePaths.Count * 100);
             }
 
             return processedItems;
@@ -78,7 +78,7 @@ namespace ResourcePackerGUI.Application.PathEntries.Handlers
                 .Replace(@"\", "/")
                 .Split('/', StringSplitOptions.RemoveEmptyEntries);
 
-            if (pathNodes.Length < relativeDepth)
+            if (pathNodes.Length <= relativeDepth)
             {
                 relativePath = string.Empty;
                 return false;

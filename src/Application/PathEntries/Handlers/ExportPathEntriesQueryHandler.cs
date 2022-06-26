@@ -1,6 +1,7 @@
 ﻿using System.IO.Abstractions;
 using System.Text;
 using MediatR;
+using ResourcePackerGUI.Application.Common.Exceptions;
 using ResourcePackerGUI.Application.PathEntries.Queries;
 
 namespace ResourcePackerGUI.Application.PathEntries.Handlers
@@ -18,10 +19,16 @@ namespace ResourcePackerGUI.Application.PathEntries.Handlers
         {
             return Task.Run(() =>
             {
+                if (string.IsNullOrWhiteSpace(request.Output) ||
+                    request.Output.IndexOfAny(Path.GetInvalidPathChars()) >= 0)
+                {
+                    throw new InvalidOutputException("The specified output is invalid.", request.Output);
+                }
+
                 var file = _fileSystem.FileStream.Create(request.Output, FileMode.Create);
                 if (file == null)
                 {
-                    return Unit.Value;
+                    throw new InvalidDataException("The file stream is null.");
                 }
 
                 var percentage = 0;
@@ -33,7 +40,7 @@ namespace ResourcePackerGUI.Application.PathEntries.Handlers
                 for (var i = 0; i < request.PathEntries.Count; i++)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
-                    var buffer = Encoding.UTF8.GetBytes(request.PathEntries[i].RelativePath);
+                    var buffer = Encoding.UTF8.GetBytes(request.PathEntries[i].RelativePath + Environment.NewLine);
                     file.Write(buffer);
                     percentage = (int)((double)(i + 1) / request.PathEntries.Count * 100);
                 }
