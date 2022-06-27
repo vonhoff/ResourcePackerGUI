@@ -1,5 +1,4 @@
 ﻿using System.Text;
-using Application.UnitTests.Common;
 using Application.UnitTests.Common.Fixture;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;

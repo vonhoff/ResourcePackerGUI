@@ -1,5 +1,4 @@
 ﻿using System.IO.Abstractions.TestingHelpers;
-using Application.UnitTests.Common;
 using ResourcePackerGUI.Application.Common.Exceptions;
 using ResourcePackerGUI.Application.PathEntries.Handlers;
 using ResourcePackerGUI.Application.PathEntries.Queries;

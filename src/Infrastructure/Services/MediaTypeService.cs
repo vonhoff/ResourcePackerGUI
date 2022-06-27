@@ -1,6 +1,5 @@
 ﻿using System.Text;
 using System.Text.Json.Nodes;
-using System.Text.RegularExpressions;
 using HeyRed.Mime;
 using ResourcePackerGUI.Application.Common.Interfaces;
 using ResourcePackerGUI.Domain.Entities;

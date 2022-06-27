@@ -75,12 +75,12 @@ namespace ResourcePackerGUI.Application.Packaging.Handlers
                     {
                         throw new InvalidPasswordException("The password entered is incorrect.", request.Password.GetHashCode());
                     }
-                   
+
                     continue;
                 }
 
                 var mimeType = _mediaTypeService.GetTypeByData(buffer);
-                var asset = new Resource(buffer[..entry.DataSize], entry, mimeType);
+                var asset = new Resource(buffer, entry, mimeType);
                 assets.Add(asset);
                 percentage = (int)((double)(i + 1) / request.Entries.Count * 100);
                 _logger.LogDebug("Added asset: {@asset}",
@@ -109,7 +109,7 @@ namespace ResourcePackerGUI.Application.Packaging.Handlers
                 return true;
             }
 
-            if (!_aesEncryptionService.DecryptCbc(buffer, out var output, key,
+            if (!_aesEncryptionService.DecryptCbc(buffer, entry.DataSize, out var output, key,
                     request.ProgressSecondary, request.ProgressReportInterval, cancellationToken))
             {
                 return false;

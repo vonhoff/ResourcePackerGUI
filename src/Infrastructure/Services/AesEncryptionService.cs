@@ -210,9 +210,9 @@ namespace ResourcePackerGUI.Infrastructure.Services
             new byte[]{ 0x8C, 0xA1, 0x89, 0x0D, 0xBF, 0xE6, 0x42, 0x68, 0x41, 0x99, 0x2D, 0x0F, 0xB0, 0x54, 0xBB, 0x16}
         };
 
-        public bool DecryptCbc(byte[] input, out byte[] output, uint[] key,
-            IProgress<int>? progress, int progressReportInterval,
-            CancellationToken cancellationToken)
+        public bool DecryptCbc(byte[] input, int dataSize, out byte[] output, uint[] key,
+            IProgress<int>? progress = null, int progressReportInterval = 100,
+            CancellationToken cancellationToken = default)
         {
             var packSize = input.Length;
             if (packSize % BlockSize != 0 || key.Length == 0)
@@ -249,13 +249,14 @@ namespace ResourcePackerGUI.Infrastructure.Services
                 percentage = (int)((double)(i + 1) / blocks * 100);
             }
 
+            output = output[..dataSize];
             progress?.Report(100);
             return true;
         }
 
         public bool EncryptCbc(byte[] input, out byte[] output, uint[] key,
-            IProgress<int>? progress, int progressReportInterval,
-            CancellationToken cancellationToken)
+            IProgress<int>? progress = null, int progressReportInterval = 100,
+            CancellationToken cancellationToken = default)
         {
             var packSize = (input.Length + BlockSize - 1) & ~(BlockSize - 1);
             if (packSize == input.Length)

@@ -46,7 +46,7 @@ namespace ResourcePackerGUI.Application.PathEntries.Handlers
             {
                 percentage = (int)((double)(i + 1) / request.AbsoluteFilePaths.Count * 100);
                 var absolutePath = request.AbsoluteFilePaths[i];
-                
+
                 if (!_fileSystem.File.Exists(absolutePath))
                 {
                     _logger.LogWarning("File does not exist: {path}", absolutePath);

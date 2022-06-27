@@ -1,6 +1,4 @@
 ﻿using System.IO.Abstractions.TestingHelpers;
-using System.Text;
-using Application.UnitTests.Common;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using ResourcePackerGUI.Application.PathEntries.Handlers;
@@ -9,7 +7,6 @@ using Xunit;
 
 namespace Application.UnitTests.PathEntries
 {
-
     public class CreatePathEntriesQueryHandlerTests
     {
         private readonly ILogger<CreatePathEntriesQueryHandler> _logger;

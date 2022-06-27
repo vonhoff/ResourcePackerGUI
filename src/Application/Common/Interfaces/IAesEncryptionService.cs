@@ -6,14 +6,15 @@
         /// Decrypts the provided input using the cipher block chaining mode.
         /// </summary>
         /// <param name="input">The input to decrypt.</param>
+        /// <param name="dataSize">The size of the original data.</param>
         /// <param name="output">The resulting output.</param>
         /// <param name="key">The key for decrypting the specified <paramref name="input"/>.</param>
         /// <param name="progress">An optional progress to keep track of the decryption process.</param>
         /// <param name="progressReportInterval">The interval in milliseconds for updating the progress instances when present.</param>
         /// <param name="cancellationToken">A cancellation token to cancel the decryption process.</param>
         /// <returns><see langword="true"/> when successful, <see langword="false"/> otherwise.</returns>
-        bool DecryptCbc(byte[] input, out byte[] output, uint[] key, IProgress<int>? progress,
-            int progressReportInterval, CancellationToken cancellationToken);
+        bool DecryptCbc(byte[] input, int dataSize, out byte[] output, uint[] key, IProgress<int>? progress = null,
+            int progressReportInterval = 100, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Encrypts the provided input using the cipher block chaining mode.
@@ -25,8 +26,8 @@
         /// <param name="progressReportInterval">The interval in milliseconds for updating the progress instances when present.</param>
         /// <param name="cancellationToken">A cancellation token to cancel the encryption process.</param>
         /// <returns><see langword="true"/> when successful, <see langword="false"/> otherwise.</returns>
-        bool EncryptCbc(byte[] input, out byte[] output, uint[] key, IProgress<int>? progress,
-            int progressReportInterval, CancellationToken cancellationToken);
+        bool EncryptCbc(byte[] input, out byte[] output, uint[] key, IProgress<int>? progress = null,
+            int progressReportInterval = 100, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Creates a key for use with the cipher methods.

@@ -1,5 +1,4 @@
 ﻿using System.IO.Abstractions.TestingHelpers;
-using Application.UnitTests.Common;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using ResourcePackerGUI.Application.Resources.Handlers;

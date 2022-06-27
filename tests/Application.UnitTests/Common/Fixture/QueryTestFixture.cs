@@ -1,5 +1,5 @@
-﻿using Application.UnitTests.Common.Mocks;
-using ResourcePackerGUI.Application.Common.Interfaces;
+﻿using ResourcePackerGUI.Application.Common.Interfaces;
+using ResourcePackerGUI.Infrastructure.Services;
 
 namespace Application.UnitTests.Common.Fixture
 {
@@ -7,9 +7,9 @@ namespace Application.UnitTests.Common.Fixture
     {
         public QueryTestFixture()
         {
-            AesEncryptionService = new MockAesEncryptionService();
-            Crc32Service = new MockCrc32Service();
-            MediaTypeService = new MockMediaTypeService();
+            AesEncryptionService = new AesEncryptionService();
+            Crc32Service = new Crc32Service();
+            MediaTypeService = new MediaTypeService();
         }
 
         public IAesEncryptionService AesEncryptionService { get; }

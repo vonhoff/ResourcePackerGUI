@@ -1,5 +1,4 @@
 ﻿using System.IO.Abstractions.TestingHelpers;
-using Application.UnitTests.Common;
 using Application.UnitTests.Common.Fixture;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -113,7 +112,7 @@ namespace Application.UnitTests.Packaging
             163, 228, 20, 209, 0, 0, 0, 0, 73, 69, 78, 68, 174, 66, 96, 130
         };
 
-        #endregion Samples
+        #endregion Sample files
 
         #region Expected resource packages
 
@@ -212,6 +211,6 @@ namespace Application.UnitTests.Packaging
             171, 190, 139, 49, 115, 211, 160
         };
 
-        #endregion Expected
+        #endregion Expected resource packages
     }
 }
