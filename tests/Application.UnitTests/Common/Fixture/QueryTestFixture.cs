@@ -9,7 +9,7 @@ namespace Application.UnitTests.Common.Fixture
         public QueryTestFixture()
         {
             AesEncryptionService = new MockAesEncryptionService();
-            Crc32Service = new Crc32Service();
+            Crc32Service = new MockCrc32Service();
             MediaTypeService = new MediaTypeService();
         }
 
