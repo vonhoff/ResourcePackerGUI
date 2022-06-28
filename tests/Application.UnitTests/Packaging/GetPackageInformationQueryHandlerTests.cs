@@ -1,32 +1,22 @@
 ﻿using System.Text;
 using Application.UnitTests.Common.Fixture;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 using ResourcePackerGUI.Application.Common.Exceptions;
 using ResourcePackerGUI.Application.Packaging.Handlers;
 using ResourcePackerGUI.Application.Packaging.Queries;
 using ResourcePackerGUI.Domain.Structures;
-using Xunit;
 
 namespace Application.UnitTests.Packaging
 {
     [Collection(QueryCollection.CollectionName)]
     public class GetPackageInformationQueryHandlerTests
     {
-        private readonly ILogger<GetPackageInformationQueryHandler> _logger;
-
-        public GetPackageInformationQueryHandlerTests()
-        {
-            _logger = new NullLogger<GetPackageInformationQueryHandler>();
-        }
-
         [Fact]
         public async Task GetPackageInformation_OnInvalidPackage_ThrowsInvalidHeaderException()
         {
             await using var stream = new MemoryStream(Encoding.UTF8.GetBytes("Great tools help make great games."));
             using var binaryReader = new BinaryReader(stream);
             var query = new GetPackageInformationQuery(binaryReader);
-            var sut = new GetPackageInformationQueryHandler(_logger);
+            var sut = new GetPackageInformationQueryHandler();
             await Assert.ThrowsAsync<InvalidHeaderException>(() => sut.Handle(query, default));
         }
 
@@ -36,7 +26,7 @@ namespace Application.UnitTests.Packaging
             await using var stream = new MemoryStream(SampleResourcePackage);
             using var binaryReader = new BinaryReader(stream);
             var query = new GetPackageInformationQuery(binaryReader);
-            var sut = new GetPackageInformationQueryHandler(_logger);
+            var sut = new GetPackageInformationQueryHandler();
             var result = await sut.Handle(query, default);
             Assert.NotNull(result);
             Assert.Equal(ExpectedPackageHeader, result.Header);

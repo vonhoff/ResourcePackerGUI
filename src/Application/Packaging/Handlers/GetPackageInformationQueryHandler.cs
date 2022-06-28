@@ -1,22 +1,16 @@
 ﻿using MediatR;
-using Microsoft.Extensions.Logging;
 using ResourcePackerGUI.Application.Common.Exceptions;
 using ResourcePackerGUI.Application.Common.Extensions;
 using ResourcePackerGUI.Application.Packaging.Queries;
 using ResourcePackerGUI.Domain.Entities;
 using ResourcePackerGUI.Domain.Structures;
+using Serilog;
 
 namespace ResourcePackerGUI.Application.Packaging.Handlers
 {
     public class GetPackageInformationQueryHandler : IRequestHandler<GetPackageInformationQuery, Package>
     {
         private const ulong PackHeaderId = 30227092120757586;
-        private readonly ILogger<GetPackageInformationQueryHandler> _logger;
-
-        public GetPackageInformationQueryHandler(ILogger<GetPackageInformationQueryHandler> logger)
-        {
-            _logger = logger;
-        }
 
         public Task<Package> Handle(GetPackageInformationQuery request, CancellationToken cancellationToken)
         {
@@ -27,11 +21,11 @@ namespace ResourcePackerGUI.Application.Packaging.Handlers
 
                 if (entries.Count == header.NumberOfEntries)
                 {
-                    _logger.LogInformation("Loaded all {entryCount} entries.", entries.Count);
+                    Log.Information("Loaded all {entryCount} entries.", entries.Count);
                 }
                 else
                 {
-                    _logger.LogWarning("Loaded {entryCount} out of {expectedCount} entries.",
+                    Log.Warning("Loaded {entryCount} out of {expectedCount} entries.",
                         entries.Count, header.NumberOfEntries);
                 }
 
@@ -63,7 +57,7 @@ namespace ResourcePackerGUI.Application.Packaging.Handlers
         /// <param name="header">The package header containing all package information.</param>
         /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
         /// <returns>A read-only list of entries.</returns>
-        private IReadOnlyList<Entry> GetEntries(GetPackageInformationQuery request, PackageHeader header, CancellationToken cancellationToken)
+        private static IReadOnlyList<Entry> GetEntries(GetPackageInformationQuery request, PackageHeader header, CancellationToken cancellationToken)
         {
             using var progressTimer = new System.Timers.Timer(request.ProgressReportInterval);
 
@@ -82,7 +76,7 @@ namespace ResourcePackerGUI.Application.Packaging.Handlers
                 }
 
                 entries.Add(entry);
-                _logger.LogDebug("Added entry: {@entry}", new { entry.Id, entry.Crc, entry.DataSize });
+                Log.Debug("Added entry: {@entry}", new { entry.Id, entry.Crc, entry.DataSize });
                 percentage = (int)((double)(i + 1) / header.NumberOfEntries * 100);
             }
 
@@ -95,7 +89,7 @@ namespace ResourcePackerGUI.Application.Packaging.Handlers
         /// <param name="binaryReader">The binary reader of the specified file stream.</param>
         /// <param name="entry">The resulting entry.</param>
         /// <returns><see langword="true"/> when successful, <see langword="false"/> otherwise.</returns>
-        private bool GetEntry(BinaryReader binaryReader, out Entry entry)
+        private static bool GetEntry(BinaryReader binaryReader, out Entry entry)
         {
             entry = binaryReader.ReadStruct<Entry>();
             if (entry.Id != 0)
@@ -103,7 +97,7 @@ namespace ResourcePackerGUI.Application.Packaging.Handlers
                 return true;
             }
 
-            _logger.LogWarning("Invalid entry: {@entry}", new { entry.Id, entry.Crc, entry.DataSize, entry.PackSize });
+            Log.Warning("Invalid entry: {@entry}", new { entry.Id, entry.Crc, entry.DataSize, entry.PackSize });
             return false;
         }
     }

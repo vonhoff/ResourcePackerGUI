@@ -1,20 +1,18 @@
 ﻿using System.Text;
 using MediatR;
-using Microsoft.Extensions.Logging;
 using ResourcePackerGUI.Application.Common.Interfaces;
 using ResourcePackerGUI.Application.Definitions.Queries;
+using Serilog;
 
 namespace ResourcePackerGUI.Application.Definitions.Handlers
 {
     public class CreateChecksumDefinitionsQueryHandler : IRequestHandler<CreateChecksumDefinitionsQuery, IReadOnlyDictionary<uint, string>>
     {
         private readonly ICrc32Service _crc32Service;
-        private readonly ILogger<CreateChecksumDefinitionsQueryHandler> _logger;
 
-        public CreateChecksumDefinitionsQueryHandler(ICrc32Service crc32Service, ILogger<CreateChecksumDefinitionsQueryHandler> logger)
+        public CreateChecksumDefinitionsQueryHandler(ICrc32Service crc32Service)
         {
             _crc32Service = crc32Service;
-            _logger = logger;
         }
 
         public Task<IReadOnlyDictionary<uint, string>> Handle(CreateChecksumDefinitionsQuery request, CancellationToken cancellationToken)
@@ -27,7 +25,7 @@ namespace ResourcePackerGUI.Application.Definitions.Handlers
                     crcDictionary = CreateChecksumDictionary(reader, cancellationToken);
                 }
 
-                _logger.LogInformation("Computed {definitionCount} checksum definitions.", crcDictionary.Count);
+                Log.Information("Computed {definitionCount} checksum definitions.", crcDictionary.Count);
                 return crcDictionary;
             }, cancellationToken);
         }
@@ -56,12 +54,12 @@ namespace ResourcePackerGUI.Application.Definitions.Handlers
 
                 if (!crcDictionary.ContainsKey(crc))
                 {
-                    _logger.LogDebug("Added checksum definition: {@entry}", new { Id = crc, Definition = definition });
+                    Log.Debug("Added checksum definition: {@entry}", new { Id = crc, Definition = definition });
                     crcDictionary.Add(crc, definition);
                     continue;
                 }
 
-                _logger.LogWarning("Duplicate checksum definition: {@entry}", new { Id = crc, Definition = definition });
+                Log.Warning("Duplicate checksum definition: {@entry}", new { Id = crc, Definition = definition });
             }
 
             return crcDictionary;

@@ -3,19 +3,11 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using ResourcePackerGUI.Application.PathEntries.Handlers;
 using ResourcePackerGUI.Application.PathEntries.Queries;
-using Xunit;
 
 namespace Application.UnitTests.PathEntries
 {
     public class CreatePathEntriesQueryHandlerTests
     {
-        private readonly ILogger<CreatePathEntriesQueryHandler> _logger;
-
-        public CreatePathEntriesQueryHandlerTests()
-        {
-            _logger = new NullLogger<CreatePathEntriesQueryHandler>();
-        }
-
         [Fact]
         public async Task CreatePathEntries_ValidFiles()
         {
@@ -27,7 +19,7 @@ namespace Application.UnitTests.PathEntries
 
             var fileSystem = new MockFileSystem(mockFiles, "F:\\repos\\ResourcePacker\\Debug\\");
             var query = new CreatePathEntriesQuery(mockFiles.Keys.ToList(), 4);
-            var sut = new CreatePathEntriesQueryHandler(fileSystem, _logger);
+            var sut = new CreatePathEntriesQueryHandler(fileSystem);
             var result = await sut.Handle(query, default);
             Assert.NotNull(result);
             Assert.Equal(2, result.Count);
@@ -64,7 +56,7 @@ namespace Application.UnitTests.PathEntries
 
             var fileSystem = new MockFileSystem(mockFiles, "F:\\repos\\ResourcePacker\\Debug\\");
             var query = new CreatePathEntriesQuery(absoluteFilePaths, 4);
-            var sut = new CreatePathEntriesQueryHandler(fileSystem, _logger);
+            var sut = new CreatePathEntriesQueryHandler(fileSystem);
             var result = await sut.Handle(query, default);
             Assert.NotNull(result);
             Assert.Equal(2, result.Count);

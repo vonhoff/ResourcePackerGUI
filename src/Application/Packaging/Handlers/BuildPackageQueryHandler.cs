@@ -2,11 +2,11 @@
 using System.Runtime.CompilerServices;
 using System.Text;
 using MediatR;
-using Microsoft.Extensions.Logging;
 using ResourcePackerGUI.Application.Common.Extensions;
 using ResourcePackerGUI.Application.Common.Interfaces;
 using ResourcePackerGUI.Application.Packaging.Queries;
 using ResourcePackerGUI.Domain.Structures;
+using Serilog;
 
 namespace ResourcePackerGUI.Application.Packaging.Handlers
 {
@@ -16,17 +16,14 @@ namespace ResourcePackerGUI.Application.Packaging.Handlers
         private readonly IAesEncryptionService _aesEncryptionService;
         private readonly ICrc32Service _crc32Service;
         private readonly IFileSystem _fileSystem;
-        private readonly ILogger<BuildPackageQueryHandler> _logger;
 
         public BuildPackageQueryHandler(IFileSystem fileSystem,
             IAesEncryptionService aesEncryptionService,
-            ICrc32Service crc32Service,
-            ILogger<BuildPackageQueryHandler> logger)
+            ICrc32Service crc32Service)
         {
             _fileSystem = fileSystem;
             _aesEncryptionService = aesEncryptionService;
             _crc32Service = crc32Service;
-            _logger = logger;
         }
 
         public Task<Unit> Handle(BuildPackageQuery request, CancellationToken cancellationToken)
@@ -111,7 +108,7 @@ namespace ResourcePackerGUI.Application.Packaging.Handlers
             }
             catch (Exception ex)
             {
-                _logger.LogWarning(ex, "Could not read file from: {path}", absolutePath);
+                Log.Warning(ex, "Could not read file from: {path}", absolutePath);
                 fileContent = Array.Empty<byte>();
                 return false;
             }

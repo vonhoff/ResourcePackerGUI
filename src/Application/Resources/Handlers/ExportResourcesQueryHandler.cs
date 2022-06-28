@@ -1,20 +1,18 @@
 ﻿using System.IO.Abstractions;
 using MediatR;
-using Microsoft.Extensions.Logging;
 using ResourcePackerGUI.Application.Resources.Queries;
 using ResourcePackerGUI.Domain.Entities;
+using Serilog;
 
 namespace ResourcePackerGUI.Application.Resources.Handlers
 {
     public class ExportResourcesQueryHandler : IRequestHandler<ExportResourcesQuery>
     {
         private readonly IFileSystem _fileSystem;
-        private readonly ILogger<ExportResourcesQueryHandler> _logger;
 
-        public ExportResourcesQueryHandler(IFileSystem fileSystem, ILogger<ExportResourcesQueryHandler> logger)
+        public ExportResourcesQueryHandler(IFileSystem fileSystem)
         {
             _fileSystem = fileSystem;
-            _logger = logger;
         }
 
         public Task<Unit> Handle(ExportResourcesQuery request, CancellationToken cancellationToken)
@@ -78,12 +76,12 @@ namespace ResourcePackerGUI.Application.Resources.Handlers
                 binaryWriter.Write(resource.Data);
                 binaryWriter.Flush();
                 binaryWriter.Close();
-                _logger.LogDebug("Extracted {name} to: {path}",
+                Log.Debug("Extracted {name} to: {path}",
                     Path.GetFileName(resource.Name), fileInfo.FullName);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Could not extract asset: {path}", fileInfo.FullName);
+                Log.Error(ex, "Could not extract asset: {path}", fileInfo.FullName);
             }
         }
 
@@ -103,7 +101,7 @@ namespace ResourcePackerGUI.Application.Resources.Handlers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Could not create file information from: {path}", basePath + resource.Name);
+                Log.Error(ex, "Could not create file information from: {path}", basePath + resource.Name);
                 fileInfo = _fileSystem.FileInfo.FromFileName(string.Empty);
                 return false;
             }
@@ -122,13 +120,13 @@ namespace ResourcePackerGUI.Application.Resources.Handlers
             var path = fileInfo.FullName;
             if (conflictingNameReplacements == null || !conflictingNameReplacements.TryGetValue(resource, out var replacement))
             {
-                _logger.LogDebug("Ignored: {path}", path);
+                Log.Debug("Ignored: {path}", path);
                 return false;
             }
 
             if (path.Equals(replacement))
             {
-                _logger.LogInformation("Replacing: {path}", path);
+                Log.Information("Replacing: {path}", path);
             }
 
             fileInfo = _fileSystem.FileInfo.FromFileName(replacement);

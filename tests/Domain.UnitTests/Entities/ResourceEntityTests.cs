@@ -1,6 +1,5 @@
 ﻿using ResourcePackerGUI.Domain.Entities;
 using ResourcePackerGUI.Domain.Structures;
-using Xunit;
 
 namespace Domain.UnitTests.Entities
 {

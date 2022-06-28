@@ -6,7 +6,7 @@
     <Nullable>enable</Nullable>
     <AssemblyName>ResourcePackerGUI.Application</AssemblyName>
     <RootNamespace>ResourcePackerGUI.Application</RootNamespace>
-    <Platforms>AnyCPU;x64;x86</Platforms>
+    <Platforms>x64;x86</Platforms>
   </PropertyGroup>
 
   <ItemGroup>
@@ -15,7 +15,7 @@
 
   <ItemGroup>
     <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="10.0.1" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.1" />
+    <PackageReference Include="Serilog" Version="2.11.0" />
     <PackageReference Include="System.IO.Abstractions" Version="17.0.18" />
   </ItemGroup>
 

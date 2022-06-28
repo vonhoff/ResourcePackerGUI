@@ -1,20 +1,17 @@
 ﻿using MediatR;
-using Microsoft.Extensions.Logging;
 using ResourcePackerGUI.Application.Common.Interfaces;
 using ResourcePackerGUI.Application.Resources.Queries;
+using Serilog;
 
 namespace ResourcePackerGUI.Application.Resources.Handlers
 {
     public class UpdateResourceDefinitionsQueryHandler : IRequestHandler<UpdateResourceDefinitionsQuery>
     {
         private readonly IMediaTypeService _mediaTypeService;
-        private readonly ILogger<UpdateResourceDefinitionsQueryHandler> _logger;
 
-        public UpdateResourceDefinitionsQueryHandler(IMediaTypeService mediaTypeService,
-            ILogger<UpdateResourceDefinitionsQueryHandler> logger)
+        public UpdateResourceDefinitionsQueryHandler(IMediaTypeService mediaTypeService)
         {
             _mediaTypeService = mediaTypeService;
-            _logger = logger;
         }
 
         public Task<Unit> Handle(UpdateResourceDefinitionsQuery request, CancellationToken cancellationToken)
@@ -37,11 +34,11 @@ namespace ResourcePackerGUI.Application.Resources.Handlers
                     }
                     else
                     {
-                        _logger.LogWarning("Could not find definition for hash: {id}", asset.Entry.Id);
+                        Log.Warning("Could not find definition for hash: {id}", asset.Entry.Id);
                         continue;
                     }
 
-                    _logger.LogDebug("Updated asset: {@asset}",
+                    Log.Debug("Updated asset: {@asset}",
                         new { asset.Entry.Id, asset.Name });
                 }
 

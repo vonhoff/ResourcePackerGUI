@@ -1,20 +1,18 @@
 ﻿using System.IO.Abstractions;
 using MediatR;
-using Microsoft.Extensions.Logging;
 using ResourcePackerGUI.Application.PathEntries.Queries;
 using ResourcePackerGUI.Domain.Entities;
+using Serilog;
 
 namespace ResourcePackerGUI.Application.PathEntries.Handlers
 {
     public class CreatePathEntriesQueryHandler : IRequestHandler<CreatePathEntriesQuery, IReadOnlyList<PathEntry>>
     {
         private readonly IFileSystem _fileSystem;
-        private readonly ILogger<CreatePathEntriesQueryHandler> _logger;
 
-        public CreatePathEntriesQueryHandler(IFileSystem fileSystem, ILogger<CreatePathEntriesQueryHandler> logger)
+        public CreatePathEntriesQueryHandler(IFileSystem fileSystem)
         {
             _fileSystem = fileSystem;
-            _logger = logger;
         }
 
         public Task<IReadOnlyList<PathEntry>> Handle(CreatePathEntriesQuery request, CancellationToken cancellationToken)
@@ -22,7 +20,7 @@ namespace ResourcePackerGUI.Application.PathEntries.Handlers
             return Task.Run(() =>
             {
                 var definitions = CreatePathEntries(request);
-                _logger.LogInformation("Created {count} path entries.", definitions.Count);
+                Log.Information("Created {count} path entries.", definitions.Count);
                 return definitions;
             }, cancellationToken);
         }
@@ -49,13 +47,13 @@ namespace ResourcePackerGUI.Application.PathEntries.Handlers
 
                 if (!_fileSystem.File.Exists(absolutePath))
                 {
-                    _logger.LogWarning("File does not exist: {path}", absolutePath);
+                    Log.Warning("File does not exist: {path}", absolutePath);
                     continue;
                 }
 
                 if (!CreateRelativePath(absolutePath, request.RelativeFilePathDepth, out var relativePath))
                 {
-                    _logger.LogWarning("Could not create relative path from: {path}", absolutePath);
+                    Log.Warning("Could not create relative path from: {path}", absolutePath);
                     continue;
                 }
 

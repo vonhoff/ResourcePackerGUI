@@ -7,14 +7,21 @@
 		<AssemblyName>ResourcePackerGUI.Infrastructure</AssemblyName>
 		<RootNamespace>ResourcePackerGUI.Infrastructure</RootNamespace>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-		<Platforms>AnyCPU;x64;x86</Platforms>
+		<Platforms>x64;x86</Platforms>
 	</PropertyGroup>
 
 	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x64' ">
 		<DefineConstants>X64;$(DefineConstants)</DefineConstants>
 	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
+	  <DefineConstants>X64;$(DefineConstants)</DefineConstants>
+	</PropertyGroup>
 	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' ">
 		<DefineConstants>X64;$(DefineConstants)</DefineConstants>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
+	  <DefineConstants>X64;$(DefineConstants)</DefineConstants>
 	</PropertyGroup>
 
 	<ItemGroup>

@@ -1,6 +1,4 @@
-﻿using Xunit;
-
-namespace Application.UnitTests.Common.Fixture
+﻿namespace Application.UnitTests.Common.Fixture
 {
     [CollectionDefinition(CollectionName)]
     public class QueryCollection : ICollectionFixture<QueryTestFixture>

@@ -1,12 +1,9 @@
 ﻿using System.IO.Abstractions.TestingHelpers;
 using Application.UnitTests.Common.Fixture;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 using ResourcePackerGUI.Application.Common.Interfaces;
 using ResourcePackerGUI.Application.Packaging.Handlers;
 using ResourcePackerGUI.Application.Packaging.Queries;
 using ResourcePackerGUI.Domain.Entities;
-using Xunit;
 
 namespace Application.UnitTests.Packaging
 {
@@ -15,7 +12,6 @@ namespace Application.UnitTests.Packaging
     {
         private readonly IAesEncryptionService _aesEncryptionService;
         private readonly ICrc32Service _crc32Service;
-        private readonly ILogger<BuildPackageQueryHandler> _logger;
 
         private readonly Dictionary<string, MockFileData> _mockFiles = new()
         {
@@ -33,7 +29,6 @@ namespace Application.UnitTests.Packaging
         {
             _aesEncryptionService = fixture.AesEncryptionService;
             _crc32Service = fixture.Crc32Service;
-            _logger = new NullLogger<BuildPackageQueryHandler>();
         }
 
         [Fact]
@@ -43,7 +38,7 @@ namespace Application.UnitTests.Packaging
             const string output = "F:\\repos\\ResourcePacker\\Debug\\assets.dat";
 
             var query = new BuildPackageQuery(_pathEntries, output);
-            var sut = new BuildPackageQueryHandler(fileSystem, _aesEncryptionService, _crc32Service, _logger);
+            var sut = new BuildPackageQueryHandler(fileSystem, _aesEncryptionService, _crc32Service);
             await sut.Handle(query, default);
             Assert.True(fileSystem.FileExists(output));
 
@@ -59,7 +54,7 @@ namespace Application.UnitTests.Packaging
             const string output = "F:\\repos\\ResourcePacker\\Debug\\assets.dat";
 
             var query = new BuildPackageQuery(_pathEntries, output, "test123");
-            var sut = new BuildPackageQueryHandler(fileSystem, _aesEncryptionService, _crc32Service, _logger);
+            var sut = new BuildPackageQueryHandler(fileSystem, _aesEncryptionService, _crc32Service);
             await sut.Handle(query, default);
             Assert.True(fileSystem.FileExists(output));
 

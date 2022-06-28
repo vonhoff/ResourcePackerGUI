@@ -1,10 +1,10 @@
 ﻿using MediatR;
-using Microsoft.Extensions.Logging;
 using ResourcePackerGUI.Application.Common.Exceptions;
 using ResourcePackerGUI.Application.Common.Interfaces;
 using ResourcePackerGUI.Application.Packaging.Queries;
 using ResourcePackerGUI.Domain.Entities;
 using ResourcePackerGUI.Domain.Structures;
+using Serilog;
 
 namespace ResourcePackerGUI.Application.Packaging.Handlers
 {
@@ -12,18 +12,15 @@ namespace ResourcePackerGUI.Application.Packaging.Handlers
     {
         private readonly IAesEncryptionService _aesEncryptionService;
         private readonly ICrc32Service _crc32Service;
-        private readonly ILogger<GetResourcesQueryHandler> _logger;
         private readonly IMediaTypeService _mediaTypeService;
 
         public GetResourcesQueryHandler(IAesEncryptionService aesEncryptionService,
             ICrc32Service crc32Service,
-            IMediaTypeService mediaTypeService,
-            ILogger<GetResourcesQueryHandler> logger)
+            IMediaTypeService mediaTypeService)
         {
             _aesEncryptionService = aesEncryptionService;
             _crc32Service = crc32Service;
             _mediaTypeService = mediaTypeService;
-            _logger = logger;
         }
 
         public Task<IReadOnlyList<Resource>> Handle(GetResourcesQuery request, CancellationToken cancellationToken)
@@ -33,11 +30,11 @@ namespace ResourcePackerGUI.Application.Packaging.Handlers
                 var assets = GetResources(request, cancellationToken);
                 if (assets.Count == request.Entries.Count)
                 {
-                    _logger.LogInformation("Loaded all {assetCount} assets.", assets.Count);
+                    Log.Information("Loaded all {assetCount} assets.", assets.Count);
                 }
                 else
                 {
-                    _logger.LogWarning("Loaded {assetCount} out of {entryCount} assets.",
+                    Log.Warning("Loaded {assetCount} out of {entryCount} assets.",
                         assets.Count, request.Entries.Count);
                 }
 
@@ -83,7 +80,7 @@ namespace ResourcePackerGUI.Application.Packaging.Handlers
                 var asset = new Resource(buffer, entry, mimeType);
                 assets.Add(asset);
                 percentage = (int)((double)(i + 1) / request.Entries.Count * 100);
-                _logger.LogDebug("Added asset: {@asset}",
+                Log.Debug("Added asset: {@asset}",
                     new { asset.Name, asset.MediaType });
             }
 

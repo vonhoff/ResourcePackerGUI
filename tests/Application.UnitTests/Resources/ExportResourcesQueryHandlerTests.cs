@@ -1,17 +1,12 @@
 ﻿using System.IO.Abstractions.TestingHelpers;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 using ResourcePackerGUI.Application.Resources.Handlers;
 using ResourcePackerGUI.Application.Resources.Queries;
 using ResourcePackerGUI.Domain.Entities;
-using Xunit;
 
 namespace Application.UnitTests.Resources
 {
     public class ExportResourcesQueryHandlerTests
     {
-        private readonly ILogger<ExportResourcesQueryHandler> _logger;
-
         private readonly List<Resource> _resources = new()
         {
             new Resource(SampleAcceptPng, default, name: "accept.png"),
@@ -19,17 +14,12 @@ namespace Application.UnitTests.Resources
             new Resource(SampleAwardStarGoldPng, default, name: "award_star_gold_3.png"),
         };
 
-        public ExportResourcesQueryHandlerTests()
-        {
-            _logger = new NullLogger<ExportResourcesQueryHandler>();
-        }
-
         [Fact]
         public async Task ExportResources()
         {
             var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>(), "F:\\assets\\");
             var query = new ExportResourcesQuery("F:\\assets\\", _resources);
-            var sut = new ExportResourcesQueryHandler(fileSystem, _logger);
+            var sut = new ExportResourcesQueryHandler(fileSystem);
             await sut.Handle(query, default);
             Assert.Equal(SampleAcceptPng, fileSystem.GetFile("F:\\assets\\accept.png").Contents);
             Assert.Equal(SampleAsteriskOrangePng, fileSystem.GetFile("F:\\assets\\asterisk_orange.png").Contents);
@@ -54,7 +44,7 @@ namespace Application.UnitTests.Resources
 
             var fileSystem = new MockFileSystem(files, "F:\\assets\\");
             var query = new ExportResourcesQuery("F:\\assets\\", _resources, conflictFileReplacements);
-            var sut = new ExportResourcesQueryHandler(fileSystem, _logger);
+            var sut = new ExportResourcesQueryHandler(fileSystem);
             await sut.Handle(query, default);
             Assert.NotEqual(SampleAcceptPng, fileSystem.GetFile("F:\\assets\\accept.png").Contents);
             Assert.Equal(SampleAsteriskOrangePng, fileSystem.GetFile("F:\\assets\\asterisk_orange.png").Contents);

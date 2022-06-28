@@ -1,20 +1,18 @@
 ﻿using System.IO.Abstractions;
 using MediatR;
-using Microsoft.Extensions.Logging;
 using ResourcePackerGUI.Application.Resources.Queries;
 using ResourcePackerGUI.Domain.Entities;
+using Serilog;
 
 namespace ResourcePackerGUI.Application.Resources.Handlers
 {
     public class GetConflictingResourcesQueryHandler : IRequestHandler<GetConflictingResourcesQuery, IReadOnlyList<Resource>>
     {
         private readonly IFileSystem _fileSystem;
-        private readonly ILogger<GetConflictingResourcesQueryHandler> _logger;
 
-        public GetConflictingResourcesQueryHandler(IFileSystem fileSystem, ILogger<GetConflictingResourcesQueryHandler> logger)
+        public GetConflictingResourcesQueryHandler(IFileSystem fileSystem)
         {
             _fileSystem = fileSystem;
-            _logger = logger;
         }
 
         public Task<IReadOnlyList<Resource>> Handle(GetConflictingResourcesQuery request, CancellationToken cancellationToken)
@@ -31,7 +29,7 @@ namespace ResourcePackerGUI.Application.Resources.Handlers
                     list = CollectFileConflicts(request, ref percentage);
                 }
 
-                _logger.LogInformation("{amount} conflicts found.", list.Count);
+                Log.Information("{amount} conflicts found.", list.Count);
                 return list;
             }, cancellationToken);
         }

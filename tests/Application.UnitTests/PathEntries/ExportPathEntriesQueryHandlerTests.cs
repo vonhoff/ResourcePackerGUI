@@ -3,7 +3,6 @@ using ResourcePackerGUI.Application.Common.Exceptions;
 using ResourcePackerGUI.Application.PathEntries.Handlers;
 using ResourcePackerGUI.Application.PathEntries.Queries;
 using ResourcePackerGUI.Domain.Entities;
-using Xunit;
 
 namespace Application.UnitTests.PathEntries
 {
