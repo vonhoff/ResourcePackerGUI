@@ -1,5 +1,4 @@
-﻿using System.Text;
-using ResourcePackerGUI.Application.Common.Interfaces;
+﻿using ResourcePackerGUI.Application.Common.Interfaces;
 using ResourcePackerGUI.Infrastructure.Utilities;
 
 namespace ResourcePackerGUI.Infrastructure.Services
@@ -195,18 +194,10 @@ namespace ResourcePackerGUI.Infrastructure.Services
             IProgress<int>? progress = null, int progressReportInterval = 100,
             CancellationToken cancellationToken = default)
         {
-            using var file = File.Open("F:\\predefined\\decrypt.txt", FileMode.Append);
-            using var writer = new StreamWriter(file);
-            writer.Write("{");
-            writer.Write(FnvHash.Compute(input.Concat(key.Select(v => (byte)v)).ToArray()));
-            writer.Write(", new byte[] {");
-
             var packSize = input.Length;
             if (packSize % BlockSize != 0 || key.Length == 0)
             {
                 output = input;
-                writer.Write(string.Join(", ", input));
-                writer.WriteLine("}},");
                 return false;
             }
 
@@ -240,9 +231,6 @@ namespace ResourcePackerGUI.Infrastructure.Services
 
             output = output[..dataSize];
             progress?.Report(100);
-
-            writer.Write(string.Join(", ", output));
-            writer.WriteLine("}},");
             return true;
         }
 
@@ -250,12 +238,6 @@ namespace ResourcePackerGUI.Infrastructure.Services
             IProgress<int>? progress = null, int progressReportInterval = 100,
             CancellationToken cancellationToken = default)
         {
-            using var file = File.Open("F:\\predefined\\encrypt.txt", FileMode.Append);
-            using var writer = new StreamWriter(file);
-            writer.Write("{");
-            writer.Write(FnvHash.Compute(input.Concat(key.Select(v => (byte)v)).ToArray()));
-            writer.Write(", new byte[] {");
-
             var packSize = (input.Length + BlockSize - 1) & ~(BlockSize - 1);
             if (packSize == input.Length)
             {
@@ -264,8 +246,6 @@ namespace ResourcePackerGUI.Infrastructure.Services
 
             if (packSize % BlockSize != 0 || key.Length == 0)
             {
-                writer.Write(string.Join(", ", input));
-                writer.WriteLine("}},");
                 output = input;
                 return false;
             }
@@ -299,8 +279,6 @@ namespace ResourcePackerGUI.Infrastructure.Services
                 percentage = (int)((double)(i + 1) / blocks * 100);
             }
 
-            writer.Write(string.Join(", ", output));
-            writer.WriteLine("}},");
             progress?.Report(100);
             return true;
         }
@@ -311,12 +289,6 @@ namespace ResourcePackerGUI.Infrastructure.Services
             {
                 return Array.Empty<uint>();
             }
-
-            using var file = File.Open("F:\\predefined\\key.txt", FileMode.Append);
-            using var writer = new StreamWriter(file);
-            writer.Write("{");
-            writer.Write(FnvHash.Compute(Encoding.UTF8.GetBytes(password)));
-            writer.Write(", new uint[] {");
 
             byte[] key;
             using (var md5 = System.Security.Cryptography.MD5.Create())
@@ -347,8 +319,6 @@ namespace ResourcePackerGUI.Infrastructure.Services
                 result[index] = result[index - 4] ^ temp;
             }
 
-            writer.Write(string.Join(", ", result));
-            writer.WriteLine("}},");
             return result;
         }
 
