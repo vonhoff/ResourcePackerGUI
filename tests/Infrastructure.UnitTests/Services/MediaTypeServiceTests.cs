@@ -16,14 +16,14 @@ namespace Infrastructure.UnitTests.Services
         public void XML_FromData()
         {
             var mime = _mediaTypeService.GetTypeByData(XmlSample);
-            Assert.Equal("text/xml", mime?.Name);
+            Assert.Equal("xml", mime?.Name.Split("/")[1]);
         }
 
         [Fact]
         public void XML_FromName()
         {
             var mime = _mediaTypeService.GetTypeByName("file.xml");
-            Assert.Equal("text/xml", mime?.Name);
+            Assert.Equal("xml", mime?.Name.Split("/")[1]);
         }
 
         [Fact]

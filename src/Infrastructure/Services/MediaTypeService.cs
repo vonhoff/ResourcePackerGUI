@@ -1,6 +1,6 @@
 ﻿using System.Text;
 using System.Text.Json.Nodes;
-using HeyRed.Mime;
+using MimeTypes;
 using ResourcePackerGUI.Application.Common.Interfaces;
 using ResourcePackerGUI.Domain.Entities;
 using Winista.Mime;
@@ -9,7 +9,7 @@ namespace ResourcePackerGUI.Infrastructure.Services
 {
     public class MediaTypeService : IMediaTypeService
     {
-        // The default value returned by the mapper from "HeyRed.Mime" when a mime type was not found.
+        // The default value returned by the mapper when a mime type was not found.
         private const string InvalidMimeType = "application/octet-stream";
 
         // Values for the JSON type, as JSON types are not automatically detected.
@@ -21,14 +21,20 @@ namespace ResourcePackerGUI.Infrastructure.Services
             SubType = "json"
         };
 
-        private static readonly MimeTypes MimeTypes = new();
+        private static readonly Winista.Mime.MimeTypes MimeTypes = new();
 
         public MediaType? GetTypeByData(byte[] data)
         {
             var mimeType = data.Length == 0 ? null : MimeTypes.GetMimeType(data);
             if (mimeType != null)
             {
-                return FromMimeType(mimeType);
+                return new MediaType
+                {
+                    PrimaryType = mimeType.PrimaryType,
+                    SubType = mimeType.SubType,
+                    Description = mimeType.Description,
+                    Extensions = mimeType.Extensions
+                };
             }
 
             return !IsJsonText(data) ? null : JsonMediaType;
@@ -36,26 +42,30 @@ namespace ResourcePackerGUI.Infrastructure.Services
 
         public MediaType? GetTypeByName(string name)
         {
-            var mappedType = MimeTypesMap.GetMimeType(name);
+            var mappedType = MimeTypeMap.GetMimeType(name);
             if (mappedType is null or InvalidMimeType)
             {
                 return null;
             }
 
-            var mimeTypeFromMapped = MimeTypes.ForName(mappedType);
-            return mimeTypeFromMapped is null ? null :
-                FromMimeType(mimeTypeFromMapped);
-        }
-
-        private static MediaType FromMimeType(MimeType mimeType)
-        {
-            return new MediaType
+            if (name.Length >= 5 && name.Substring(name.Length - 5, 5) == ".json")
             {
-                PrimaryType = mimeType.PrimaryType,
-                SubType = mimeType.SubType,
-                Description = mimeType.Description,
-                Extensions = mimeType.Extensions
-            };
+                return JsonMediaType;
+            }
+
+            var mimeTypeFromMapped = MimeTypes.ForName(mappedType);
+            if (mimeTypeFromMapped != null)
+            {
+                return new MediaType
+                {
+                    PrimaryType = mimeTypeFromMapped.PrimaryType,
+                    SubType = mimeTypeFromMapped.SubType,
+                    Description = mimeTypeFromMapped.Description,
+                    Extensions = mimeTypeFromMapped.Extensions
+                };
+            }
+
+            return null;
         }
 
         private static bool IsJsonText(byte[] data)
