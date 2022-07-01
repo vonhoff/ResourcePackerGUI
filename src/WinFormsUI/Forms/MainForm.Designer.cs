@@ -2,21 +2,23 @@
 
 /* Copyright 2022 Vonhoff, MaxtorCoder
  *
- * This file is part of ResourcePackerGUI.
+ * This file is part of WinFormsUIGUI.
  *
- * ResourcePackerGUI is free software: you can redistribute it and/or modify it under the terms of the
+ * WinFormsUIGUI is free software: you can redistribute it and/or modify it under the terms of the
  * GNU General Public License as published by the Free Software Foundation, either version 3 of the License,
  * or (at your option) any later version.
  *
- * ResourcePackerGUI is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * WinFormsUIGUI is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with ResourcePackerGUI.
+ * You should have received a copy of the GNU General Public License along with WinFormsUIGUI.
  * If not, see <https://www.gnu.org/licenses/>.
  */
 
 #endregion
+
+using WinFormsUI.Controls;
 
 namespace WinFormsUI.Forms
 {
@@ -55,6 +57,7 @@ namespace WinFormsUI.Forms
             this.splitContainer3 = new System.Windows.Forms.SplitContainer();
             this.searchBox = new System.Windows.Forms.TextBox();
             this.lblNoResults = new System.Windows.Forms.Label();
+            this.packageExplorerTreeView = new WinFormsUI.Controls.MultiNodeSelectionTreeView();
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
             this.tabControl2 = new System.Windows.Forms.TabControl();
             this.tabPage2 = new System.Windows.Forms.TabPage();
@@ -165,17 +168,27 @@ namespace WinFormsUI.Forms
             // splitContainer3.Panel2
             // 
             this.splitContainer3.Panel2.Controls.Add(this.lblNoResults);
+            this.splitContainer3.Panel2.Controls.Add(this.packageExplorerTreeView);
             // 
             // searchBox
             // 
             resources.ApplyResources(this.searchBox, "searchBox");
             this.searchBox.Name = "searchBox";
+            this.searchBox.TextChanged += new System.EventHandler(this.SearchBox_TextChanged);
             // 
             // lblNoResults
             // 
             resources.ApplyResources(this.lblNoResults, "lblNoResults");
             this.lblNoResults.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.lblNoResults.Name = "lblNoResults";
+            // 
+            // packageExplorerTreeView
+            // 
+            resources.ApplyResources(this.packageExplorerTreeView, "packageExplorerTreeView");
+            this.packageExplorerTreeView.Name = "packageExplorerTreeView";
+            this.packageExplorerTreeView.NodeMouseClick += new System.EventHandler<System.Windows.Forms.TreeNodeMouseClickEventArgs>(this.PackageExplorerTreeView_NodeMouseClick);
+            this.packageExplorerTreeView.NodeMouseDoubleClick += new System.EventHandler<System.Windows.Forms.TreeNodeMouseClickEventArgs>(this.PackageExplorerTreeView_NodeMouseDoubleClick);
+            this.packageExplorerTreeView.Leave += new System.EventHandler(this.PackageExplorerTreeView_Leave);
             // 
             // splitContainer2
             // 
@@ -190,6 +203,7 @@ namespace WinFormsUI.Forms
             // splitContainer2.Panel2
             // 
             this.splitContainer2.Panel2.Controls.Add(this.tabControl1);
+            this.splitContainer2.SplitterMoved += new System.Windows.Forms.SplitterEventHandler(this.SplitContainer2_SplitterMoved);
             // 
             // tabControl2
             // 
@@ -214,6 +228,7 @@ namespace WinFormsUI.Forms
             resources.ApplyResources(this.previewTabs, "previewTabs");
             this.previewTabs.Name = "previewTabs";
             this.previewTabs.SelectedIndex = 0;
+            this.previewTabs.Selecting += new System.Windows.Forms.TabControlCancelEventHandler(this.PreviewTabs_Selecting);
             // 
             // previewHexTab
             // 
@@ -297,6 +312,7 @@ namespace WinFormsUI.Forms
             this.btnFormattedText.Name = "btnFormattedText";
             this.btnFormattedText.Padding = new System.Windows.Forms.Padding(3);
             resources.ApplyResources(this.btnFormattedText, "btnFormattedText");
+            this.btnFormattedText.Click += new System.EventHandler(this.BtnFormattedText_Click);
             // 
             // tabControl1
             // 
@@ -318,6 +334,7 @@ namespace WinFormsUI.Forms
             this.outputBox.BackColor = System.Drawing.SystemColors.Window;
             resources.ApplyResources(this.outputBox, "outputBox");
             this.outputBox.Name = "outputBox";
+            this.outputBox.TextChanged += new System.EventHandler(this.OutputBox_TextChanged);
             // 
             // toolStrip2
             // 
@@ -339,6 +356,7 @@ namespace WinFormsUI.Forms
             this.btnToggleDebugMessages.Name = "btnToggleDebugMessages";
             this.btnToggleDebugMessages.Padding = new System.Windows.Forms.Padding(3);
             resources.ApplyResources(this.btnToggleDebugMessages, "btnToggleDebugMessages");
+            this.btnToggleDebugMessages.Click += new System.EventHandler(this.BtnToggleDebugMessages_Click);
             // 
             // toolStripSeparator4
             // 
@@ -353,6 +371,7 @@ namespace WinFormsUI.Forms
             this.btnClearConsole.Image = global::WinFormsUI.Properties.Images.report_delete;
             this.btnClearConsole.Name = "btnClearConsole";
             this.btnClearConsole.Padding = new System.Windows.Forms.Padding(3);
+            this.btnClearConsole.Click += new System.EventHandler(this.BtnClearConsole_Click);
             // 
             // lblLogEntries
             // 
@@ -367,6 +386,7 @@ namespace WinFormsUI.Forms
             this.btnExportLogEntries.Image = global::WinFormsUI.Properties.Images.disk;
             this.btnExportLogEntries.Name = "btnExportLogEntries";
             this.btnExportLogEntries.Padding = new System.Windows.Forms.Padding(3);
+            this.btnExportLogEntries.Click += new System.EventHandler(this.BtnExportLogEntries_Click);
             // 
             // statusStrip
             // 
@@ -414,6 +434,7 @@ namespace WinFormsUI.Forms
             this.btnCreate.Name = "btnCreate";
             this.btnCreate.Padding = new System.Windows.Forms.Padding(3);
             resources.ApplyResources(this.btnCreate, "btnCreate");
+            this.btnCreate.Click += new System.EventHandler(this.BtnCreate_Click);
             // 
             // btnOpen
             // 
@@ -421,15 +442,17 @@ namespace WinFormsUI.Forms
             this.btnOpen.Name = "btnOpen";
             this.btnOpen.Padding = new System.Windows.Forms.Padding(3);
             resources.ApplyResources(this.btnOpen, "btnOpen");
+            this.btnOpen.Click += new System.EventHandler(this.BtnOpen_Click);
             // 
             // btnAbout
             // 
             this.btnAbout.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
             this.btnAbout.AutoToolTip = false;
-            this.btnAbout.Image = global::WinFormsUI.Properties.Images.help;
+            this.btnAbout.Image = global::WinFormsUI.Properties.Images.information;
             resources.ApplyResources(this.btnAbout, "btnAbout");
             this.btnAbout.Name = "btnAbout";
             this.btnAbout.Padding = new System.Windows.Forms.Padding(3);
+            this.btnAbout.Click += new System.EventHandler(this.BtnAbout_Click);
             // 
             // toolStripSeparator2
             // 
@@ -442,6 +465,7 @@ namespace WinFormsUI.Forms
             this.btnLoadDefinitions.Image = global::WinFormsUI.Properties.Images.book_link;
             this.btnLoadDefinitions.Name = "btnLoadDefinitions";
             this.btnLoadDefinitions.Padding = new System.Windows.Forms.Padding(3);
+            this.btnLoadDefinitions.Click += new System.EventHandler(this.BtnLoadDefinitions_Click);
             // 
             // toolStrip
             // 
@@ -466,6 +490,7 @@ namespace WinFormsUI.Forms
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Padding = new System.Windows.Forms.Padding(3);
             resources.ApplyResources(this.btnCancel, "btnCancel");
+            this.btnCancel.Click += new System.EventHandler(this.BtnCancel_Click);
             // 
             // btnExtractAll
             // 
@@ -473,6 +498,7 @@ namespace WinFormsUI.Forms
             this.btnExtractAll.Image = global::WinFormsUI.Properties.Images.compress;
             this.btnExtractAll.Name = "btnExtractAll";
             this.btnExtractAll.Padding = new System.Windows.Forms.Padding(3);
+            this.btnExtractAll.Click += new System.EventHandler(this.BtnExtractAll_Click);
             // 
             // btnExtractSelected
             // 
@@ -492,6 +518,7 @@ namespace WinFormsUI.Forms
             resources.ApplyResources(this.btnDisplayOutput, "btnDisplayOutput");
             this.btnDisplayOutput.Name = "btnDisplayOutput";
             this.btnDisplayOutput.Padding = new System.Windows.Forms.Padding(3);
+            this.btnDisplayOutput.Click += new System.EventHandler(this.BtnDisplayOutput_Click);
             // 
             // MainForm
             // 
@@ -502,6 +529,8 @@ namespace WinFormsUI.Forms
             this.Controls.Add(this.statusStrip);
             this.Controls.Add(this.toolStrip);
             this.Name = "MainForm";
+            this.Load += new System.EventHandler(this.MainForm_Load);
+            this.Resize += new System.EventHandler(this.MainForm_Resize);
             this.splitContainer1.Panel1.ResumeLayout(false);
             this.splitContainer1.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
@@ -565,7 +594,6 @@ namespace WinFormsUI.Forms
         private ToolStripProgressBar progressBarPrimary;
         private ToolStripButton btnCancel;
         private ToolStripProgressBar progressBarSecondary;
-        private Label lblNoResults;
         private ToolStripButton btnExtractSelected;
         private TabPage tabPage1;
         private RichTextBox outputBox;
@@ -589,5 +617,7 @@ namespace WinFormsUI.Forms
         private ToolStripButton btnExportLogEntries;
         private ToolStripSeparator toolStripSeparator3;
         private ToolStripButton btnDisplayOutput;
+        private Label lblNoResults;
+        private MultiNodeSelectionTreeView packageExplorerTreeView;
     }
 }

@@ -2,21 +2,23 @@
 
 /* Copyright 2022 Vonhoff, MaxtorCoder
  *
- * This file is part of ResourcePackerGUI.
+ * This file is part of WinFormsUIGUI.
  *
- * ResourcePackerGUI is free software: you can redistribute it and/or modify it under the terms of the
+ * WinFormsUIGUI is free software: you can redistribute it and/or modify it under the terms of the
  * GNU General Public License as published by the Free Software Foundation, either version 3 of the License,
  * or (at your option) any later version.
  *
- * ResourcePackerGUI is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * WinFormsUIGUI is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with ResourcePackerGUI.
+ * You should have received a copy of the GNU General Public License along with WinFormsUIGUI.
  * If not, see <https://www.gnu.org/licenses/>.
  */
 
 #endregion
+
+using WinFormsUI.Controls;
 
 namespace WinFormsUI.Forms
 {
@@ -76,7 +78,7 @@ namespace WinFormsUI.Forms
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.splitContainer4 = new System.Windows.Forms.SplitContainer();
             this.txtAssetFolder = new System.Windows.Forms.TextBox();
-            this.btnAssetExplore = new System.Windows.Forms.Button();
+            this.btnResourcesExplore = new System.Windows.Forms.Button();
             this.label2 = new System.Windows.Forms.Label();
             this.tabControl2 = new System.Windows.Forms.TabControl();
             this.tabPage3 = new System.Windows.Forms.TabPage();
@@ -86,6 +88,7 @@ namespace WinFormsUI.Forms
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.lblSelectedItems = new System.Windows.Forms.ToolStripLabel();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.selectorTreeView = new WinFormsUI.Controls.TriStateTreeView();
             this.panel2 = new System.Windows.Forms.Panel();
             this.btnCancel = new System.Windows.Forms.Button();
             this.panel1 = new System.Windows.Forms.Panel();
@@ -127,6 +130,7 @@ namespace WinFormsUI.Forms
             this.splitContainer5.Panel2.SuspendLayout();
             this.splitContainer5.SuspendLayout();
             this.toolStrip1.SuspendLayout();
+            this.groupBox3.SuspendLayout();
             this.panel2.SuspendLayout();
             this.panel1.SuspendLayout();
             this.SuspendLayout();
@@ -311,6 +315,7 @@ namespace WinFormsUI.Forms
             this.chkCreateDefinitionFile.TabIndex = 8;
             this.chkCreateDefinitionFile.Text = "Create definition file";
             this.chkCreateDefinitionFile.UseVisualStyleBackColor = true;
+            this.chkCreateDefinitionFile.CheckedChanged += new System.EventHandler(this.ChkCreateDefinitionFile_CheckedChanged);
             // 
             // splitContainerDefinitionFile
             // 
@@ -353,6 +358,7 @@ namespace WinFormsUI.Forms
             this.btnDefinitionsExplore.Text = "Explore";
             this.btnDefinitionsExplore.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
             this.btnDefinitionsExplore.UseVisualStyleBackColor = true;
+            this.btnDefinitionsExplore.Click += new System.EventHandler(this.BtnDefinitionsExplore_Click);
             // 
             // label4
             // 
@@ -406,6 +412,7 @@ namespace WinFormsUI.Forms
             this.btnPackageExplore.Text = "Explore";
             this.btnPackageExplore.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
             this.btnPackageExplore.UseVisualStyleBackColor = true;
+            this.btnPackageExplore.Click += new System.EventHandler(this.BtnPackageExplore_Click);
             // 
             // label3
             // 
@@ -444,6 +451,7 @@ namespace WinFormsUI.Forms
             this.chkShowPassword.TabIndex = 7;
             this.chkShowPassword.Text = "Show password";
             this.chkShowPassword.UseVisualStyleBackColor = true;
+            this.chkShowPassword.CheckedChanged += new System.EventHandler(this.ChkShowPassword_CheckedChanged);
             // 
             // txtPassword
             // 
@@ -494,7 +502,7 @@ namespace WinFormsUI.Forms
             // 
             // splitContainer4.Panel2
             // 
-            this.splitContainer4.Panel2.Controls.Add(this.btnAssetExplore);
+            this.splitContainer4.Panel2.Controls.Add(this.btnResourcesExplore);
             this.splitContainer4.Panel2.Padding = new System.Windows.Forms.Padding(3, 0, 3, 6);
             this.splitContainer4.Size = new System.Drawing.Size(541, 35);
             this.splitContainer4.SplitterDistance = 438;
@@ -509,18 +517,19 @@ namespace WinFormsUI.Forms
             this.txtAssetFolder.Size = new System.Drawing.Size(438, 27);
             this.txtAssetFolder.TabIndex = 0;
             // 
-            // btnAssetExplore
+            // btnResourcesExplore
             // 
-            this.btnAssetExplore.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.btnAssetExplore.Image = global::WinFormsUI.Properties.Images.folder_explore;
-            this.btnAssetExplore.Location = new System.Drawing.Point(3, 0);
-            this.btnAssetExplore.Name = "btnAssetExplore";
-            this.btnAssetExplore.Padding = new System.Windows.Forms.Padding(3, 0, 0, 0);
-            this.btnAssetExplore.Size = new System.Drawing.Size(93, 29);
-            this.btnAssetExplore.TabIndex = 0;
-            this.btnAssetExplore.Text = "Explore";
-            this.btnAssetExplore.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
-            this.btnAssetExplore.UseVisualStyleBackColor = true;
+            this.btnResourcesExplore.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.btnResourcesExplore.Image = global::WinFormsUI.Properties.Images.folder_explore;
+            this.btnResourcesExplore.Location = new System.Drawing.Point(3, 0);
+            this.btnResourcesExplore.Name = "btnResourcesExplore";
+            this.btnResourcesExplore.Padding = new System.Windows.Forms.Padding(3, 0, 0, 0);
+            this.btnResourcesExplore.Size = new System.Drawing.Size(93, 29);
+            this.btnResourcesExplore.TabIndex = 0;
+            this.btnResourcesExplore.Text = "Explore";
+            this.btnResourcesExplore.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
+            this.btnResourcesExplore.UseVisualStyleBackColor = true;
+            this.btnResourcesExplore.Click += new System.EventHandler(this.BtnResourcesExplore_Click);
             // 
             // label2
             // 
@@ -529,9 +538,9 @@ namespace WinFormsUI.Forms
             this.label2.Location = new System.Drawing.Point(6, 26);
             this.label2.Name = "label2";
             this.label2.Padding = new System.Windows.Forms.Padding(3, 3, 3, 6);
-            this.label2.Size = new System.Drawing.Size(97, 29);
+            this.label2.Size = new System.Drawing.Size(94, 29);
             this.label2.TabIndex = 0;
-            this.label2.Text = "Asset folder:";
+            this.label2.Text = "Root folder:";
             // 
             // tabControl2
             // 
@@ -611,6 +620,7 @@ namespace WinFormsUI.Forms
             // 
             // groupBox3
             // 
+            this.groupBox3.Controls.Add(this.selectorTreeView);
             this.groupBox3.Dock = System.Windows.Forms.DockStyle.Fill;
             this.groupBox3.Location = new System.Drawing.Point(0, 0);
             this.groupBox3.Name = "groupBox3";
@@ -619,6 +629,17 @@ namespace WinFormsUI.Forms
             this.groupBox3.TabIndex = 0;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Items to pack";
+            // 
+            // selectorTreeView
+            // 
+            this.selectorTreeView.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.selectorTreeView.Location = new System.Drawing.Point(6, 26);
+            this.selectorTreeView.Name = "selectorTreeView";
+            this.selectorTreeView.ReadOnly = false;
+            this.selectorTreeView.Size = new System.Drawing.Size(614, 570);
+            this.selectorTreeView.TabIndex = 0;
+            this.selectorTreeView.AfterStateChanged += new System.EventHandler<System.Windows.Forms.TreeViewEventArgs>(this.SelectorTreeView_AfterStateChanged);
+            this.selectorTreeView.NodeStateChanged += new System.EventHandler<System.Windows.Forms.TreeViewEventArgs>(this.SelectorTreeView_NodeStateChanged);
             // 
             // panel2
             // 
@@ -639,6 +660,7 @@ namespace WinFormsUI.Forms
             this.btnCancel.TabIndex = 0;
             this.btnCancel.Text = "Close";
             this.btnCancel.UseVisualStyleBackColor = true;
+            this.btnCancel.Click += new System.EventHandler(this.BtnCancel_Click);
             // 
             // panel1
             // 
@@ -660,6 +682,7 @@ namespace WinFormsUI.Forms
             this.btnCreate.TabIndex = 0;
             this.btnCreate.Text = "Create";
             this.btnCreate.UseVisualStyleBackColor = true;
+            this.btnCreate.Click += new System.EventHandler(this.BtnCreate_Click);
             // 
             // CreateForm
             // 
@@ -672,6 +695,10 @@ namespace WinFormsUI.Forms
             this.ShowIcon = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Create new resource package";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.CreateForm_FormClosing);
+            this.ResizeBegin += new System.EventHandler(this.CreateForm_ResizeBegin);
+            this.ResizeEnd += new System.EventHandler(this.CreateForm_ResizeEnd);
+            this.SizeChanged += new System.EventHandler(this.CreateForm_SizeChanged);
             this.splitContainer1.Panel1.ResumeLayout(false);
             this.splitContainer1.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
@@ -719,6 +746,7 @@ namespace WinFormsUI.Forms
             this.splitContainer5.ResumeLayout(false);
             this.toolStrip1.ResumeLayout(false);
             this.toolStrip1.PerformLayout();
+            this.groupBox3.ResumeLayout(false);
             this.panel2.ResumeLayout(false);
             this.panel1.ResumeLayout(false);
             this.ResumeLayout(false);
@@ -745,7 +773,7 @@ namespace WinFormsUI.Forms
         private GroupBox groupBox1;
         private SplitContainer splitContainer4;
         private TextBox txtAssetFolder;
-        private Button btnAssetExplore;
+        private Button btnResourcesExplore;
         private Label label2;
         private SplitContainer splitContainer5;
         private ToolStrip toolStrip1;
@@ -769,5 +797,6 @@ namespace WinFormsUI.Forms
         private Label lblStatusFile;
         private ProgressBar progressBarPrimary;
         private GroupBox groupBox3;
+        private TriStateTreeView selectorTreeView;
     }
 }

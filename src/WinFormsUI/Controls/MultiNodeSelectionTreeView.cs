@@ -18,11 +18,10 @@
 
 #endregion
 
-using ResourcePacker.Entities;
-using ResourcePacker.Extensions;
-using Winista.Mime;
+using ResourcePackerGUI.Domain.Entities;
+using WinFormsUI.Extensions;
 
-namespace ResourcePacker.Controls
+namespace WinFormsUI.Controls
 {
     public partial class MultiNodeSelectionTreeView : UserControl
     {
@@ -59,7 +58,7 @@ namespace ResourcePacker.Controls
             treeView.Nodes.Clear();
         }
 
-        public void CreateNodesFromAssets(IReadOnlyList<Asset> assets, string packageName,
+        public void CreateNodesFromResources(IReadOnlyList<Resource> assets, string packageName,
                     IProgress<int>? progressSecondary = null, int progressReportInterval = 100)
         {
             SelectedNodes.Clear();
@@ -107,7 +106,7 @@ namespace ResourcePacker.Controls
 
                             if (j == pathNodes.Length - 1)
                             {
-                                currentNode.ImageIndex = GetMimeTypeIconIndex(asset.MimeType);
+                                currentNode.ImageIndex = GetMimeTypeIconIndex(asset.MediaType);
                                 currentNode.Tag = asset;
                             }
                             else
@@ -142,7 +141,7 @@ namespace ResourcePacker.Controls
         /// </summary>
         /// <param name="mimeType">A mimetype.</param>
         /// <returns>The index for an icon.</returns>
-        private static int GetMimeTypeIconIndex(MimeType? mimeType)
+        private static int GetMimeTypeIconIndex(MediaType? mimeType)
         {
             if (mimeType == null)
             {

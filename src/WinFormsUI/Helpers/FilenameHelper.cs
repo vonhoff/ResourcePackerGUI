@@ -18,7 +18,7 @@
 
 #endregion
 
-namespace ResourcePacker.Helpers
+namespace WinFormsUI.Helpers
 {
     internal static class FilenameHelper
     {

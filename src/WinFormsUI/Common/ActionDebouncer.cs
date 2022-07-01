@@ -18,7 +18,7 @@
 
 #endregion
 
-namespace ResourcePacker.Common
+namespace WinFormsUI.Common
 {
     /// <summary>
     /// Based on: https://stackoverflow.com/a/45110025

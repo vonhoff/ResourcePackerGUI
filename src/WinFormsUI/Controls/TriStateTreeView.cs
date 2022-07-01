@@ -17,9 +17,9 @@
 #endregion
 
 using System.Drawing.Imaging;
-using ResourcePacker.Extensions;
+using WinFormsUI.Extensions;
 
-namespace ResourcePacker.Controls
+namespace WinFormsUI.Controls
 {
     public partial class TriStateTreeView : UserControl
     {

@@ -80,6 +80,7 @@ namespace ResourcePackerGUI.Application.Packaging.Handlers
                 percentage = (int)((double)(i + 1) / header.NumberOfEntries * 100);
             }
 
+            request.Progress?.Report(100);
             return entries;
         }
 

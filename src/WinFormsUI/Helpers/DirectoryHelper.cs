@@ -20,7 +20,7 @@
 
 using Serilog;
 
-namespace ResourcePacker.Helpers
+namespace WinFormsUI.Helpers
 {
     public static class DirectoryHelper
     {

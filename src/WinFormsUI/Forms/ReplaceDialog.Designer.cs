@@ -61,9 +61,9 @@
             this.label1.Location = new System.Drawing.Point(12, 9);
             this.label1.Margin = new System.Windows.Forms.Padding(3, 0, 3, 3);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(357, 20);
+            this.label1.Size = new System.Drawing.Size(380, 20);
             this.label1.TabIndex = 0;
-            this.label1.Text = "A file with the same name as the asset already exists:";
+            this.label1.Text = "A file with the same name as the resource already exists:";
             // 
             // chkRepeatAll
             // 
@@ -115,8 +115,8 @@
             this.lblReplaceFileDescription.Padding = new System.Windows.Forms.Padding(0, 3, 0, 0);
             this.lblReplaceFileDescription.Size = new System.Drawing.Size(357, 48);
             this.lblReplaceFileDescription.TabIndex = 0;
-            this.lblReplaceFileDescription.Text = "Replace the file in the destination folder with \r\nthe asset that will be extracte" +
-    "d.";
+            this.lblReplaceFileDescription.Text = "Replace the file in the destination folder with \r\nthe resource that will be extra" +
+    "cted.";
             // 
             // splitContainer2
             // 
@@ -157,7 +157,8 @@
             this.lblBothFilesDescription.Padding = new System.Windows.Forms.Padding(0, 3, 0, 0);
             this.lblBothFilesDescription.Size = new System.Drawing.Size(357, 48);
             this.lblBothFilesDescription.TabIndex = 0;
-            this.lblBothFilesDescription.Text = "The asset will be extracted and \r\nrenamed to \'File (2).txt\'.";
+            this.lblBothFilesDescription.Text = "The resource will be renamed to \'File (2).txt\',\r\nand extracted to the destination" +
+    " folder.";
             // 
             // btnCancel
             // 
@@ -208,7 +209,7 @@
             this.lblNoExtractDescription.Padding = new System.Windows.Forms.Padding(0, 3, 0, 0);
             this.lblNoExtractDescription.Size = new System.Drawing.Size(357, 48);
             this.lblNoExtractDescription.TabIndex = 0;
-            this.lblNoExtractDescription.Text = "The asset will not be extracted to \r\nthe destination folder.";
+            this.lblNoExtractDescription.Text = "The resource will not be extracted to \r\nthe destination folder.";
             // 
             // txtFilePath
             // 

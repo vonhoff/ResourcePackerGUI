@@ -1,4 +1,4 @@
-﻿namespace ResourcePacker.Controls
+﻿namespace WinFormsUI.Controls
 {
     partial class MultiNodeSelectionTreeView
     {
