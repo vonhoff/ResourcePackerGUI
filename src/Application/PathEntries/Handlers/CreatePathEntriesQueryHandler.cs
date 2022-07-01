@@ -17,12 +17,9 @@ namespace ResourcePackerGUI.Application.PathEntries.Handlers
 
         public Task<IReadOnlyList<PathEntry>> Handle(CreatePathEntriesQuery request, CancellationToken cancellationToken)
         {
-            return Task.Run(() =>
-            {
-                var definitions = CreatePathEntries(request);
-                Log.Information("Created {count} path entries.", definitions.Count);
-                return definitions;
-            }, cancellationToken);
+            var definitions = CreatePathEntries(request);
+            Log.Information("Created {count} path entries.", definitions.Count);
+            return Task.FromResult(definitions);
         }
 
         /// <summary>

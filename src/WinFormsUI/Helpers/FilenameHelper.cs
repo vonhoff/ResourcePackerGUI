@@ -24,7 +24,7 @@ namespace WinFormsUI.Helpers
     {
         private const string NumberPattern = " ({0})";
 
-        public static string NextAvailableFilename(string path)
+        public static string NextAvailablePath(string path)
         {
             // Short-cut if already available
             if (!File.Exists(path))

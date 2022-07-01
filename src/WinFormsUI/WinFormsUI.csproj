@@ -11,6 +11,7 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <NeutralLanguage>en-US</NeutralLanguage>
     <Platforms>x64;x86</Platforms>
+    <AssemblyName>ResourcePackerGUI</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>

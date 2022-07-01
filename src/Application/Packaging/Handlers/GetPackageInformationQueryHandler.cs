@@ -14,23 +14,20 @@ namespace ResourcePackerGUI.Application.Packaging.Handlers
 
         public Task<Package> Handle(GetPackageInformationQuery request, CancellationToken cancellationToken)
         {
-            return Task.Run(() =>
+            var header = GetHeader(request.BinaryReader);
+            var entries = GetEntries(request, header, cancellationToken);
+
+            if (entries.Count == header.NumberOfEntries)
             {
-                var header = GetHeader(request.BinaryReader);
-                var entries = GetEntries(request, header, cancellationToken);
+                Log.Information("Loaded all {entryCount} entries.", entries.Count);
+            }
+            else
+            {
+                Log.Warning("Loaded {entryCount} out of {expectedCount} entries.",
+                    entries.Count, header.NumberOfEntries);
+            }
 
-                if (entries.Count == header.NumberOfEntries)
-                {
-                    Log.Information("Loaded all {entryCount} entries.", entries.Count);
-                }
-                else
-                {
-                    Log.Warning("Loaded {entryCount} out of {expectedCount} entries.",
-                        entries.Count, header.NumberOfEntries);
-                }
-
-                return new Package(header, entries);
-            }, cancellationToken);
+            return Task.FromResult(new Package(header, entries));
         }
 
         /// <summary>

@@ -3,7 +3,7 @@ using ResourcePackerGUI.Domain.Entities;
 
 namespace ResourcePackerGUI.Application.Resources.Queries
 {
-    public class ExportResourcesQuery : IRequest
+    public class ExportResourcesQuery : IRequest<int>
     {
         /// <summary>
         /// Constructor for the <see cref="ExportResourcesQuery"/> class.

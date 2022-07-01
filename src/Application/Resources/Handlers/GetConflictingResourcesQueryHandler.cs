@@ -17,21 +17,19 @@ namespace ResourcePackerGUI.Application.Resources.Handlers
 
         public Task<IReadOnlyList<Resource>> Handle(GetConflictingResourcesQuery request, CancellationToken cancellationToken)
         {
-            return Task.Run(() =>
+            var percentage = 0;
+            IReadOnlyList<Resource> list;
+            using (var progressTimer = new System.Timers.Timer(request.ProgressReportInterval))
             {
-                var percentage = 0;
-                IReadOnlyList<Resource> list;
-                using (var progressTimer = new System.Timers.Timer(request.ProgressReportInterval))
-                {
-                    // ReSharper disable once AccessToModifiedClosure
-                    progressTimer.Elapsed += delegate { request.Progress!.Report(percentage); };
-                    progressTimer.Enabled = request.Progress != null;
-                    list = CollectFileConflicts(request, ref percentage);
-                }
+                // ReSharper disable once AccessToModifiedClosure
+                progressTimer.Elapsed += delegate { request.Progress!.Report(percentage); };
+                progressTimer.Enabled = request.Progress != null;
+                list = CollectFileConflicts(request, ref percentage);
+            }
 
-                Log.Information("{amount} conflicts found.", list.Count);
-                return list;
-            }, cancellationToken);
+            Log.Information("{amount} conflicts found.", list.Count);
+            request.Progress?.Report(100);
+            return Task.FromResult(list);
         }
 
         /// <summary>

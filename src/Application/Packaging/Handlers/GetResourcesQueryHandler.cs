@@ -25,21 +25,19 @@ namespace ResourcePackerGUI.Application.Packaging.Handlers
 
         public Task<IReadOnlyList<Resource>> Handle(GetResourcesQuery request, CancellationToken cancellationToken)
         {
-            return Task.Run(() =>
+            var assets = GetResources(request, cancellationToken);
+            if (assets.Count == request.Entries.Count)
             {
-                var assets = GetResources(request, cancellationToken);
-                if (assets.Count == request.Entries.Count)
-                {
-                    Log.Information("Loaded all {assetCount} assets.", assets.Count);
-                }
-                else
-                {
-                    Log.Warning("Loaded {assetCount} out of {entryCount} assets.",
-                        assets.Count, request.Entries.Count);
-                }
+                Log.Information("Loaded all {assetCount} assets.", assets.Count);
+            }
+            else
+            {
+                Log.Warning("Loaded {assetCount} out of {entryCount} assets.",
+                    assets.Count, request.Entries.Count);
+            }
 
-                return assets;
-            }, cancellationToken);
+            request.ProgressPrimary?.Report(100);
+            return Task.FromResult(assets);
         }
 
         private IReadOnlyList<Resource> GetResources(GetResourcesQuery request, CancellationToken cancellationToken)

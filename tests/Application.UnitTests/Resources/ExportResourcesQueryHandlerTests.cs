@@ -45,7 +45,9 @@ namespace Application.UnitTests.Resources
             var fileSystem = new MockFileSystem(files, "F:\\assets\\");
             var query = new ExportResourcesQuery("F:\\assets\\", _resources, conflictFileReplacements);
             var sut = new ExportResourcesQueryHandler(fileSystem);
-            await sut.Handle(query, default);
+            var exported = await sut.Handle(query, default);
+
+            Assert.Equal(2, exported);
             Assert.NotEqual(SampleAcceptPng, fileSystem.GetFile("F:\\assets\\accept.png").Contents);
             Assert.Equal(SampleAsteriskOrangePng, fileSystem.GetFile("F:\\assets\\asterisk_orange.png").Contents);
             Assert.NotEqual(SampleAwardStarGoldPng, fileSystem.GetFile("F:\\assets\\award_star_gold_3.png").Contents);

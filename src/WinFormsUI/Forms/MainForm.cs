@@ -19,6 +19,7 @@
 #endregion
 
 using System.Diagnostics;
+using System.Media;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -36,6 +37,7 @@ using Serilog.Events;
 using Serilog.Sinks.RichTextBoxForms.Themes;
 using WinFormsUI.Common;
 using WinFormsUI.Extensions;
+using WinFormsUI.Helpers;
 using WinFormsUI.Properties;
 
 namespace WinFormsUI.Forms
@@ -63,15 +65,24 @@ namespace WinFormsUI.Forms
 
         public MainForm(IMediator mediator)
         {
-            _mediator = mediator;
+            InitializeComponent();
 
+            _mediator = mediator;
             _searchDebouncer = new ActionDebouncer(RefreshPackageExplorer, TimeSpan.FromMilliseconds(175));
             _scrollOutputToEndDebouncer = new ActionDebouncer(ScrollOutputToEnd, TimeSpan.FromMilliseconds(234));
             _progressPrimary = new Progress<int>(UpdateLoadProgress);
             _progressSecondary = new Progress<int>(UpdateDecryptionProgress);
             _cancellationTokenSource = new CancellationTokenSource();
             _cancellationTokenSource.Cancel();
-            InitializeComponent();
+        }
+
+        private void MainForm_Load(object sender, EventArgs e)
+        {
+            Log.Logger = new LoggerConfiguration()
+                .MinimumLevel.Verbose()
+                .WriteTo.RichTextBox(outputBox, theme: ThemePresets.Light,
+                    levelSwitch: _loggingLevelSwitch, messageBatchSize: 500)
+                .CreateLogger();
         }
 
         private void BtnAbout_Click(object sender, EventArgs e)
@@ -141,124 +152,159 @@ namespace WinFormsUI.Forms
 
         private void BtnExtractAll_Click(object sender, EventArgs e)
         {
-            //TODO: Fix this pls
+            if (_resources is { Count: 0 })
+            {
+                MessageBox.Show("Could not extract the current package, there are no resources available.",
+                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
 
-            //if (_resources is { Count: 0 })
-            //{
-            //    MessageBox.Show("Could not extract the current package, there are no assets available.",
-            //        "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            //    return;
-            //}
+            string baseExtractionPath;
+            using (var browserDialog = new FolderBrowserDialog())
+            {
+                var result = browserDialog.ShowDialog();
 
-            //string baseExtractionPath;
-            //using (var browserDialog = new FolderBrowserDialog())
-            //{
-            //    var result = browserDialog.ShowDialog();
+                if (result != DialogResult.OK || string.IsNullOrWhiteSpace(browserDialog.SelectedPath))
+                {
+                    return;
+                }
 
-            //    if (result != DialogResult.OK || string.IsNullOrWhiteSpace(browserDialog.SelectedPath))
-            //    {
-            //        return;
-            //    }
+                baseExtractionPath = Path.Join(browserDialog.SelectedPath, _packageName);
+            }
 
-            //    baseExtractionPath = browserDialog.SelectedPath + Path.DirectorySeparatorChar + _packageName;
-            //}
+            if (Directory.Exists(baseExtractionPath) &&
+                Directory.EnumerateFileSystemEntries(baseExtractionPath,
+                    string.Empty, SearchOption.AllDirectories).Any())
+            {
+                var existsDialogResult = MessageBox.Show($"The destination already contains a folder named '{_packageName}' which is not empty. " +
+                                                   "If there are files with the same name, you will be asked if you want to replace these files. \n\n" +
+                                                   "Do you want to continue extracting to this folder?",
+                                                   "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation);
 
-            //_cancellationTokenSource = new CancellationTokenSource();
-            //Task.Run(() =>
-            //{
-            //    var previousBtnLoadDefinitionsState = btnLoadDefinitions.Enabled;
-            //    var previousBtnExtractAllState = btnExtractAll.Enabled;
+                if (existsDialogResult != DialogResult.Yes)
+                {
+                    _cancellationTokenSource.Cancel(true);
+                }
+            }
 
-            //    Invoke(() =>
-            //    {
-            //        btnCancel.Visible = true;
-            //        btnCreate.Visible = false;
-            //        btnOpen.Visible = false;
+            _cancellationTokenSource = new CancellationTokenSource();
+            Task.Run(async () =>
+            {
+                Invoke(() =>
+                {
+                    btnCancel.Visible = true;
+                    btnCreate.Visible = false;
+                    btnOpen.Visible = false;
+                });
 
-            //        btnLoadDefinitions.Enabled = false;
-            //        btnExtractAll.Enabled = false;
-            //    });
+                try
+                {
+                    var conflictingResourcesQuery = new GetConflictingResourcesQuery(baseExtractionPath, _resources)
+                    {
+                        Progress = _progressSecondary,
+                        ProgressReportInterval = ReportInterval
+                    };
 
-            //    try
-            //    {
-            //        if (Directory.Exists(baseExtractionPath) &&
-            //            Directory.EnumerateFileSystemEntries(baseExtractionPath,
-            //                string.Empty, SearchOption.AllDirectories).Any())
-            //        {
-            //            var existsDialogResult = MessageBox.Show($"The destination already contains a folder named '{_packageName}' which is not empty. " +
-            //                                               "If there are files with the same name, you will be asked if you want to replace these files. \n\n" +
-            //                                               "Do you want to continue extracting to this folder?",
-            //                                               "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation);
+                    var resolved = 0;
+                    var conflictingResources = await _mediator.Send(conflictingResourcesQuery);
 
-            //            if (existsDialogResult != DialogResult.Yes)
-            //            {
-            //                _cancellationTokenSource.Cancel(true);
-            //            }
-            //        }
+                    var pathReplacements = new Dictionary<Resource, string>();
+                    if (conflictingResources.Count > 0)
+                    {
+                        var lastAction = DialogResult.Ignore;
+                        var performLastForAllCases = false;
+                        foreach (var resource in conflictingResources)
+                        {
+                            var filePath = Path.Join(baseExtractionPath, resource.Name).Replace("/", "\\");
+                            var nextAvailablePath = FilenameHelper.NextAvailablePath(filePath);
 
-            //        var extractedItems = AssetHelper.ExtractAssetsToLocation(_resources!, baseExtractionPath,
-            //            _progressPrimary, ReportInterval, _cancellationTokenSource.Token);
+                            var replacementDialog = new ReplaceDialog(filePath, nextAvailablePath,
+                                conflictingResources.Count - resolved);
 
-            //        if (extractedItems == 0)
-            //        {
-            //            MessageBox.Show("None of the assets could be extracted from the package. \n" +
-            //                            "All assets either failed to extract or were ignored.",
-            //                "Extraction completed", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                            if (!performLastForAllCases)
+                            {
+                                lastAction = replacementDialog.ShowDialog();
+                                performLastForAllCases = replacementDialog.UseForAllCases;
+                            }
 
-            //            return;
-            //        }
+                            switch (lastAction)
+                            {
+                                case DialogResult.OK:
+                                    pathReplacements.Add(resource, filePath);
+                                    resolved++;
+                                    break;
+                                case DialogResult.Continue:
+                                    pathReplacements.Add(resource, nextAvailablePath);
+                                    resolved++;
+                                    break;
+                                case DialogResult.Ignore:
+                                    resolved++;
+                                    break;
+                                default:
+                                    _cancellationTokenSource.Cancel(true);
+                                    break;
+                            }
+                        }
+                    }
 
-            //        SystemSounds.Asterisk.Play();
-            //        this.FlashNotification();
+                    var exportQuery = new ExportResourcesQuery(baseExtractionPath, _resources, pathReplacements)
+                    {
+                        Progress = _progressPrimary,
+                        ProgressReportInterval = ReportInterval
+                    };
 
-            //        var extractionCompleteDialogResult =
-            //            MessageBox.Show("The assets have been successfully extracted to the destination folder. \n" +
-            //                            "Do you want to view the extracted assets?",
-            //                "Extraction completed", MessageBoxButtons.YesNo, MessageBoxIcon.Asterisk);
+                    var extractedAmount = await _mediator.Send(exportQuery);
 
-            //        if (extractionCompleteDialogResult == DialogResult.Yes)
-            //        {
-            //            Process.Start(new ProcessStartInfo
-            //            {
-            //                FileName = baseExtractionPath,
-            //                UseShellExecute = true,
-            //                WindowStyle = ProcessWindowStyle.Normal,
-            //                Verb = "open"
-            //            });
-            //        }
-            //    }
-            //    catch (OperationCanceledException ex)
-            //    {
-            //        Log.Information("The package extraction operation has been canceled.");
+                    if (extractedAmount == 0)
+                    {
+                        MessageBox.Show("None of the resources could be extracted from the package. \n" +
+                                        "All resources either failed to extract, or were ignored.",
+                            "Extraction completed", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    }
+                    else
+                    {
+                        SystemSounds.Asterisk.Play();
+                        this.FlashNotification();
 
-            //        Invoke(() =>
-            //        {
-            //            lblResultCount.Text = "0 Assets";
-            //            lblElapsed.Text = "00:00:00.0000";
-            //        });
+                        var extractionCompleteDialogResult =
+                            MessageBox.Show("The resources have been successfully extracted to the destination folder. \n" +
+                                            "Do you want to view the extracted resources?",
+                                "Extraction completed", MessageBoxButtons.YesNo, MessageBoxIcon.Asterisk);
 
-            //        MessageBox.Show(ex.Message, "Operation canceled",
-            //            MessageBoxButtons.OK, MessageBoxIcon.Information);
-            //    }
-            //    catch (Exception ex)
-            //    {
-            //        Log.Error(ex, "An exception occurred during extraction.");
-            //    }
+                        if (extractionCompleteDialogResult == DialogResult.Yes)
+                        {
+                            Process.Start(new ProcessStartInfo
+                            {
+                                FileName = baseExtractionPath,
+                                UseShellExecute = true,
+                                WindowStyle = ProcessWindowStyle.Normal,
+                                Verb = "open"
+                            });
+                        }
+                    }
+                }
+                catch (OperationCanceledException ex)
+                {
+                    Log.Information(ex.Message);
+                    MessageBox.Show(ex.Message, "Operation canceled",
+                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                catch (Exception ex)
+                {
+                    Log.Error(ex, "An exception occurred during extraction.");
+                }
+                
+                Invoke(() =>
+                {
+                    btnCancel.Visible = false;
+                    btnCreate.Visible = true;
+                    btnOpen.Visible = true;
 
-            //    Invoke(() =>
-            //    {
-            //        btnCancel.Visible = false;
-            //        btnCreate.Visible = true;
-            //        btnOpen.Visible = true;
-
-            //        btnLoadDefinitions.Enabled = previousBtnLoadDefinitionsState;
-            //        btnExtractAll.Enabled = previousBtnExtractAllState;
-
-            //        // Set the progress bars to their initial state.
-            //        progressBarPrimary.Style = ProgressBarStyle.Blocks;
-            //        progressBarPrimary.Value = 0;
-            //    });
-            //});
+                    // Set the progress bars to their initial state.
+                    progressBarSecondary.Value = 0;
+                    progressBarPrimary.Value = 0;
+                });
+            });
         }
 
         private void BtnFormattedText_Click(object sender, EventArgs e)
@@ -318,7 +364,7 @@ namespace WinFormsUI.Forms
                 {
                     var query = new GetPackageInformationQuery(binaryReader)
                     {
-                        Progress = _progressPrimary,
+                        Progress = _progressSecondary,
                         ProgressReportInterval = ReportInterval
                     };
 
@@ -351,6 +397,11 @@ namespace WinFormsUI.Forms
                             _cancellationTokenSource.Cancel(true);
                         }
 
+                        if (string.IsNullOrEmpty(passwordDialog.Password))
+                        {
+                            throw new InvalidPasswordException();
+                        }
+
                         _password = passwordDialog.Password;
                     }
 
@@ -368,7 +419,14 @@ namespace WinFormsUI.Forms
 
                     // Retrieve all resources
                     var stopwatch = Stopwatch.StartNew();
-                    var resourceRetrievalQuery = new GetResourcesQuery(_packageInformation.Entries, binaryReader, _password);
+                    var resourceRetrievalQuery =
+                        new GetResourcesQuery(_packageInformation.Entries, binaryReader, _password)
+                        {
+                            ProgressPrimary = _progressPrimary,
+                            ProgressSecondary = _progressSecondary,
+                            ProgressReportInterval = ReportInterval
+                        };
+
                     _resources = await _mediator.Send(resourceRetrievalQuery, _cancellationTokenSource.Token);
 
                     var candidateDefinitionsFile = _packagePath + ".txt";
@@ -455,15 +513,6 @@ namespace WinFormsUI.Forms
 
             _loggingLevelSwitch.MinimumLevel =
                 _showDebugMessages ? LogEventLevel.Debug : LogEventLevel.Information;
-        }
-
-        private void MainForm_Load(object sender, EventArgs e)
-        {
-            Log.Logger = new LoggerConfiguration()
-                .MinimumLevel.Verbose()
-                .WriteTo.RichTextBox(outputBox, theme: ThemePresets.Light,
-                    levelSwitch: _loggingLevelSwitch, messageBatchSize: 500)
-                .CreateLogger();
         }
 
         private void MainForm_Resize(object sender, EventArgs e)

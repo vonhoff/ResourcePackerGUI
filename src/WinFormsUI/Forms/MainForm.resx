@@ -169,7 +169,7 @@
     <value>packageExplorerTreeView</value>
   </data>
   <data name="&gt;&gt;packageExplorerTreeView.Type" xml:space="preserve">
-    <value>WinFormsUI.Controls.MultiNodeSelectionTreeView, WinFormsUI, Culture=neutral, PublicKeyToken=null</value>
+    <value>WinFormsUI.Controls.MultiNodeSelectionTreeView, ResourcePackerGUI, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;packageExplorerTreeView.Parent" xml:space="preserve">
     <value>splitContainer3.Panel2</value>

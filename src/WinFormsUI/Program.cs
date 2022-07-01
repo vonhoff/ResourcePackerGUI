@@ -35,7 +35,7 @@ namespace WinFormsUI
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.SetHighDpiMode(HighDpiMode.PerMonitorV2);
+            Application.SetHighDpiMode(HighDpiMode.SystemAware);
 
             var services = new ServiceCollection();
             services.AddScoped<MainForm>();

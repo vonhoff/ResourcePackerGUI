@@ -9,7 +9,7 @@
             InitializeComponent();
         }
 
-        public ReplaceDialog(string filePath, string availableFileName, int duplicates)
+        public ReplaceDialog(string filePath, string availablePath, int duplicates)
         {
             InitializeComponent();
             txtFilePath.Text = filePath;
@@ -24,8 +24,9 @@
                                     (duplicates == 1 ? "conflict" : $"{duplicates} conflicts");
             }
 
-            var secondaryName = Path.GetFileName(availableFileName);
-            lblBothFilesDescription.Text = $"The asset will be extracted and \r\nrenamed to '{secondaryName}'.";
+            var secondaryName = Path.GetFileName(availablePath);
+            lblBothFilesDescription.Text = $"The resource will be renamed to '{secondaryName}',\r\n" +
+                                           "and extracted to the destination folder.";
         }
 
         private void ChkRepeatAll_CheckedChanged(object sender, EventArgs e)

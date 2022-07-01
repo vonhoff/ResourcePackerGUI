@@ -6,7 +6,7 @@ using Serilog;
 
 namespace ResourcePackerGUI.Application.Resources.Handlers
 {
-    public class ExportResourcesQueryHandler : IRequestHandler<ExportResourcesQuery>
+    public class ExportResourcesQueryHandler : IRequestHandler<ExportResourcesQuery, int>
     {
         private readonly IFileSystem _fileSystem;
 
@@ -15,49 +15,50 @@ namespace ResourcePackerGUI.Application.Resources.Handlers
             _fileSystem = fileSystem;
         }
 
-        public Task<Unit> Handle(ExportResourcesQuery request, CancellationToken cancellationToken)
+        public Task<int> Handle(ExportResourcesQuery request, CancellationToken cancellationToken)
         {
-            return Task.Run(() =>
+            var basePath = request.BasePath;
+            var exported = 0;
+
+            if (!Path.EndsInDirectorySeparator(basePath))
             {
-                var basePath = request.BasePath;
+                basePath += Path.DirectorySeparatorChar;
+            }
 
-                if (!Path.EndsInDirectorySeparator(basePath))
+            using (var progressTimer = new System.Timers.Timer(request.ProgressReportInterval))
+            {
+                var percentage = 0;
+
+                // ReSharper disable once AccessToModifiedClosure
+                progressTimer.Elapsed += delegate { request.Progress!.Report(percentage); };
+                progressTimer.Enabled = request.Progress != null;
+
+                for (var i = 0; i < request.Resources.Count; i++)
                 {
-                    basePath += Path.DirectorySeparatorChar;
-                }
+                    cancellationToken.ThrowIfCancellationRequested();
+                    percentage = (int)((double)(i + 1) / request.Resources.Count * 100);
 
-                using (var progressTimer = new System.Timers.Timer(request.ProgressReportInterval))
-                {
-                    var percentage = 0;
-
-                    // ReSharper disable once AccessToModifiedClosure
-                    progressTimer.Elapsed += delegate { request.Progress!.Report(percentage); };
-                    progressTimer.Enabled = request.Progress != null;
-
-                    for (var i = 0; i < request.Resources.Count; i++)
+                    var resource = request.Resources[i];
+                    if (!CreateFileInfo(basePath, resource, out var fileInfo))
                     {
-                        cancellationToken.ThrowIfCancellationRequested();
-                        percentage = (int)((double)(i + 1) / request.Resources.Count * 100);
+                        continue;
+                    }
 
-                        var resource = request.Resources[i];
-                        if (!CreateFileInfo(basePath, resource, out var fileInfo))
-                        {
-                            continue;
-                        }
+                    if (fileInfo.Exists &&
+                        !TryResolvingFileConflict(request.ConflictingNameReplacements, resource, ref fileInfo))
+                    {
+                        continue;
+                    }
 
-                        if (fileInfo.Exists &&
-                            !TryResolvingFileConflict(request.ConflictingNameReplacements, resource, ref fileInfo))
-                        {
-                            continue;
-                        }
-
-                        ExportFile(fileInfo, resource);
+                    if (ExportFile(fileInfo, resource))
+                    {
+                        exported++;
                     }
                 }
+            }
 
-                request.Progress?.Report(100);
-                return Unit.Value;
-            }, cancellationToken);
+            request.Progress?.Report(100);
+            return Task.FromResult(exported);
         }
 
         /// <summary>
@@ -65,7 +66,7 @@ namespace ResourcePackerGUI.Application.Resources.Handlers
         /// </summary>
         /// <param name="fileInfo">The information instance containing all output information.</param>
         /// <param name="resource">The resource to be extracted.</param>
-        private void ExportFile(IFileInfo fileInfo, Resource resource)
+        private bool ExportFile(IFileInfo fileInfo, Resource resource)
         {
             try
             {
@@ -78,10 +79,12 @@ namespace ResourcePackerGUI.Application.Resources.Handlers
                 binaryWriter.Close();
                 Log.Debug("Extracted {name} to: {path}",
                     Path.GetFileName(resource.Name), fileInfo.FullName);
+                return true;
             }
             catch (Exception ex)
             {
                 Log.Error(ex, "Could not extract asset: {path}", fileInfo.FullName);
+                return false;
             }
         }
 
@@ -122,11 +125,6 @@ namespace ResourcePackerGUI.Application.Resources.Handlers
             {
                 Log.Debug("Ignored: {path}", path);
                 return false;
-            }
-
-            if (path.Equals(replacement))
-            {
-                Log.Information("Replacing: {path}", path);
             }
 
             fileInfo = _fileSystem.FileInfo.FromFileName(replacement);

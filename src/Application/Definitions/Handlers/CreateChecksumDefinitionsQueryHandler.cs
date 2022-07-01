@@ -17,17 +17,14 @@ namespace ResourcePackerGUI.Application.Definitions.Handlers
 
         public Task<IReadOnlyDictionary<uint, string>> Handle(CreateChecksumDefinitionsQuery request, CancellationToken cancellationToken)
         {
-            return Task.Run(() =>
+            IReadOnlyDictionary<uint, string> crcDictionary;
+            using (var reader = new StreamReader(request.FileStream))
             {
-                IReadOnlyDictionary<uint, string> crcDictionary;
-                using (var reader = new StreamReader(request.FileStream))
-                {
-                    crcDictionary = CreateChecksumDictionary(reader, cancellationToken);
-                }
+                crcDictionary = CreateChecksumDictionary(reader, cancellationToken);
+            }
 
-                Log.Information("Computed {definitionCount} checksum definitions.", crcDictionary.Count);
-                return crcDictionary;
-            }, cancellationToken);
+            Log.Information("Computed {definitionCount} checksum definitions.", crcDictionary.Count);
+            return Task.FromResult(crcDictionary);
         }
 
         /// <summary>

@@ -28,37 +28,34 @@ namespace ResourcePackerGUI.Application.Packaging.Handlers
 
         public Task<Unit> Handle(BuildPackageQuery request, CancellationToken cancellationToken)
         {
-            return Task.Run(() =>
+            var header = new PackageHeader
             {
-                var header = new PackageHeader
+                Id = PackHeaderId,
+                NumberOfEntries = request.PathEntries.Count
+            };
+
+            using (var outputStream = _fileSystem.File.OpenWrite(request.Output))
+            {
+                using var binaryWriter = new BinaryWriter(outputStream);
+                var initialOffset = Unsafe.SizeOf<PackageHeader>() + (header.NumberOfEntries * Unsafe.SizeOf<Entry>());
+                var key = _aesEncryptionService.KeySetup(request.Password);
+
+                // Write all assets to file and retrieve their associated entry data.
+                var entries = WriteAssets(request, initialOffset, key, binaryWriter, cancellationToken);
+
+                // Write header to file.
+                binaryWriter.Seek(0, SeekOrigin.Begin);
+                binaryWriter.WriteStruct(header);
+
+                // Write entries to file.
+                foreach (var entry in entries)
                 {
-                    Id = PackHeaderId,
-                    NumberOfEntries = request.PathEntries.Count
-                };
-
-                using (var outputStream = _fileSystem.File.OpenWrite(request.Output))
-                {
-                    using var binaryWriter = new BinaryWriter(outputStream);
-                    var initialOffset = Unsafe.SizeOf<PackageHeader>() + (header.NumberOfEntries * Unsafe.SizeOf<Entry>());
-                    var key = _aesEncryptionService.KeySetup(request.Password);
-
-                    // Write all assets to file and retrieve their associated entry data.
-                    var entries = WriteAssets(request, initialOffset, key, binaryWriter, cancellationToken);
-
-                    // Write header to file.
-                    binaryWriter.Seek(0, SeekOrigin.Begin);
-                    binaryWriter.WriteStruct(header);
-
-                    // Write entries to file.
-                    foreach (var entry in entries)
-                    {
-                        cancellationToken.ThrowIfCancellationRequested();
-                        binaryWriter.WriteStruct(entry);
-                    }
+                    cancellationToken.ThrowIfCancellationRequested();
+                    binaryWriter.WriteStruct(entry);
                 }
+            }
 
-                return Unit.Value;
-            }, cancellationToken);
+            return Task.FromResult(Unit.Value);
         }
 
         /// <summary>
