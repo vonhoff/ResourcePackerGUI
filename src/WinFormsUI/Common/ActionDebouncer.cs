@@ -23,7 +23,7 @@ namespace WinFormsUI.Common
     /// <summary>
     /// Based on: https://stackoverflow.com/a/45110025
     /// </summary>
-    public class ActionDebouncer : IDisposable
+    public class ActionDebouncer
     {
         private readonly Action _action;
         private readonly TimeSpan _timeSpan;
@@ -34,21 +34,6 @@ namespace WinFormsUI.Common
         {
             _timeSpan = timespan;
             _action = action;
-        }
-
-        public void Dispose()
-        {
-            lock (_mutex)
-            {
-                while (_resets.Count > 0)
-                {
-                    var reset = _resets.First();
-                    _resets.Remove(reset);
-                    reset.Set();
-                }
-            }
-
-            GC.SuppressFinalize(this);
         }
 
         public void Invoke()

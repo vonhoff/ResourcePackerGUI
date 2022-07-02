@@ -3,7 +3,7 @@ using ResourcePackerGUI.Domain.Entities;
 
 namespace ResourcePackerGUI.Application.Resources.Queries
 {
-    public class UpdateResourceDefinitionsQuery : IRequest
+    public class UpdateResourceDefinitionsQuery : IRequest<int>
     {
         /// <summary>
         /// Constructor for the <see cref="UpdateResourceDefinitionsQuery"/> class.
@@ -25,5 +25,15 @@ namespace ResourcePackerGUI.Application.Resources.Queries
         /// A read-only dictionary of checksum values and their original entries.
         /// </summary>
         public IReadOnlyDictionary<uint, string> ChecksumDefinitions { get; init; }
+
+        /// <summary>
+        /// An optional progress instance to keep track of the process.
+        /// </summary>
+        public IProgress<double>? Progress { get; init; }
+
+        /// <summary>
+        /// The interval in milliseconds for updating the progress instances when present.
+        /// </summary>
+        public int ProgressReportInterval { get; init; } = 100;
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System.IO.Abstractions;
 using MediatR;
+using ResourcePackerGUI.Application.Common.Utilities;
 using ResourcePackerGUI.Application.PathEntries.Queries;
 using ResourcePackerGUI.Domain.Entities;
 using Serilog;
@@ -29,7 +30,7 @@ namespace ResourcePackerGUI.Application.PathEntries.Handlers
         /// <returns>A read-only list of path entries.</returns>
         private IReadOnlyList<PathEntry> CreatePathEntries(CreatePathEntriesQuery request)
         {
-            var percentage = 0;
+            var percentage = 0d;
             using var progressTimer = new System.Timers.Timer(request.ProgressReportInterval);
 
             // ReSharper disable once AccessToModifiedClosure
@@ -39,7 +40,7 @@ namespace ResourcePackerGUI.Application.PathEntries.Handlers
             var processedItems = new List<PathEntry>();
             for (var i = 0; i < request.AbsoluteFilePaths.Count; i++)
             {
-                percentage = (int)((double)(i + 1) / request.AbsoluteFilePaths.Count * 100);
+                percentage = FastMath.Round((double)(i + 1) / request.AbsoluteFilePaths.Count * 100, 2);
                 var absolutePath = request.AbsoluteFilePaths[i];
 
                 if (!_fileSystem.File.Exists(absolutePath))

@@ -1,6 +1,4 @@
 ﻿using System.IO.Abstractions.TestingHelpers;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 using ResourcePackerGUI.Application.Resources.Handlers;
 using ResourcePackerGUI.Application.Resources.Queries;
 using ResourcePackerGUI.Domain.Entities;

@@ -18,10 +18,12 @@
 
 #endregion
 
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 
 namespace WinFormsUI.Extensions
 {
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
     internal static class FormExtensions
     {
         // Flash both the window caption and taskbar button.

@@ -24,13 +24,17 @@ namespace ResourcePackerGUI.Domain.Entities
 {
     public class Package
     {
-        public Package(PackageHeader header, IReadOnlyList<Entry> entries)
+        public Package(PackageHeader header, IReadOnlyList<Entry> entries, bool encrypted)
         {
+            Encrypted = encrypted;
             Header = header;
             Entries = entries;
         }
 
         public IReadOnlyList<Entry> Entries { get; init; }
+
+        public bool Encrypted { get; set; }
+
         public PackageHeader Header { get; init; }
     }
 }

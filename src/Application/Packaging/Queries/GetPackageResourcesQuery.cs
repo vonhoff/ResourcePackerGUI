@@ -4,15 +4,15 @@ using ResourcePackerGUI.Domain.Structures;
 
 namespace ResourcePackerGUI.Application.Packaging.Queries
 {
-    public class GetResourcesQuery : IRequest<IReadOnlyList<Resource>>
+    public class GetPackageResourcesQuery : IRequest<IReadOnlyList<Resource>>
     {
         /// <summary>
-        /// Constructor for the <see cref="GetResourcesQuery"/> class.
+        /// Constructor for the <see cref="GetPackageResourcesQuery"/> class.
         /// </summary>
         /// <param name="entries">The collection of entries for retrieving all resources.</param>
         /// <param name="binaryReader">The binary reader for the specified package file.</param>
         /// <param name="password">The password for use to decrypt the assets.</param>
-        public GetResourcesQuery(IReadOnlyList<Entry> entries, BinaryReader binaryReader, string password = "")
+        public GetPackageResourcesQuery(IReadOnlyList<Entry> entries, BinaryReader binaryReader, string password = "")
         {
             Entries = entries;
             BinaryReader = binaryReader;
@@ -37,12 +37,12 @@ namespace ResourcePackerGUI.Application.Packaging.Queries
         /// <summary>
         /// An optional progress to keep track of the amount of resources loaded.
         /// </summary>
-        public IProgress<int>? ProgressPrimary { get; init; }
+        public IProgress<double>? ProgressPrimary { get; init; }
 
         /// <summary>
         /// An optional progress to keep track of the decryption process.
         /// </summary>
-        public IProgress<int>? ProgressSecondary { get; init; }
+        public IProgress<double>? ProgressSecondary { get; init; }
 
         /// <summary>
         /// The interval in milliseconds for updating the progress instances when present.

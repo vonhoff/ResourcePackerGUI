@@ -1,6 +1,4 @@
 ﻿using Application.UnitTests.Common.Fixture;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 using ResourcePackerGUI.Application.Common.Exceptions;
 using ResourcePackerGUI.Application.Common.Interfaces;
 using ResourcePackerGUI.Application.Packaging.Handlers;
@@ -42,8 +40,8 @@ namespace Application.UnitTests.Packaging
         {
             await using var stream = new MemoryStream(SampleResourcePackage);
             using var binaryReader = new BinaryReader(stream);
-            var query = new GetResourcesQuery(Entries, binaryReader);
-            var sut = new GetResourcesQueryHandler(_aesEncryptionService, _crc32Service, _mediaTypeService);
+            var query = new GetPackageResourcesQuery(Entries, binaryReader);
+            var sut = new GetPackageResourcesQueryHandler(_aesEncryptionService, _crc32Service, _mediaTypeService);
             var result = await sut.Handle(query, default);
             Assert.NotNull(result);
             Assert.Equal(3, result.Count);
@@ -57,8 +55,8 @@ namespace Application.UnitTests.Packaging
         {
             await using var stream = new MemoryStream(SampleResourcePackageEncrypted);
             using var binaryReader = new BinaryReader(stream);
-            var query = new GetResourcesQuery(EntriesEncrypted, binaryReader, "Welkom01!");
-            var sut = new GetResourcesQueryHandler(_aesEncryptionService, _crc32Service, _mediaTypeService);
+            var query = new GetPackageResourcesQuery(EntriesEncrypted, binaryReader, "Welkom01!");
+            var sut = new GetPackageResourcesQueryHandler(_aesEncryptionService, _crc32Service, _mediaTypeService);
             var result = await sut.Handle(query, default);
             Assert.NotNull(result);
             Assert.Equal(3, result.Count);
@@ -72,8 +70,8 @@ namespace Application.UnitTests.Packaging
         {
             await using var stream = new MemoryStream(SampleResourcePackageEncrypted);
             using var binaryReader = new BinaryReader(stream);
-            var query = new GetResourcesQuery(EntriesEncrypted, binaryReader, "Password123!");
-            var sut = new GetResourcesQueryHandler(_aesEncryptionService, _crc32Service, _mediaTypeService);
+            var query = new GetPackageResourcesQuery(EntriesEncrypted, binaryReader, "Password123!");
+            var sut = new GetPackageResourcesQueryHandler(_aesEncryptionService, _crc32Service, _mediaTypeService);
             await Assert.ThrowsAsync<InvalidPasswordException>(() => sut.Handle(query, default));
         }
 

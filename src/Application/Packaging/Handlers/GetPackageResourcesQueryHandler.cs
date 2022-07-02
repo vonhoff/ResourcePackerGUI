@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using ResourcePackerGUI.Application.Common.Exceptions;
 using ResourcePackerGUI.Application.Common.Interfaces;
+using ResourcePackerGUI.Application.Common.Utilities;
 using ResourcePackerGUI.Application.Packaging.Queries;
 using ResourcePackerGUI.Domain.Entities;
 using ResourcePackerGUI.Domain.Structures;
@@ -8,13 +9,13 @@ using Serilog;
 
 namespace ResourcePackerGUI.Application.Packaging.Handlers
 {
-    public class GetResourcesQueryHandler : IRequestHandler<GetResourcesQuery, IReadOnlyList<Resource>>
+    public class GetPackageResourcesQueryHandler : IRequestHandler<GetPackageResourcesQuery, IReadOnlyList<Resource>>
     {
         private readonly IAesEncryptionService _aesEncryptionService;
         private readonly ICrc32Service _crc32Service;
         private readonly IMediaTypeService _mediaTypeService;
 
-        public GetResourcesQueryHandler(IAesEncryptionService aesEncryptionService,
+        public GetPackageResourcesQueryHandler(IAesEncryptionService aesEncryptionService,
             ICrc32Service crc32Service,
             IMediaTypeService mediaTypeService)
         {
@@ -23,7 +24,7 @@ namespace ResourcePackerGUI.Application.Packaging.Handlers
             _mediaTypeService = mediaTypeService;
         }
 
-        public Task<IReadOnlyList<Resource>> Handle(GetResourcesQuery request, CancellationToken cancellationToken)
+        public Task<IReadOnlyList<Resource>> Handle(GetPackageResourcesQuery request, CancellationToken cancellationToken)
         {
             var assets = GetResources(request, cancellationToken);
             if (assets.Count == request.Entries.Count)
@@ -40,11 +41,11 @@ namespace ResourcePackerGUI.Application.Packaging.Handlers
             return Task.FromResult(assets);
         }
 
-        private IReadOnlyList<Resource> GetResources(GetResourcesQuery request, CancellationToken cancellationToken)
+        private IReadOnlyList<Resource> GetResources(GetPackageResourcesQuery request, CancellationToken cancellationToken)
         {
             using var progressTimer = new System.Timers.Timer(request.ProgressReportInterval);
-            var assets = new List<Resource>();
-            var percentage = 0;
+            var resources = new List<Resource>();
+            var percentage = 0d;
             var key = string.IsNullOrEmpty(request.Password)
                 ? Array.Empty<uint>()
                 : _aesEncryptionService.KeySetup(request.Password);
@@ -75,17 +76,17 @@ namespace ResourcePackerGUI.Application.Packaging.Handlers
                 }
 
                 var mimeType = _mediaTypeService.GetTypeByData(buffer);
-                var asset = new Resource(buffer, entry, mimeType);
-                assets.Add(asset);
-                percentage = (int)((double)(i + 1) / request.Entries.Count * 100);
+                var resource = new Resource(buffer, entry, mimeType);
+                resources.Add(resource);
+                percentage = FastMath.Round((double)(i + 1) / request.Entries.Count * 100, 2);
                 Log.Debug("Added asset: {@asset}",
-                    new { asset.Name, asset.MediaType });
+                    new { resource.Name, MediaType = mimeType?.Name });
             }
 
-            return assets;
+            return resources;
         }
 
-        private bool TryLoadResourceData(GetResourcesQuery request, Entry entry, out byte[] buffer,
+        private bool TryLoadResourceData(GetPackageResourcesQuery request, Entry entry, out byte[] buffer,
             uint[] key, CancellationToken cancellationToken)
         {
             try

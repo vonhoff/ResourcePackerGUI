@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using ResourcePackerGUI.Application.Common.Exceptions;
 using ResourcePackerGUI.Application.Common.Extensions;
+using ResourcePackerGUI.Application.Common.Utilities;
 using ResourcePackerGUI.Application.Packaging.Queries;
 using ResourcePackerGUI.Domain.Entities;
 using ResourcePackerGUI.Domain.Structures;
@@ -27,7 +28,13 @@ namespace ResourcePackerGUI.Application.Packaging.Handlers
                     entries.Count, header.NumberOfEntries);
             }
 
-            return Task.FromResult(new Package(header, entries));
+            var encrypted = entries.Any(e => e.DataSize != e.PackSize);
+            var package = new Package(header, entries, encrypted);
+
+            Log.Information("ResourcePackage: {@info}",
+                new { package.Header.Id, package.Header.NumberOfEntries, package.Encrypted });
+
+            return Task.FromResult(package);
         }
 
         /// <summary>
@@ -58,7 +65,7 @@ namespace ResourcePackerGUI.Application.Packaging.Handlers
         {
             using var progressTimer = new System.Timers.Timer(request.ProgressReportInterval);
 
-            var percentage = 0;
+            var percentage = 0d;
             // ReSharper disable once AccessToModifiedClosure
             progressTimer.Elapsed += delegate { request.Progress!.Report(percentage); };
             progressTimer.Enabled = request.Progress != null;
@@ -73,8 +80,8 @@ namespace ResourcePackerGUI.Application.Packaging.Handlers
                 }
 
                 entries.Add(entry);
-                Log.Debug("Added entry: {@entry}", new { entry.Id, entry.Crc, entry.DataSize });
-                percentage = (int)((double)(i + 1) / header.NumberOfEntries * 100);
+                Log.Debug("Added entry: {@entry}", new { entry.Id, entry.Crc, entry.DataSize, entry.PackSize });
+                percentage = FastMath.Round((double)(i + 1) / header.NumberOfEntries * 100, 2);
             }
 
             request.Progress?.Report(100);

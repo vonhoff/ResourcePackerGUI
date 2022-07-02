@@ -1,5 +1,6 @@
 ﻿using System.IO.Abstractions;
 using MediatR;
+using ResourcePackerGUI.Application.Common.Utilities;
 using ResourcePackerGUI.Application.Resources.Queries;
 using ResourcePackerGUI.Domain.Entities;
 using Serilog;
@@ -27,7 +28,7 @@ namespace ResourcePackerGUI.Application.Resources.Handlers
 
             using (var progressTimer = new System.Timers.Timer(request.ProgressReportInterval))
             {
-                var percentage = 0;
+                var percentage = 0d;
 
                 // ReSharper disable once AccessToModifiedClosure
                 progressTimer.Elapsed += delegate { request.Progress!.Report(percentage); };
@@ -36,7 +37,7 @@ namespace ResourcePackerGUI.Application.Resources.Handlers
                 for (var i = 0; i < request.Resources.Count; i++)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
-                    percentage = (int)((double)(i + 1) / request.Resources.Count * 100);
+                    percentage = FastMath.Round((double)(i + 1) / request.Resources.Count * 100, 2);
 
                     var resource = request.Resources[i];
                     if (!CreateFileInfo(basePath, resource, out var fileInfo))

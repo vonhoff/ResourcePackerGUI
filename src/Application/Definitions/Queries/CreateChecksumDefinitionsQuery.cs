@@ -17,5 +17,15 @@ namespace ResourcePackerGUI.Application.Definitions.Queries
         /// The stream of the specified definition file.
         /// </summary>
         public Stream FileStream { get; init; }
+
+        /// <summary>
+        /// An optional progress to keep track of the process.
+        /// </summary>
+        public IProgress<double>? Progress { get; init; }
+
+        /// <summary>
+        /// The interval in milliseconds for updating the progress instances when present.
+        /// </summary>
+        public int ProgressReportInterval { get; init; } = 100;
     }
 }

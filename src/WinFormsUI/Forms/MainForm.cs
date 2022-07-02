@@ -19,6 +19,7 @@
 #endregion
 
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Media;
 using System.Text;
 using System.Text.Json;
@@ -42,23 +43,24 @@ using WinFormsUI.Properties;
 
 namespace WinFormsUI.Forms
 {
+    [SuppressMessage("ReSharper", "LocalizableElement")]
     public partial class MainForm : Form
     {
         private const int ReportInterval = 25;
         private readonly LoggingLevelSwitch _loggingLevelSwitch = new(LogEventLevel.Debug);
         private readonly IMediator _mediator;
-        private readonly IProgress<int> _progressPrimary;
-        private readonly IProgress<int> _progressSecondary;
+        private readonly IProgress<double> _progressPrimary;
+        private readonly IProgress<double> _progressSecondary;
         private readonly ActionDebouncer _scrollOutputToEndDebouncer;
         private readonly ActionDebouncer _searchDebouncer;
         private CancellationTokenSource _cancellationTokenSource;
         private bool _displayOutputPanel = true;
         private bool _formatPreviewText = true;
-        private Package _packageInformation;
+
         private string _packageName = string.Empty;
         private string _packagePath = string.Empty;
         private string _password = string.Empty;
-        private IReadOnlyList<Resource> _resources;
+        private IReadOnlyList<Resource>? _resources;
         private string _searchQuery = string.Empty;
         private Resource? _selectedPreviewAsset;
         private bool _showDebugMessages = true;
@@ -70,19 +72,35 @@ namespace WinFormsUI.Forms
             _mediator = mediator;
             _searchDebouncer = new ActionDebouncer(RefreshPackageExplorer, TimeSpan.FromMilliseconds(175));
             _scrollOutputToEndDebouncer = new ActionDebouncer(ScrollOutputToEnd, TimeSpan.FromMilliseconds(234));
-            _progressPrimary = new Progress<int>(UpdateLoadProgress);
-            _progressSecondary = new Progress<int>(UpdateDecryptionProgress);
+            _progressPrimary = new Progress<double>(UpdateProgressPrimary);
+            _progressSecondary = new Progress<double>(UpdateProgressSecondary);
             _cancellationTokenSource = new CancellationTokenSource();
             _cancellationTokenSource.Cancel();
         }
 
-        private void MainForm_Load(object sender, EventArgs e)
+        private async Task AssignDefinitionsFromStream(Stream fileStream)
         {
-            Log.Logger = new LoggerConfiguration()
-                .MinimumLevel.Verbose()
-                .WriteTo.RichTextBox(outputBox, theme: ThemePresets.Light,
-                    levelSwitch: _loggingLevelSwitch, messageBatchSize: 500)
-                .CreateLogger();
+            if (_resources == null || _resources.Count == 0)
+            {
+                return;
+            }
+
+            var definitionsQuery = new CreateChecksumDefinitionsQuery(fileStream)
+            {
+                Progress = _progressSecondary,
+                ProgressReportInterval = ReportInterval
+            };
+
+            var crcDictionary = await _mediator.Send(definitionsQuery);
+
+            var resourceUpdateQuery = new UpdateResourceDefinitionsQuery(_resources, crcDictionary)
+            {
+                Progress = _progressPrimary,
+                ProgressReportInterval = ReportInterval
+            };
+
+            var updatedAmount = await _mediator.Send(resourceUpdateQuery);
+            Invoke(() => btnLoadDefinitions.Enabled = _resources.Count != updatedAmount);
         }
 
         private void BtnAbout_Click(object sender, EventArgs e)
@@ -152,7 +170,7 @@ namespace WinFormsUI.Forms
 
         private void BtnExtractAll_Click(object sender, EventArgs e)
         {
-            if (_resources is { Count: 0 })
+            if (_resources == null || _resources.Count == 0)
             {
                 MessageBox.Show("Could not extract the current package, there are no resources available.",
                     "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -199,53 +217,7 @@ namespace WinFormsUI.Forms
 
                 try
                 {
-                    var conflictingResourcesQuery = new GetConflictingResourcesQuery(baseExtractionPath, _resources)
-                    {
-                        Progress = _progressSecondary,
-                        ProgressReportInterval = ReportInterval
-                    };
-
-                    var resolved = 0;
-                    var conflictingResources = await _mediator.Send(conflictingResourcesQuery);
-
-                    var pathReplacements = new Dictionary<Resource, string>();
-                    if (conflictingResources.Count > 0)
-                    {
-                        var lastAction = DialogResult.Ignore;
-                        var performLastForAllCases = false;
-                        foreach (var resource in conflictingResources)
-                        {
-                            var filePath = Path.Join(baseExtractionPath, resource.Name).Replace("/", "\\");
-                            var nextAvailablePath = FilenameHelper.NextAvailablePath(filePath);
-
-                            var replacementDialog = new ReplaceDialog(filePath, nextAvailablePath,
-                                conflictingResources.Count - resolved);
-
-                            if (!performLastForAllCases)
-                            {
-                                lastAction = replacementDialog.ShowDialog();
-                                performLastForAllCases = replacementDialog.UseForAllCases;
-                            }
-
-                            switch (lastAction)
-                            {
-                                case DialogResult.OK:
-                                    pathReplacements.Add(resource, filePath);
-                                    resolved++;
-                                    break;
-                                case DialogResult.Continue:
-                                    pathReplacements.Add(resource, nextAvailablePath);
-                                    resolved++;
-                                    break;
-                                case DialogResult.Ignore:
-                                    resolved++;
-                                    break;
-                                default:
-                                    _cancellationTokenSource.Cancel(true);
-                                    break;
-                            }
-                        }
-                    }
+                    var pathReplacements = await GetFileConflictPathReplacements(baseExtractionPath);
 
                     var exportQuery = new ExportResourcesQuery(baseExtractionPath, _resources, pathReplacements)
                     {
@@ -293,16 +265,14 @@ namespace WinFormsUI.Forms
                 {
                     Log.Error(ex, "An exception occurred during extraction.");
                 }
-                
+
                 Invoke(() =>
                 {
                     btnCancel.Visible = false;
                     btnCreate.Visible = true;
                     btnOpen.Visible = true;
 
-                    // Set the progress bars to their initial state.
-                    progressBarSecondary.Value = 0;
-                    progressBarPrimary.Value = 0;
+                    ResetProgressBars();
                 });
             });
         }
@@ -322,6 +292,13 @@ namespace WinFormsUI.Forms
 
         private void BtnLoadDefinitions_Click(object sender, EventArgs e)
         {
+            if (_resources == null || _resources.Count == 0)
+            {
+                MessageBox.Show("Could not load definitions, there are no resources available.",
+                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
             using var openFileDialog = new OpenFileDialog();
             openFileDialog.Filter = "Text file (*.txt)|*.txt";
             openFileDialog.RestoreDirectory = true;
@@ -333,14 +310,9 @@ namespace WinFormsUI.Forms
 
             var fileStream = openFileDialog.OpenFile();
 
-            IReadOnlyDictionary<uint, string>? crcDictionary = null;
             Task.Run(async () =>
             {
-                var query = new CreateChecksumDefinitionsQuery(fileStream);
-                crcDictionary = await _mediator.Send(query);
-            }).ContinueWith(_ =>
-            {
-                btnLoadDefinitions.Enabled = crcDictionary?.Count != _resources.Count;
+                await AssignDefinitionsFromStream(fileStream);
                 RefreshPackageExplorer();
             });
         }
@@ -358,127 +330,25 @@ namespace WinFormsUI.Forms
 
             var stream = openFileDialog.OpenFile();
             var binaryReader = new BinaryReader(stream);
+
+            _packagePath = openFileDialog.FileName;
+            _packageName = Path.GetFileNameWithoutExtension(_packagePath);
+
             Task.Run(async () =>
             {
-                try
-                {
-                    var query = new GetPackageInformationQuery(binaryReader)
-                    {
-                        Progress = _progressSecondary,
-                        ProgressReportInterval = ReportInterval
-                    };
-
-                    _packageInformation = await _mediator.Send(query);
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Could not open resource package. {ex.Message}", "Error",
-                        MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
-                }
-
-                Log.Information("ResourcePackage: {@info}",
-                    new { _packageInformation.Header.Id, _packageInformation.Header.NumberOfEntries });
-
-                _packagePath = openFileDialog.FileName;
                 lblStatus.Text = _packagePath;
                 lblElapsed.Text = "00:00:00.0000";
                 _cancellationTokenSource = new CancellationTokenSource();
 
                 try
                 {
-                    _password = string.Empty;
-
-                    if (_packageInformation.Entries.Any(entry => entry.DataSize != entry.PackSize))
-                    {
-                        var passwordDialog = new PasswordForm();
-                        if (passwordDialog.ShowDialog() != DialogResult.OK)
-                        {
-                            _cancellationTokenSource.Cancel(true);
-                        }
-
-                        if (string.IsNullOrEmpty(passwordDialog.Password))
-                        {
-                            throw new InvalidPasswordException();
-                        }
-
-                        _password = passwordDialog.Password;
-                    }
-
-                    // Show the cancel button, hide the create and open button.
-                    Invoke(() =>
-                    {
-                        btnCancel.Visible = true;
-                        btnCreate.Visible = false;
-                        btnOpen.Visible = false;
-
-                        btnLoadDefinitions.Enabled = false;
-                        btnExtractSelected.Enabled = false;
-                        btnExtractAll.Enabled = false;
-                    });
-
-                    // Retrieve all resources
-                    var stopwatch = Stopwatch.StartNew();
-                    var resourceRetrievalQuery =
-                        new GetResourcesQuery(_packageInformation.Entries, binaryReader, _password)
-                        {
-                            ProgressPrimary = _progressPrimary,
-                            ProgressSecondary = _progressSecondary,
-                            ProgressReportInterval = ReportInterval
-                        };
-
-                    _resources = await _mediator.Send(resourceRetrievalQuery, _cancellationTokenSource.Token);
-
-                    var candidateDefinitionsFile = _packagePath + ".txt";
-                    if (File.Exists(candidateDefinitionsFile))
-                    {
-                        Log.Information("Attempting to create name definitions from: {path}", candidateDefinitionsFile);
-                        var definitionsFileStream = File.OpenRead(candidateDefinitionsFile);
-                        var checksumQuery = new CreateChecksumDefinitionsQuery(definitionsFileStream);
-                        var crcDictionary = await _mediator.Send(checksumQuery, _cancellationTokenSource.Token);
-                        var resourceUpdateQuery = new UpdateResourceDefinitionsQuery(_resources, crcDictionary);
-                        await _mediator.Send(resourceUpdateQuery, _cancellationTokenSource.Token);
-                    }
-
-                    // Stop stopwatch and refresh the file tree.
-                    stopwatch.Stop();
-                    RefreshPackageExplorer();
-
-                    // When succeeded, show the action buttons again.
-                    Invoke(() =>
-                    {
-                        lblResultCount.Text = $"{_resources.Count} " + (_resources.Count > 1 ? "Resources" : "Resource");
-                        lblElapsed.Text = stopwatch.Elapsed.ToString(@"hh\:mm\:ss\.ffff");
-                        btnExtractAll.Enabled = true;
-                    });
-                }
-                catch (OperationCanceledException ex)
-                {
-                    Log.Information("The operation has been cancelled.");
-
-                    Invoke(() =>
-                    {
-                        lblResultCount.Text = "0 Resources";
-                        lblElapsed.Text = "00:00:00.0000";
-                    });
-
-                    if (!string.IsNullOrEmpty(_password))
-                    {
-                        MessageBox.Show(ex.Message,
-                            "Operation canceled", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    }
-                }
-                catch (InvalidPasswordException)
-                {
-                    Log.Error("The password entered is incorrect.");
-                    MessageBox.Show("The password entered is incorrect.",
-                        "Incorrect password", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    await OpenPackageFromBinaryReader(binaryReader);
                 }
                 catch (Exception ex)
                 {
-                    Log.Error(ex, "An exception occurred while opening the specified package.");
-                    MessageBox.Show($"Could not open resource package. {ex.Message}",
-                        "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show($"Could not open resource package. {ex.Message}", "Error",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
                 }
 
                 binaryReader.Close();
@@ -493,10 +363,7 @@ namespace WinFormsUI.Forms
                     btnOpen.Visible = true;
 
                     // Set the progress bars to their initial state.
-                    progressBarPrimary.Style = ProgressBarStyle.Blocks;
-                    progressBarPrimary.Value = 0;
-                    progressBarSecondary.Style = ProgressBarStyle.Blocks;
-                    progressBarSecondary.Value = 0;
+                    ResetProgressBars();
 
                     // Create a flash notification.
                     this.FlashNotification();
@@ -515,9 +382,187 @@ namespace WinFormsUI.Forms
                 _showDebugMessages ? LogEventLevel.Debug : LogEventLevel.Information;
         }
 
+        private async Task<Dictionary<Resource, string>> GetFileConflictPathReplacements(string baseExtractionPath)
+        {
+            if (_resources == null || _resources.Count == 0)
+            {
+                throw new InvalidOperationException("Resources are null or empty.");
+            }
+
+            var conflictingResourcesQuery = new GetConflictingResourcesQuery(baseExtractionPath, _resources)
+            {
+                Progress = _progressSecondary,
+                ProgressReportInterval = ReportInterval
+            };
+
+            var resolved = 0;
+            var conflictingResources = await _mediator.Send(conflictingResourcesQuery);
+            var pathReplacements = new Dictionary<Resource, string>();
+
+            if (conflictingResources.Count == 0)
+            {
+                return pathReplacements;
+            }
+
+            var lastAction = DialogResult.Ignore;
+            var performLastForAllCases = false;
+            foreach (var resource in conflictingResources)
+            {
+                var filePath = Path.Join(baseExtractionPath, resource.Name).Replace("/", "\\");
+                var nextAvailablePath = FilenameHelper.NextAvailablePath(filePath);
+
+                var replacementDialog = new ReplaceDialog(filePath, nextAvailablePath,
+                    conflictingResources.Count - resolved);
+
+                if (!performLastForAllCases)
+                {
+                    lastAction = replacementDialog.ShowDialog();
+                    performLastForAllCases = replacementDialog.UseForAllCases;
+                }
+
+                switch (lastAction)
+                {
+                    case DialogResult.OK:
+                        pathReplacements.Add(resource, filePath);
+                        resolved++;
+                        break;
+
+                    case DialogResult.Continue:
+                        pathReplacements.Add(resource, nextAvailablePath);
+                        resolved++;
+                        break;
+
+                    case DialogResult.Ignore:
+                        resolved++;
+                        break;
+
+                    default:
+                        _cancellationTokenSource.Cancel();
+                        throw new OperationCanceledException();
+                }
+            }
+
+            return pathReplacements;
+        }
+
+        private void MainForm_Load(object sender, EventArgs e)
+        {
+            Log.Logger = new LoggerConfiguration()
+                .MinimumLevel.Verbose()
+                .WriteTo.RichTextBox(outputBox, theme: ThemePresets.Light,
+                    levelSwitch: _loggingLevelSwitch, messageBatchSize: 500)
+                .CreateLogger();
+        }
+
         private void MainForm_Resize(object sender, EventArgs e)
         {
             _scrollOutputToEndDebouncer.Invoke();
+        }
+
+        private async Task OpenPackageFromBinaryReader(BinaryReader binaryReader)
+        {
+            var query = new GetPackageInformationQuery(binaryReader)
+            {
+                Progress = _progressSecondary,
+                ProgressReportInterval = ReportInterval
+            };
+
+            var packageInformation = await _mediator.Send(query);
+
+            try
+            {
+                _password = string.Empty;
+
+                if (packageInformation.Encrypted)
+                {
+                    var passwordDialog = new PasswordForm();
+                    if (passwordDialog.ShowDialog() != DialogResult.OK)
+                    {
+                        _cancellationTokenSource.Cancel();
+                        throw new OperationCanceledException();
+                    }
+
+                    if (string.IsNullOrEmpty(passwordDialog.Password))
+                    {
+                        throw new InvalidPasswordException();
+                    }
+
+                    _password = passwordDialog.Password;
+                }
+
+                // Show the cancel button, hide the create and open button.
+                Invoke(() =>
+                {
+                    btnCancel.Visible = true;
+                    btnCreate.Visible = false;
+                    btnOpen.Visible = false;
+
+                    btnLoadDefinitions.Enabled = false;
+                    btnExtractSelected.Enabled = false;
+                    btnExtractAll.Enabled = false;
+                });
+
+                // Retrieve all resources
+                var stopwatch = Stopwatch.StartNew();
+                var resourceRetrievalQuery =
+                    new GetPackageResourcesQuery(packageInformation.Entries, binaryReader, _password)
+                    {
+                        ProgressPrimary = _progressPrimary,
+                        ProgressSecondary = _progressSecondary,
+                        ProgressReportInterval = ReportInterval
+                    };
+
+                _resources = await _mediator.Send(resourceRetrievalQuery, _cancellationTokenSource.Token);
+
+                // Check for a candidate definition file to automatically assign.
+                var candidateDefinitionsFile = _packagePath + ".txt";
+
+                if (File.Exists(candidateDefinitionsFile))
+                {
+                    Log.Information("Attempting to create name definitions from: {path}", candidateDefinitionsFile);
+                    var definitionsFileStream = File.OpenRead(candidateDefinitionsFile);
+                    await AssignDefinitionsFromStream(definitionsFileStream);
+                }
+                else
+                {
+                    Invoke(() => btnLoadDefinitions.Enabled = true);
+                }
+
+                // Stop stopwatch and refresh the file tree.
+                stopwatch.Stop();
+                RefreshPackageExplorer();
+
+                Invoke(() =>
+                {
+                    lblResultCount.Text = $"{_resources.Count} " + (_resources.Count > 1 ? "Resources" : "Resource");
+                    lblElapsed.Text = stopwatch.Elapsed.ToString(@"hh\:mm\:ss\.ffff");
+
+                    // Only enable the extract-all button when the package has been successfully loaded.
+                    btnExtractAll.Enabled = true;
+                });
+            }
+            catch (OperationCanceledException)
+            {
+                Log.Information("The operation has been canceled.");
+
+                Invoke(() =>
+                {
+                    lblResultCount.Text = "0 Resources";
+                    lblElapsed.Text = "00:00:00.0000";
+                });
+            }
+            catch (InvalidPasswordException)
+            {
+                Log.Error("The password entered is incorrect.");
+                MessageBox.Show("The password entered is incorrect.",
+                    "Incorrect password", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "An exception occurred while opening the specified package.");
+                MessageBox.Show($"Could not open resource package. {ex.Message}",
+                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void OutputBox_TextChanged(object sender, EventArgs e)
@@ -529,12 +574,12 @@ namespace WinFormsUI.Forms
 
         private void PackageExplorerTreeView_Leave(object sender, EventArgs e)
         {
-            UpdateExtractButton();
+            UpdateExtractSelectedButton();
         }
 
         private void PackageExplorerTreeView_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
         {
-            UpdateExtractButton();
+            UpdateExtractSelectedButton();
         }
 
         private void PackageExplorerTreeView_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
@@ -577,7 +622,11 @@ namespace WinFormsUI.Forms
 
         private void RefreshPackageExplorer()
         {
-            _packageName = Path.GetFileNameWithoutExtension(_packagePath);
+            if (_resources == null)
+            {
+                return;
+            }
+
             var resources = _resources.Where(a => a.Name.Contains(_searchQuery)).ToList();
 
             Invoke(() =>
@@ -589,16 +638,13 @@ namespace WinFormsUI.Forms
                 }
             });
 
-            Task.Run(() =>
-            {
-                packageExplorerTreeView.CreateNodesFromResources(resources, _packageName,
-                    _progressSecondary, ReportInterval);
+            packageExplorerTreeView.CreateNodesFromResources(resources, _packageName,
+                _progressSecondary, ReportInterval);
 
-                Invoke(() =>
-                {
-                    progressBarSecondary.Value = 0;
-                    UpdateExtractButton();
-                });
+            Invoke(() =>
+            {
+                ResetProgressBars();
+                UpdateExtractSelectedButton();
             });
         }
 
@@ -641,6 +687,12 @@ namespace WinFormsUI.Forms
             {
                 SetHexPreviewValue();
             }
+        }
+
+        private void ResetProgressBars()
+        {
+            progressBarPrimary.Value = 0;
+            progressBarSecondary.Value = 0;
         }
 
         private void ScrollOutputToEnd()
@@ -764,18 +816,7 @@ namespace WinFormsUI.Forms
             ScrollOutputToEnd();
         }
 
-        private void UpdateDecryptionProgress(int percentage)
-        {
-            if (progressBarSecondary == null)
-            {
-                return;
-            }
-
-            progressBarSecondary.Value = percentage;
-            progressBarSecondary.Style = ProgressBarStyle.Blocks;
-        }
-
-        private void UpdateExtractButton()
+        private void UpdateExtractSelectedButton()
         {
             var selectedNodeCount = packageExplorerTreeView.SelectedNodes.Count;
             btnExtractSelected.Enabled = selectedNodeCount > 0;
@@ -786,9 +827,14 @@ namespace WinFormsUI.Forms
             }
         }
 
-        private void UpdateLoadProgress(int percentage)
+        private void UpdateProgressPrimary(double percentage)
         {
-            progressBarPrimary.Value = percentage;
+            progressBarPrimary.Value = (int)percentage;
+        }
+
+        private void UpdateProgressSecondary(double percentage)
+        {
+            progressBarSecondary.Value = (int)percentage;
         }
     }
 }

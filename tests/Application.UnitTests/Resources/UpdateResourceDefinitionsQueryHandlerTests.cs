@@ -36,7 +36,9 @@ namespace Application.UnitTests.Resources
 
             var query = new UpdateResourceDefinitionsQuery(resources, checksumDefinitions);
             var sut = new UpdateResourceDefinitionsQueryHandler(_mediaTypeService);
-            await sut.Handle(query, default);
+            var updatedAmount = await sut.Handle(query, default);
+
+            Assert.Equal(3, updatedAmount);
             Assert.Equal("accept.png", resources[0].Name);
             Assert.Equal("asterisk_orange.png", resources[1].Name);
             Assert.Equal("award_star_gold_3.png", resources[2].Name);

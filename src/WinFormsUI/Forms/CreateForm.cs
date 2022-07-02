@@ -18,7 +18,6 @@
 
 #endregion
 
-using System.Media;
 using Serilog;
 using WinFormsUI.Extensions;
 using WinFormsUI.Helpers;

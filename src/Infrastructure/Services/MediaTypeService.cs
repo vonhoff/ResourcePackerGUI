@@ -3,7 +3,6 @@ using System.Text.Json.Nodes;
 using MimeTypes;
 using ResourcePackerGUI.Application.Common.Interfaces;
 using ResourcePackerGUI.Domain.Entities;
-using Winista.Mime;
 
 namespace ResourcePackerGUI.Infrastructure.Services
 {
@@ -15,7 +14,7 @@ namespace ResourcePackerGUI.Infrastructure.Services
         // Values for the JSON type, as JSON types are not automatically detected.
         private static readonly MediaType JsonMediaType = new()
         {
-            Description = "Javascript object notation",
+            Description = "Javascript Object Notation",
             Extensions = new[] { "json" },
             PrimaryType = "application",
             SubType = "json"
