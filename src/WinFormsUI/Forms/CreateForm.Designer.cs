@@ -696,8 +696,6 @@ namespace WinFormsUI.Forms
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Create new resource package";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.CreateForm_FormClosing);
-            this.ResizeBegin += new System.EventHandler(this.CreateForm_ResizeBegin);
-            this.ResizeEnd += new System.EventHandler(this.CreateForm_ResizeEnd);
             this.SizeChanged += new System.EventHandler(this.CreateForm_SizeChanged);
             this.splitContainer1.Panel1.ResumeLayout(false);
             this.splitContainer1.Panel2.ResumeLayout(false);

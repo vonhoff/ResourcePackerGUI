@@ -133,13 +133,10 @@
     <value>123, 22</value>
   </data>
   <data name="lblNoResults.TabIndex" type="System.Int32, mscorlib">
-    <value>4</value>
+    <value>2</value>
   </data>
   <data name="lblNoResults.Text" xml:space="preserve">
     <value>No results found.</value>
-  </data>
-  <data name="lblNoResults.Visible" type="System.Boolean, mscorlib">
-    <value>False</value>
   </data>
   <data name="&gt;&gt;lblNoResults.Name" xml:space="preserve">
     <value>lblNoResults</value>
@@ -163,13 +160,13 @@
     <value>353, 664</value>
   </data>
   <data name="packageExplorerTreeView.TabIndex" type="System.Int32, mscorlib">
-    <value>0</value>
+    <value>1</value>
   </data>
   <data name="&gt;&gt;packageExplorerTreeView.Name" xml:space="preserve">
     <value>packageExplorerTreeView</value>
   </data>
   <data name="&gt;&gt;packageExplorerTreeView.Type" xml:space="preserve">
-    <value>WinFormsUI.Controls.MultiNodeSelectionTreeView, ResourcePackerGUI, Culture=neutral, PublicKeyToken=null</value>
+    <value>WinFormsUI.Controls.ResourceSelectorTreeView, ResourcePackerGUI, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;packageExplorerTreeView.Parent" xml:space="preserve">
     <value>splitContainer3.Panel2</value>

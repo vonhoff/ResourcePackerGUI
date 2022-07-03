@@ -1,7 +1,7 @@
 ﻿using MediatR;
 using ResourcePackerGUI.Application.Common.Exceptions;
 using ResourcePackerGUI.Application.Common.Extensions;
-using ResourcePackerGUI.Application.Common.Utilities;
+
 using ResourcePackerGUI.Application.Packaging.Queries;
 using ResourcePackerGUI.Domain.Entities;
 using ResourcePackerGUI.Domain.Structures;
@@ -65,7 +65,7 @@ namespace ResourcePackerGUI.Application.Packaging.Handlers
         {
             using var progressTimer = new System.Timers.Timer(request.ProgressReportInterval);
 
-            var percentage = 0d;
+            var percentage = 0;
             // ReSharper disable once AccessToModifiedClosure
             progressTimer.Elapsed += delegate { request.Progress!.Report(percentage); };
             progressTimer.Enabled = request.Progress != null;
@@ -81,7 +81,7 @@ namespace ResourcePackerGUI.Application.Packaging.Handlers
 
                 entries.Add(entry);
                 Log.Debug("Added entry: {@entry}", new { entry.Id, entry.Crc, entry.DataSize, entry.PackSize });
-                percentage = FastMath.Round((double)(i + 1) / header.NumberOfEntries * 100, 2);
+                percentage = (int)((double)(i + 1) / header.NumberOfEntries * 100);
             }
 
             request.Progress?.Report(100);

@@ -1,6 +1,6 @@
 ﻿using MediatR;
 using ResourcePackerGUI.Application.Common.Interfaces;
-using ResourcePackerGUI.Application.Common.Utilities;
+
 using ResourcePackerGUI.Application.Resources.Queries;
 using Serilog;
 
@@ -25,7 +25,7 @@ namespace ResourcePackerGUI.Application.Resources.Handlers
             var updated = 0;
             using (var progressTimer = new System.Timers.Timer(request.ProgressReportInterval))
             {
-                var percentage = 0d;
+                var percentage = 0;
 
                 // ReSharper disable once AccessToModifiedClosure
                 progressTimer.Elapsed += delegate { request.Progress!.Report(percentage); };
@@ -33,7 +33,7 @@ namespace ResourcePackerGUI.Application.Resources.Handlers
 
                 for (var i = 0; i < request.Resources.Count; i++)
                 {
-                    percentage = FastMath.Round((double)(i + 1) / request.Resources.Count * 100, 2);
+                    percentage = (int)((double)(i + 1) / request.Resources.Count * 100);
 
                     var asset = request.Resources[i];
                     if (request.ChecksumDefinitions.TryGetValue(asset.Entry.Id, out var filePath))

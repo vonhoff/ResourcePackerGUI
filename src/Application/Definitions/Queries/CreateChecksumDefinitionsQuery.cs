@@ -21,7 +21,7 @@ namespace ResourcePackerGUI.Application.Definitions.Queries
         /// <summary>
         /// An optional progress to keep track of the process.
         /// </summary>
-        public IProgress<double>? Progress { get; init; }
+        public IProgress<int>? Progress { get; init; }
 
         /// <summary>
         /// The interval in milliseconds for updating the progress instances when present.

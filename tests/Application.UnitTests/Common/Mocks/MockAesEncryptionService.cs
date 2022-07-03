@@ -205,7 +205,7 @@ namespace Application.UnitTests.Common.Mocks
             },
         };
 
-        public bool DecryptCbc(byte[] input, int dataSize, out byte[] output, uint[] key, IProgress<double>? progress = null,
+        public bool DecryptCbc(byte[] input, int dataSize, out byte[] output, uint[] key, IProgress<int>? progress = null,
             int progressReportInterval = 100, CancellationToken cancellationToken = default)
         {
             var hash = FnvHash.Compute(input.Concat(key.Select(v => (byte)v)).ToArray());
@@ -218,7 +218,7 @@ namespace Application.UnitTests.Common.Mocks
             throw new InvalidOperationException("The value is not pre-calculated.");
         }
 
-        public bool EncryptCbc(byte[] input, out byte[] output, uint[] key, IProgress<double>? progress = null,
+        public bool EncryptCbc(byte[] input, out byte[] output, uint[] key, IProgress<int>? progress = null,
             int progressReportInterval = 100, CancellationToken cancellationToken = default)
         {
             var hash = FnvHash.Compute(input.Concat(key.Select(v => (byte)v)).ToArray());

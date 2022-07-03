@@ -49,8 +49,8 @@ namespace WinFormsUI.Forms
         private const int ReportInterval = 25;
         private readonly LoggingLevelSwitch _loggingLevelSwitch = new(LogEventLevel.Debug);
         private readonly IMediator _mediator;
-        private readonly IProgress<double> _progressPrimary;
-        private readonly IProgress<double> _progressSecondary;
+        private readonly IProgress<int> _progressPrimary;
+        private readonly IProgress<int> _progressSecondary;
         private readonly ActionDebouncer _scrollOutputToEndDebouncer;
         private readonly ActionDebouncer _searchDebouncer;
         private CancellationTokenSource _cancellationTokenSource;
@@ -72,8 +72,8 @@ namespace WinFormsUI.Forms
             _mediator = mediator;
             _searchDebouncer = new ActionDebouncer(RefreshPackageExplorer, TimeSpan.FromMilliseconds(175));
             _scrollOutputToEndDebouncer = new ActionDebouncer(ScrollOutputToEnd, TimeSpan.FromMilliseconds(234));
-            _progressPrimary = new Progress<double>(UpdateProgressPrimary);
-            _progressSecondary = new Progress<double>(UpdateProgressSecondary);
+            _progressPrimary = new Progress<int>(UpdateProgressPrimary);
+            _progressSecondary = new Progress<int>(UpdateProgressSecondary);
             _cancellationTokenSource = new CancellationTokenSource();
             _cancellationTokenSource.Cancel();
         }
@@ -120,7 +120,7 @@ namespace WinFormsUI.Forms
 
         private void BtnCreate_Click(object sender, EventArgs e)
         {
-            var createForm = new CreateForm();
+            var createForm = new CreateForm(_mediator);
             createForm.ShowDialog();
         }
 
@@ -190,14 +190,20 @@ namespace WinFormsUI.Forms
                 baseExtractionPath = Path.Join(browserDialog.SelectedPath, _packageName);
             }
 
+            ExportResourcesToFolder(baseExtractionPath, _resources);
+        }
+
+        private void ExportResourcesToFolder(string baseExtractionPath, IReadOnlyList<Resource> resources)
+        {
             if (Directory.Exists(baseExtractionPath) &&
                 Directory.EnumerateFileSystemEntries(baseExtractionPath,
                     string.Empty, SearchOption.AllDirectories).Any())
             {
-                var existsDialogResult = MessageBox.Show($"The destination already contains a folder named '{_packageName}' which is not empty. " +
-                                                   "If there are files with the same name, you will be asked if you want to replace these files. \n\n" +
-                                                   "Do you want to continue extracting to this folder?",
-                                                   "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation);
+                var existsDialogResult = MessageBox.Show(
+                    $"The destination already contains a folder named '{_packageName}' which is not empty. " +
+                    "If there are files with the same name, you will be asked if you want to replace these files. \n\n" +
+                    "Do you want to continue extracting to this folder?",
+                    "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation);
 
                 if (existsDialogResult != DialogResult.Yes)
                 {
@@ -219,7 +225,7 @@ namespace WinFormsUI.Forms
                 {
                     var pathReplacements = await GetFileConflictPathReplacements(baseExtractionPath);
 
-                    var exportQuery = new ExportResourcesQuery(baseExtractionPath, _resources, pathReplacements)
+                    var exportQuery = new ExportResourcesQuery(baseExtractionPath, resources, pathReplacements)
                     {
                         Progress = _progressPrimary,
                         ProgressReportInterval = ReportInterval
@@ -818,7 +824,7 @@ namespace WinFormsUI.Forms
 
         private void UpdateExtractSelectedButton()
         {
-            var selectedNodeCount = packageExplorerTreeView.SelectedNodes.Count;
+            var selectedNodeCount = packageExplorerTreeView.GetSelectedResourceCount();
             btnExtractSelected.Enabled = selectedNodeCount > 0;
             btnExtractSelected.Text = "Extract selected";
             if (selectedNodeCount > 0)
@@ -827,14 +833,41 @@ namespace WinFormsUI.Forms
             }
         }
 
-        private void UpdateProgressPrimary(double percentage)
+        private void UpdateProgressPrimary(int percentage)
         {
-            progressBarPrimary.Value = (int)percentage;
+            progressBarPrimary.Value = percentage;
         }
 
-        private void UpdateProgressSecondary(double percentage)
+        private void UpdateProgressSecondary(int percentage)
         {
-            progressBarSecondary.Value = (int)percentage;
+            progressBarSecondary.Value = percentage;
+        }
+
+        private void BtnExtractSelected_Click(object sender, EventArgs e)
+        {
+            var selectedResources = packageExplorerTreeView.GetSelectedResources();
+
+            if (selectedResources.Count == 0)
+            {
+                MessageBox.Show("No resources are selected.",
+                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            string baseExtractionPath;
+            using (var browserDialog = new FolderBrowserDialog())
+            {
+                var result = browserDialog.ShowDialog();
+
+                if (result != DialogResult.OK || string.IsNullOrWhiteSpace(browserDialog.SelectedPath))
+                {
+                    return;
+                }
+
+                baseExtractionPath = Path.Join(browserDialog.SelectedPath, _packageName);
+            }
+
+            ExportResourcesToFolder(baseExtractionPath, selectedResources);
         }
     }
 }

@@ -1,7 +1,7 @@
 ﻿using MediatR;
 using ResourcePackerGUI.Application.Common.Exceptions;
 using ResourcePackerGUI.Application.Common.Interfaces;
-using ResourcePackerGUI.Application.Common.Utilities;
+
 using ResourcePackerGUI.Application.Packaging.Queries;
 using ResourcePackerGUI.Domain.Entities;
 using ResourcePackerGUI.Domain.Structures;
@@ -45,7 +45,7 @@ namespace ResourcePackerGUI.Application.Packaging.Handlers
         {
             using var progressTimer = new System.Timers.Timer(request.ProgressReportInterval);
             var resources = new List<Resource>();
-            var percentage = 0d;
+            var percentage = 0;
             var key = string.IsNullOrEmpty(request.Password)
                 ? Array.Empty<uint>()
                 : _aesEncryptionService.KeySetup(request.Password);
@@ -78,9 +78,9 @@ namespace ResourcePackerGUI.Application.Packaging.Handlers
                 var mimeType = _mediaTypeService.GetTypeByData(buffer);
                 var resource = new Resource(buffer, entry, mimeType);
                 resources.Add(resource);
-                percentage = FastMath.Round((double)(i + 1) / request.Entries.Count * 100, 2);
+                percentage = (int)((double)(i + 1) / request.Entries.Count * 100);
                 Log.Debug("Added asset: {@asset}",
-                    new { resource.Name, MediaType = mimeType?.Name });
+                    new { resource.Name, MediaType = mimeType?.Name});
             }
 
             return resources;

@@ -1,6 +1,6 @@
 ﻿using System.IO.Abstractions;
 using MediatR;
-using ResourcePackerGUI.Application.Common.Utilities;
+
 using ResourcePackerGUI.Application.Resources.Queries;
 using ResourcePackerGUI.Domain.Entities;
 using Serilog;
@@ -18,7 +18,7 @@ namespace ResourcePackerGUI.Application.Resources.Handlers
 
         public Task<IReadOnlyList<Resource>> Handle(GetConflictingResourcesQuery request, CancellationToken cancellationToken)
         {
-            var percentage = 0d;
+            var percentage = 0;
             IReadOnlyList<Resource> list;
             using (var progressTimer = new System.Timers.Timer(request.ProgressReportInterval))
             {
@@ -39,7 +39,7 @@ namespace ResourcePackerGUI.Application.Resources.Handlers
         /// <param name="request"></param>
         /// <param name="percentage">A percentage to keep track of the amount of resources checked.</param>
         /// <returns>A read-only list of conflicting resources.</returns>
-        private IReadOnlyList<Resource> CollectFileConflicts(GetConflictingResourcesQuery request, ref double percentage)
+        private IReadOnlyList<Resource> CollectFileConflicts(GetConflictingResourcesQuery request, ref int percentage)
         {
             var list = new List<Resource>();
             for (var i = 0; i < request.Resources.Count; i++)
@@ -50,7 +50,7 @@ namespace ResourcePackerGUI.Application.Resources.Handlers
                     list.Add(resource);
                 }
 
-                percentage = FastMath.Round((double)(i + 1) / request.Resources.Count * 100, 2);
+                percentage = (int)((double)(i + 1) / request.Resources.Count * 100);
             }
 
             return list;

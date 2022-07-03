@@ -1,6 +1,6 @@
 ﻿using System.IO.Abstractions;
 using MediatR;
-using ResourcePackerGUI.Application.Common.Utilities;
+
 using ResourcePackerGUI.Application.PathEntries.Queries;
 using ResourcePackerGUI.Domain.Entities;
 using Serilog;
@@ -28,9 +28,9 @@ namespace ResourcePackerGUI.Application.PathEntries.Handlers
         /// </summary>
         /// <param name="request">The request containing the progress instances and absolute file paths.</param>
         /// <returns>A read-only list of path entries.</returns>
-        private IReadOnlyList<PathEntry> CreatePathEntries(CreatePathEntriesQuery request)
+        private static IReadOnlyList<PathEntry> CreatePathEntries(CreatePathEntriesQuery request)
         {
-            var percentage = 0d;
+            var percentage = 0;
             using var progressTimer = new System.Timers.Timer(request.ProgressReportInterval);
 
             // ReSharper disable once AccessToModifiedClosure
@@ -40,14 +40,8 @@ namespace ResourcePackerGUI.Application.PathEntries.Handlers
             var processedItems = new List<PathEntry>();
             for (var i = 0; i < request.AbsoluteFilePaths.Count; i++)
             {
-                percentage = FastMath.Round((double)(i + 1) / request.AbsoluteFilePaths.Count * 100, 2);
+                percentage = (int)((double)(i + 1) / request.AbsoluteFilePaths.Count * 100);
                 var absolutePath = request.AbsoluteFilePaths[i];
-
-                if (!_fileSystem.File.Exists(absolutePath))
-                {
-                    Log.Warning("File does not exist: {path}", absolutePath);
-                    continue;
-                }
 
                 if (!CreateRelativePath(absolutePath, request.RelativeFilePathDepth, out var relativePath))
                 {
@@ -71,7 +65,9 @@ namespace ResourcePackerGUI.Application.PathEntries.Handlers
         private static bool CreateRelativePath(string absolutePath, int relativeDepth, out string relativePath)
         {
             var pathNodes = absolutePath
+                .Trim()
                 .Replace(@"\", "/")
+                .ToLowerInvariant()
                 .Split('/', StringSplitOptions.RemoveEmptyEntries);
 
             if (pathNodes.Length <= relativeDepth)

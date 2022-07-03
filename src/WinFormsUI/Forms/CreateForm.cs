@@ -18,6 +18,11 @@
 
 #endregion
 
+using System.Media;
+using MediatR;
+using ResourcePackerGUI.Application.Packaging.Queries;
+using ResourcePackerGUI.Application.PathEntries.Queries;
+using ResourcePackerGUI.Domain.Entities;
 using Serilog;
 using WinFormsUI.Extensions;
 using WinFormsUI.Helpers;
@@ -26,7 +31,9 @@ namespace WinFormsUI.Forms
 {
     public partial class CreateForm : Form
     {
-        private readonly List<string> _assetsToInclude = new();
+        private const int ReportInterval = 25;
+
+        private readonly List<PathEntry> _resourcesToInclude = new();
         private CancellationTokenSource _cancellationTokenSource;
         private string _definitionsLocation = string.Empty;
         private string _packageLocation = string.Empty;
@@ -34,20 +41,19 @@ namespace WinFormsUI.Forms
         private bool _automaticDefinitionFile = true;
         private bool _createDefinitionFile = true;
         private int _relativePackageLocationDepth;
-
-        // Progress variables
-        private const int ProgressReportInterval = 25;
-
-        private readonly IProgress<(int percentage, string path)> _progressPrimary;
+        private readonly IProgress<int> _progressPrimary;
         private readonly IProgress<int> _progressSecondary;
+        private readonly IMediator _mediator;
 
-        public CreateForm()
+        public CreateForm(IMediator mediator)
         {
             InitializeComponent();
-            _progressPrimary = new Progress<(int percentage, string path)>(UpdateFileCollectionProgress);
+            _progressPrimary = new Progress<int>(UpdateFileCollectionProgress);
             _progressSecondary = new Progress<int>(UpdateEncryptionProgress);
             _cancellationTokenSource = new CancellationTokenSource();
             _cancellationTokenSource.Cancel();
+
+            _mediator = mediator;
         }
 
         private void BtnResourcesExplore_Click(object sender, EventArgs e)
@@ -96,7 +102,7 @@ namespace WinFormsUI.Forms
             };
 
             _cancellationTokenSource = new CancellationTokenSource();
-            Task.Run(() =>
+            Task.Run(async () =>
             {
                 string[]? files = null;
 
@@ -112,14 +118,22 @@ namespace WinFormsUI.Forms
                     }
                     else
                     {
-                        Log.Information("Collected {amount} items available for packaging.", files.Length);
-                        CreateSelectorNodes(rootNode, _relativePackageLocationDepth, files);
-                        _cancellationTokenSource.Token.ThrowIfCancellationRequested();
-
                         if (IsDisposed)
                         {
                             return;
                         }
+
+                        Log.Information("Collected {amount} items available for packaging.", files.Length);
+
+                        var pathEntriesQuery = new CreatePathEntriesQuery(files, _relativePackageLocationDepth)
+                        {
+                            Progress = _progressSecondary,
+                            ProgressReportInterval = ReportInterval
+                        };
+                        var pathEntries = await _mediator.Send(pathEntriesQuery);
+
+                        CreateSelectorNodes(rootNode, pathEntries);
+                        _cancellationTokenSource.Token.ThrowIfCancellationRequested();
 
                         Invoke(() =>
                         {
@@ -141,8 +155,8 @@ namespace WinFormsUI.Forms
                             progressBarPrimary.Value = 0;
                             btnCreate.Enabled = _packageLocation != string.Empty;
 
-                            lblAvailableItems.Text = $"Available items: {_assetsToInclude.Count}";
-                            lblSelectedItems.Text = $"Selected items: {_assetsToInclude.Count}";
+                            lblAvailableItems.Text = $"Available items: {_resourcesToInclude.Count}";
+                            lblSelectedItems.Text = $"Selected items: {_resourcesToInclude.Count}";
                             this.FlashNotification();
                         });
                     }
@@ -160,7 +174,7 @@ namespace WinFormsUI.Forms
                     {
                         if (files?.Length == 0 || _cancellationTokenSource.IsCancellationRequested)
                         {
-                            _assetsToInclude.Clear();
+                            _resourcesToInclude.Clear();
                             btnCreate.Enabled = false;
                             txtAssetFolder.Text = string.Empty;
                             txtAssetFolder.Refresh();
@@ -199,76 +213,87 @@ namespace WinFormsUI.Forms
             progressBarSecondary.Visible = true;
             SetConfigurationState(false);
 
-            //Task.Run(() =>
-            //{
-            //    var definitionsLocation = _createDefinitionFile ? _definitionsLocation : string.Empty;
+            Task.Run(async () =>
+            {
+                var definitionsLocation = _createDefinitionFile ? _definitionsLocation : string.Empty;
+                if (!string.IsNullOrEmpty(definitionsLocation))
+                {
+                    var exportDefinitionQuery = new ExportPathEntriesQuery(_resourcesToInclude, definitionsLocation)
+                    {
+                        Progress = _progressSecondary,
+                        ProgressReportInterval = ReportInterval
+                    };
 
-            //    var paths = DefinitionHelper.CreateDefinitionFile(
-            //        _assetsToInclude, _relativePackageLocationDepth, definitionsLocation,
-            //        _packageLocation, _progressSecondary);
+                    await _mediator.Send(exportDefinitionQuery);
+                }
 
-            //    Invoke(() => lblStatus.Text = "Packing assets...");
+                Invoke(() => lblStatus.Text = "Packing assets...");
 
-            //    try
-            //    {
-            //        PackageHelper.BuildPackage(paths, _packageLocation,
-            //            txtPassword.Text, _progressPrimary, _progressSecondary,
-            //            ProgressReportInterval, _cancellationTokenSource.Token);
-            //    }
-            //    catch (OperationCanceledException ex)
-            //    {
-            //        Log.Information("The package construction operation has been cancelled.");
-            //        MessageBox.Show(ex.Message, "Operation canceled",
-            //            MessageBoxButtons.OK, MessageBoxIcon.Information);
+                try
+                {
+                    var buildQuery = new BuildPackageQuery(_resourcesToInclude, _packageLocation, txtPassword.Text)
+                    {
+                        ProgressPrimary = _progressPrimary,
+                        ProgressSecondary = _progressSecondary,
+                        ProgressReportInterval = ReportInterval
+                    };
 
-            //        if (!IsDisposed)
-            //        {
-            //            Invoke(() =>
-            //            {
-            //                lblStatus.Text = "Ready";
-            //                lblPercentage.Text = "0%";
-            //                lblStatusFile.Text = string.Empty;
-            //                progressBarPrimary.Value = 0;
-            //                progressBarSecondary.Visible = false;
-            //                btnCancel.Text = "Close";
-            //            });
-            //        }
-            //    }
-            //    catch (Exception ex)
-            //    {
-            //        MessageBox.Show($"Could not build resource package. {ex.Message}", "Error",
-            //            MessageBoxButtons.OK, MessageBoxIcon.Error);
-            //    }
+                    await _mediator.Send(buildQuery);
+                }
+                catch (OperationCanceledException ex)
+                {
+                    Log.Information("The package construction operation has been cancelled.");
+                    MessageBox.Show(ex.Message, "Operation canceled",
+                        MessageBoxButtons.OK, MessageBoxIcon.Information);
 
-            //    if (!IsDisposed)
-            //    {
-            //        Invoke(() => SetConfigurationState(true));
-            //    }
+                    if (!IsDisposed)
+                    {
+                        Invoke(() =>
+                        {
+                            lblStatus.Text = "Ready";
+                            lblPercentage.Text = "0%";
+                            lblStatusFile.Text = string.Empty;
+                            progressBarPrimary.Value = 0;
+                            progressBarSecondary.Visible = false;
+                            btnCancel.Text = "Close";
+                        });
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Could not build resource package. {ex.Message}", "Error",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
 
-            //    if (_cancellationTokenSource.IsCancellationRequested)
-            //    {
-            //        CleanUpUnfinishedFiles();
-            //        return;
-            //    }
+                if (!IsDisposed)
+                {
+                    Invoke(() => SetConfigurationState(true));
+                }
 
-            //    // Set every relevant labels and elements to completion.
-            //    Invoke(() =>
-            //    {
-            //        lblStatus.Text = "Done";
-            //        lblPercentage.Text = "100%";
-            //        lblStatusFile.Text = string.Empty;
-            //        progressBarPrimary.Value = 100;
-            //        progressBarSecondary.Visible = false;
-            //        btnCancel.Text = "Close";
-            //        btnCancel.Focus();
-            //    });
+                if (_cancellationTokenSource.IsCancellationRequested)
+                {
+                    CleanUpUnfinishedFiles();
+                    return;
+                }
 
-            //    Log.Information("Created new resource package: {path}", _packageLocation);
-            //    Log.Information("Created new definitions file: {path}", _definitionsLocation);
-            //    SystemSounds.Asterisk.Play();
-            //    this.FlashNotification();
-            //    _cancellationTokenSource.Cancel();
-            //});
+                // Set every relevant labels and elements to completion.
+                Invoke(() =>
+                {
+                    lblStatus.Text = "Done";
+                    lblPercentage.Text = "100%";
+                    lblStatusFile.Text = string.Empty;
+                    progressBarPrimary.Value = 100;
+                    progressBarSecondary.Visible = false;
+                    btnCancel.Text = "Close";
+                    btnCancel.Focus();
+                });
+
+                Log.Information("Created new resource package: {path}", _packageLocation);
+                Log.Information("Created new definitions file: {path}", _definitionsLocation);
+                SystemSounds.Asterisk.Play();
+                this.FlashNotification();
+                _cancellationTokenSource.Cancel();
+            });
         }
 
         private void CleanUpUnfinishedFiles()
@@ -353,7 +378,7 @@ namespace WinFormsUI.Forms
             }
 
             txtPackageLocation.Text = saveFileDialog.FileName;
-            btnCreate.Enabled = _assetsToInclude.Count > 0;
+            btnCreate.Enabled = _resourcesToInclude.Count > 0;
 
             _packageLocation = saveFileDialog.FileName;
             if (_createDefinitionFile && _automaticDefinitionFile)
@@ -392,7 +417,7 @@ namespace WinFormsUI.Forms
                 return files;
             }
 
-            _assetsToInclude.Clear();
+            _resourcesToInclude.Clear();
 
             Invoke(() =>
             {
@@ -412,36 +437,26 @@ namespace WinFormsUI.Forms
             _cancellationTokenSource.Cancel();
         }
 
-        private void CreateForm_ResizeBegin(object sender, EventArgs e)
-        {
-            SuspendLayout();
-        }
-
-        private void CreateForm_ResizeEnd(object sender, EventArgs e)
-        {
-            ResumeLayout();
-        }
-
-        private void CreateSelectorNodes(TreeNode rootNode, int relativeDepth, IReadOnlyList<string> files)
+        private void CreateSelectorNodes(TreeNode rootNode, IReadOnlyList<PathEntry> pathEntries)
         {
             var percentage = 0;
-            var pathNodes = Array.Empty<string>();
-            using var progressTimer = new System.Timers.Timer(ProgressReportInterval);
-            progressTimer.Elapsed += delegate
-            {
-                _progressPrimary.Report((percentage, string.Join("/", pathNodes[relativeDepth..])));
-            };
+            var relativePath = string.Empty;
+
+            using var progressTimer = new System.Timers.Timer(ReportInterval);
+
+            // ReSharper disable once AccessToModifiedClosure
+            progressTimer.Elapsed += delegate { _progressPrimary.Report(percentage); };
             progressTimer.Enabled = true;
 
-            for (var i = 0; i < files.Count; i++)
+            for (var i = 0; i < pathEntries.Count; i++)
             {
                 _cancellationTokenSource.Token.ThrowIfCancellationRequested();
 
-                var filePath = files[i];
+                relativePath = pathEntries[i].RelativePath;
                 var currentNode = rootNode;
 
-                pathNodes = filePath.Replace(@"\", "/").Split('/');
-                for (var j = relativeDepth; j < pathNodes.Length; j++)
+                var pathNodes = relativePath.Replace(@"\", "/").Split('/');
+                for (var j = 0; j < pathNodes.Length; j++)
                 {
                     var item = pathNodes[j];
                     var folder = currentNode.Nodes.Cast<TreeNode>().FirstOrDefault(x => x.Text.Equals(item));
@@ -456,49 +471,45 @@ namespace WinFormsUI.Forms
 
                         if (j == pathNodes.Length - 1)
                         {
-                            currentNode.Tag = filePath;
-                            _assetsToInclude.Add(filePath);
+                            currentNode.Tag = pathEntries[i];
+                            _resourcesToInclude.Add(pathEntries[i]);
                         }
                     }
                 }
 
-                percentage = (int)((double)(i + 1) / files.Count * 100);
+                percentage = (int)((double)(i + 1) / pathEntries.Count * 100);
             }
         }
 
         private void SelectorTreeView_AfterStateChanged(object sender, TreeViewEventArgs e)
         {
-            btnCreate.Enabled = _assetsToInclude.Count != 0 && _packageLocation != string.Empty;
+            btnCreate.Enabled = _resourcesToInclude.Count != 0 && _packageLocation != string.Empty;
         }
 
         private void SelectorTreeView_NodeStateChanged(object sender, TreeViewEventArgs e)
         {
             var node = e.Node;
-            if (node is not { Tag: string })
+            if (node is not { Tag: PathEntry })
             {
                 return;
             }
 
-            var path = node.Tag.ToString();
-            if (string.IsNullOrEmpty(path))
-            {
-                return;
-            }
+            var item = (PathEntry)node.Tag;
 
-            var hasItem = _assetsToInclude.Contains(path);
+            var hasItem = _resourcesToInclude.Contains(item);
             if (node.Checked)
             {
                 if (!hasItem)
                 {
-                    _assetsToInclude.Add(path);
+                    _resourcesToInclude.Add(item);
                 }
             }
             else if (hasItem)
             {
-                _assetsToInclude.Remove(path);
+                _resourcesToInclude.Remove(item);
             }
 
-            lblSelectedItems.Text = $"Selected items: {_assetsToInclude.Count}";
+            lblSelectedItems.Text = $"Selected items: {_resourcesToInclude.Count}";
         }
 
         private void UpdateEncryptionProgress(int percentage)
@@ -506,14 +517,11 @@ namespace WinFormsUI.Forms
             progressBarSecondary.Value = percentage;
         }
 
-        private void UpdateFileCollectionProgress((int percentage, string path) progress)
+        private void UpdateFileCollectionProgress(int percentage)
         {
-            var (percentage, path) = progress;
             progressBarPrimary.Value = percentage;
             lblPercentage.Text = $"{percentage}%";
             lblPercentage.Refresh();
-            lblStatusFile.Text = path;
-            lblStatusFile.Refresh();
         }
 
         private void CreateForm_SizeChanged(object sender, EventArgs e)

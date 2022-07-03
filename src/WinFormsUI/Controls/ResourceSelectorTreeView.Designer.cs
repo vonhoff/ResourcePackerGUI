@@ -1,6 +1,6 @@
 ﻿namespace WinFormsUI.Controls
 {
-    partial class MultiNodeSelectionTreeView
+    partial class ResourceSelectorTreeView
     {
         /// <summary> 
         /// Required designer variable.
@@ -29,7 +29,7 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MultiNodeSelectionTreeView));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ResourceSelectorTreeView));
             this.treeView = new System.Windows.Forms.TreeView();
             this.mediaTypeImages = new System.Windows.Forms.ImageList(this.components);
             this.SuspendLayout();
@@ -65,13 +65,13 @@
             this.mediaTypeImages.Images.SetKeyName(7, "folder.png");
             this.mediaTypeImages.Images.SetKeyName(8, "database.png");
             // 
-            // MultiNodeSelectionTreeView
+            // ResourceSelectorTreeView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.treeView);
             this.DoubleBuffered = true;
-            this.Name = "MultiNodeSelectionTreeView";
+            this.Name = "ResourceSelectorTreeView";
             this.Leave += new System.EventHandler(this.MultiNodeSelectionTreeView_Leave);
             this.ResumeLayout(false);
 

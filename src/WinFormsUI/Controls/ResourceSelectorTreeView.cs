@@ -23,15 +23,16 @@ using WinFormsUI.Extensions;
 
 namespace WinFormsUI.Controls
 {
-    public partial class MultiNodeSelectionTreeView : UserControl
+    public partial class ResourceSelectorTreeView : UserControl
     {
         private static readonly Color SelectedBackgroundColor = Color.FromArgb(0, 120, 215);
         private static readonly Color SelectedForegroundColor = Color.White;
         private readonly List<TreeNode> _nodes = new();
+        private readonly List<TreeNode> _selectedNodes = new();
         private TreeNode? _selectionPivot;
         private bool _skipNextNodeUpdate;
 
-        public MultiNodeSelectionTreeView()
+        public ResourceSelectorTreeView()
         {
             InitializeComponent();
         }
@@ -39,8 +40,6 @@ namespace WinFormsUI.Controls
         public event EventHandler<TreeNodeMouseClickEventArgs>? NodeMouseClick;
 
         public event EventHandler<TreeNodeMouseClickEventArgs>? NodeMouseDoubleClick;
-
-        public List<TreeNode> SelectedNodes { get; } = new();
 
         protected override CreateParams CreateParams
         {
@@ -58,10 +57,48 @@ namespace WinFormsUI.Controls
             treeView.Nodes.Clear();
         }
 
-        public void CreateNodesFromResources(IReadOnlyList<Resource> assets, string packageName,
-                    IProgress<double>? progressSecondary = null, int progressReportInterval = 100)
+        public int GetSelectedResourceCount()
         {
-            SelectedNodes.Clear();
+            return _selectedNodes.Count;
+        }
+
+        public List<Resource> GetSelectedResources()
+        {
+            var result = new List<Resource>();
+            foreach (var node in _selectedNodes)
+            {
+                List<string> pathNodes;
+                if (node.Tag is Resource resource)
+                {
+                    pathNodes = resource.Name.Split("/").ToList();
+                }
+                else
+                {
+                    continue;
+                }
+
+                var currentNode = node;
+                while (currentNode != null && pathNodes.Count > 1)
+                {
+                    if (node.Parent != null && !_selectedNodes.Contains(node.Parent))
+                    {
+                        pathNodes.RemoveAt(pathNodes.Count - 2);
+                    }
+
+                    currentNode = currentNode.Parent;
+                }
+
+                var name = string.Join("/", pathNodes);
+                result.Add(new Resource(resource.Data, resource.Entry, resource.MediaType, name));
+            }
+
+            return result;
+        }
+
+        public void CreateNodesFromResources(IReadOnlyList<Resource> assets, string packageName,
+                    IProgress<int>? progressSecondary = null, int progressReportInterval = 100)
+        {
+            _selectedNodes.Clear();
             _nodes.Clear();
             if (assets.Count == 0)
             {
@@ -76,7 +113,7 @@ namespace WinFormsUI.Controls
 
             using (var progressTimer = new System.Timers.Timer(progressReportInterval))
             {
-                var percentage = 0d;
+                var percentage = 0;
 
                 // ReSharper disable once AccessToModifiedClosure
                 progressTimer.Elapsed += delegate { progressSecondary!.Report(percentage); };
@@ -84,7 +121,7 @@ namespace WinFormsUI.Controls
 
                 for (var i = 0; i < assets.Count; i++)
                 {
-                    percentage = Math.Round((double)(i + 1) / assets.Count * 100, 2);
+                    percentage = (int)((double)(i + 1) / assets.Count * 100);
                     var asset = assets[i];
                     var path = asset.Name;
                     var currentNode = rootNode;
@@ -168,15 +205,15 @@ namespace WinFormsUI.Controls
 
         private void AddNode(TreeNode node)
         {
-            if (!SelectedNodes.Contains(node))
+            if (!_selectedNodes.Contains(node))
             {
-                SelectedNodes.Add(node);
+                _selectedNodes.Add(node);
             }
         }
 
         private void ApplySelectedNodeStyling()
         {
-            foreach (var node in SelectedNodes)
+            foreach (var node in _selectedNodes)
             {
                 node.BackColor = SelectedBackgroundColor;
                 node.ForeColor = SelectedForegroundColor;
@@ -185,7 +222,7 @@ namespace WinFormsUI.Controls
 
         private void ClearSelectedNodeStyling()
         {
-            foreach (var node in SelectedNodes)
+            foreach (var node in _selectedNodes)
             {
                 NodeToDefaultColors(node);
             }
@@ -193,7 +230,7 @@ namespace WinFormsUI.Controls
 
         private void DeselectNodes(TreeNode node)
         {
-            SelectedNodes.Remove(node);
+            _selectedNodes.Remove(node);
 
             if (node.Nodes.Count <= 0 || node.Tag != null)
             {
@@ -202,14 +239,14 @@ namespace WinFormsUI.Controls
 
             foreach (var child in node.Nodes.CollectAll())
             {
-                SelectedNodes.Remove(child);
+                _selectedNodes.Remove(child);
             }
         }
 
         private void MultiNodeSelectionTreeView_Leave(object sender, EventArgs e)
         {
             ClearSelectedNodeStyling();
-            SelectedNodes.Clear();
+            _selectedNodes.Clear();
         }
 
         private void SelectNodes(TreeNode node)
@@ -253,16 +290,16 @@ namespace WinFormsUI.Controls
 
             ClearSelectedNodeStyling();
 
-            if (e.Node.Bounds.Contains(e.X, e.Y) ||
-                ModifierKeys.HasFlag(Keys.Control) ||
-                ModifierKeys.HasFlag(Keys.Shift))
+            var info = treeView.HitTest(e.X, e.Y);
+
+            if (info.Location is TreeViewHitTestLocations.Image or TreeViewHitTestLocations.Label)
             {
                 UpdateSelectedNodes(e.Node);
                 ApplySelectedNodeStyling();
             }
             else
             {
-                SelectedNodes.Clear();
+                _selectedNodes.Clear();
                 treeView.SelectedNode = null;
             }
 
@@ -271,6 +308,14 @@ namespace WinFormsUI.Controls
 
         private void TreeView_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
         {
+            var info = treeView.HitTest(e.X, e.Y);
+            if (info.Location is not (TreeViewHitTestLocations.Image or TreeViewHitTestLocations.Label))
+            {
+                ClearSelectedNodeStyling();
+                _selectedNodes.Clear();
+                return;
+            }
+
             NodeMouseDoubleClick?.Invoke(sender, e);
         }
 
@@ -278,14 +323,14 @@ namespace WinFormsUI.Controls
         {
             switch (ModifierKeys)
             {
-                case Keys.Shift | Keys.Control when SelectedNodes.Count > 0:
+                case Keys.Shift | Keys.Control when _selectedNodes.Count > 0:
                 case Keys.Shift when _selectionPivot != null:
                     var a = _nodes.IndexOf(_selectionPivot!);
                     var b = _nodes.IndexOf(node);
 
                     if (!ModifierKeys.HasFlag(Keys.Control))
                     {
-                        SelectedNodes.Clear();
+                        _selectedNodes.Clear();
                     }
 
                     while (a != b)
@@ -298,7 +343,7 @@ namespace WinFormsUI.Controls
                     break;
 
                 case Keys.Control:
-                    if (SelectedNodes.Contains(node))
+                    if (_selectedNodes.Contains(node))
                     {
                         DeselectNodes(node);
                         break;
@@ -310,7 +355,7 @@ namespace WinFormsUI.Controls
 
                 default:
                     _selectionPivot = node;
-                    SelectedNodes.Clear();
+                    _selectedNodes.Clear();
                     SelectNodes(node);
                     break;
             }

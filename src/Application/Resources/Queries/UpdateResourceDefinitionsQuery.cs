@@ -29,7 +29,7 @@ namespace ResourcePackerGUI.Application.Resources.Queries
         /// <summary>
         /// An optional progress instance to keep track of the process.
         /// </summary>
-        public IProgress<double>? Progress { get; init; }
+        public IProgress<int>? Progress { get; init; }
 
         /// <summary>
         /// The interval in milliseconds for updating the progress instances when present.

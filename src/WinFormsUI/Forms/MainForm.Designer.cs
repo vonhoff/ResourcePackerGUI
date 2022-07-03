@@ -57,7 +57,7 @@ namespace WinFormsUI.Forms
             this.splitContainer3 = new System.Windows.Forms.SplitContainer();
             this.searchBox = new System.Windows.Forms.TextBox();
             this.lblNoResults = new System.Windows.Forms.Label();
-            this.packageExplorerTreeView = new WinFormsUI.Controls.MultiNodeSelectionTreeView();
+            this.packageExplorerTreeView = new WinFormsUI.Controls.ResourceSelectorTreeView();
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
             this.tabControl2 = new System.Windows.Forms.TabControl();
             this.tabPage2 = new System.Windows.Forms.TabPage();
@@ -506,6 +506,7 @@ namespace WinFormsUI.Forms
             this.btnExtractSelected.Image = global::WinFormsUI.Properties.Images.table_go;
             this.btnExtractSelected.Name = "btnExtractSelected";
             this.btnExtractSelected.Padding = new System.Windows.Forms.Padding(3);
+            this.btnExtractSelected.Click += new System.EventHandler(this.BtnExtractSelected_Click);
             // 
             // toolStripSeparator3
             // 
@@ -618,6 +619,6 @@ namespace WinFormsUI.Forms
         private ToolStripSeparator toolStripSeparator3;
         private ToolStripButton btnDisplayOutput;
         private Label lblNoResults;
-        private MultiNodeSelectionTreeView packageExplorerTreeView;
+        private ResourceSelectorTreeView packageExplorerTreeView;
     }
 }
