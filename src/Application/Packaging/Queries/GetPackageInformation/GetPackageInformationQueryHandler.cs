@@ -1,13 +1,11 @@
 ﻿using MediatR;
 using ResourcePackerGUI.Application.Common.Exceptions;
 using ResourcePackerGUI.Application.Common.Extensions;
-
-using ResourcePackerGUI.Application.Packaging.Queries;
 using ResourcePackerGUI.Domain.Entities;
 using ResourcePackerGUI.Domain.Structures;
 using Serilog;
 
-namespace ResourcePackerGUI.Application.Packaging.Handlers
+namespace ResourcePackerGUI.Application.Packaging.Queries.GetPackageInformation
 {
     public class GetPackageInformationQueryHandler : IRequestHandler<GetPackageInformationQuery, Package>
     {

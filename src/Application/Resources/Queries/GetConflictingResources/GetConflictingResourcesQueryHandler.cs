@@ -1,11 +1,9 @@
 ﻿using System.IO.Abstractions;
 using MediatR;
-
-using ResourcePackerGUI.Application.Resources.Queries;
 using ResourcePackerGUI.Domain.Entities;
 using Serilog;
 
-namespace ResourcePackerGUI.Application.Resources.Handlers
+namespace ResourcePackerGUI.Application.Resources.Queries.GetConflictingResources
 {
     public class GetConflictingResourcesQueryHandler : IRequestHandler<GetConflictingResourcesQuery, IReadOnlyList<Resource>>
     {

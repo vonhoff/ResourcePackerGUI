@@ -3,20 +3,18 @@ using System.Text;
 using MediatR;
 using ResourcePackerGUI.Application.Common.Exceptions;
 
-using ResourcePackerGUI.Application.PathEntries.Queries;
-
-namespace ResourcePackerGUI.Application.PathEntries.Handlers
+namespace ResourcePackerGUI.Application.PathEntries.Commands.ExportPathEntries
 {
-    public class ExportPathEntriesQueryHandler : IRequestHandler<ExportPathEntriesQuery>
+    public class ExportPathEntriesCommandHandler : IRequestHandler<ExportPathEntriesCommand>
     {
         private readonly IFileSystem _fileSystem;
 
-        public ExportPathEntriesQueryHandler(IFileSystem fileSystem)
+        public ExportPathEntriesCommandHandler(IFileSystem fileSystem)
         {
             _fileSystem = fileSystem;
         }
 
-        public Task<Unit> Handle(ExportPathEntriesQuery request, CancellationToken cancellationToken)
+        public Task<Unit> Handle(ExportPathEntriesCommand request, CancellationToken cancellationToken)
         {
             if (string.IsNullOrWhiteSpace(request.Output) ||
                 request.Output.IndexOfAny(Path.GetInvalidPathChars()) >= 0)

@@ -1,17 +1,17 @@
 ﻿using MediatR;
 using ResourcePackerGUI.Domain.Entities;
 
-namespace ResourcePackerGUI.Application.Packaging.Queries
+namespace ResourcePackerGUI.Application.Packaging.Commands.BuildPackage
 {
-    public class BuildPackageQuery : IRequest
+    public record BuildPackageCommand : IRequest
     {
         /// <summary>
-        /// Constructor for the <see cref="BuildPackageQuery"/> class.
+        /// Constructor for the <see cref="BuildPackageCommand"/> class.
         /// </summary>
         /// <param name="pathEntries">A read-only collection of <see cref="PathEntry"/> instances.</param>
         /// <param name="output">The destination of the package file.</param>
         /// <param name="password">An optional password used to encrypt the data located at the path entries.</param>
-        public BuildPackageQuery(IReadOnlyList<PathEntry> pathEntries, string output, string password = "")
+        public BuildPackageCommand(IReadOnlyList<PathEntry> pathEntries, string output, string password = "")
         {
             PathEntries = pathEntries;
             Output = output;

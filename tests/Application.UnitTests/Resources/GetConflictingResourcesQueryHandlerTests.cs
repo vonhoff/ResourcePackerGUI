@@ -1,6 +1,5 @@
 ﻿using System.IO.Abstractions.TestingHelpers;
-using ResourcePackerGUI.Application.Resources.Handlers;
-using ResourcePackerGUI.Application.Resources.Queries;
+using ResourcePackerGUI.Application.Resources.Queries.GetConflictingResources;
 using ResourcePackerGUI.Domain.Entities;
 
 namespace Application.UnitTests.Resources

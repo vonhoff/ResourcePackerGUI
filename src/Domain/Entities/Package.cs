@@ -22,7 +22,7 @@ using ResourcePackerGUI.Domain.Structures;
 
 namespace ResourcePackerGUI.Domain.Entities
 {
-    public class Package
+    public record Package
     {
         public Package(PackageHeader header, IReadOnlyList<Entry> entries, bool encrypted)
         {
@@ -33,7 +33,7 @@ namespace ResourcePackerGUI.Domain.Entities
 
         public IReadOnlyList<Entry> Entries { get; init; }
 
-        public bool Encrypted { get; set; }
+        public bool Encrypted { get; init; }
 
         public PackageHeader Header { get; init; }
     }

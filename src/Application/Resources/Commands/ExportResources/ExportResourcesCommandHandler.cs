@@ -1,25 +1,22 @@
 ﻿using System.IO.Abstractions;
 using MediatR;
-
-using ResourcePackerGUI.Application.Resources.Queries;
 using ResourcePackerGUI.Domain.Entities;
 using Serilog;
 
-namespace ResourcePackerGUI.Application.Resources.Handlers
+namespace ResourcePackerGUI.Application.Resources.Commands.ExportResources
 {
-    public class ExportResourcesQueryHandler : IRequestHandler<ExportResourcesQuery, int>
+    public class ExportResourcesCommandHandler : IRequestHandler<ExportResourcesCommand>
     {
         private readonly IFileSystem _fileSystem;
 
-        public ExportResourcesQueryHandler(IFileSystem fileSystem)
+        public ExportResourcesCommandHandler(IFileSystem fileSystem)
         {
             _fileSystem = fileSystem;
         }
 
-        public Task<int> Handle(ExportResourcesQuery request, CancellationToken cancellationToken)
+        public Task<Unit> Handle(ExportResourcesCommand request, CancellationToken cancellationToken)
         {
             var basePath = request.BasePath;
-            var exported = 0;
 
             if (!Path.EndsInDirectorySeparator(basePath))
             {
@@ -45,21 +42,16 @@ namespace ResourcePackerGUI.Application.Resources.Handlers
                         continue;
                     }
 
-                    if (fileInfo.Exists &&
-                        !TryResolvingFileConflict(request.ConflictingNameReplacements, resource, ref fileInfo))
+                    if (!fileInfo.Exists ||
+                        TryResolvingFileConflict(request.ConflictingNameReplacements, resource, ref fileInfo))
                     {
-                        continue;
-                    }
-
-                    if (ExportFile(fileInfo, resource))
-                    {
-                        exported++;
+                        ExportFile(fileInfo, resource);
                     }
                 }
             }
 
             request.Progress?.Report(100);
-            return Task.FromResult(exported);
+            return Task.FromResult(Unit.Value);
         }
 
         /// <summary>
@@ -67,7 +59,7 @@ namespace ResourcePackerGUI.Application.Resources.Handlers
         /// </summary>
         /// <param name="fileInfo">The information instance containing all output information.</param>
         /// <param name="resource">The resource to be extracted.</param>
-        private bool ExportFile(IFileInfo fileInfo, Resource resource)
+        private void ExportFile(IFileInfo fileInfo, Resource resource)
         {
             try
             {
@@ -80,12 +72,10 @@ namespace ResourcePackerGUI.Application.Resources.Handlers
                 binaryWriter.Close();
                 Log.Debug("Extracted {name} to: {path}",
                     Path.GetFileName(resource.Name), fileInfo.FullName);
-                return true;
             }
             catch (Exception ex)
             {
                 Log.Error(ex, "Could not extract asset: {path}", fileInfo.FullName);
-                return false;
             }
         }
 

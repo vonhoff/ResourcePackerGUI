@@ -19,8 +19,6 @@
 #endregion
 
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
-using System.Media;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -28,9 +26,12 @@ using System.Xml;
 using Be.Windows.Forms;
 using MediatR;
 using ResourcePackerGUI.Application.Common.Exceptions;
-using ResourcePackerGUI.Application.Definitions.Queries;
-using ResourcePackerGUI.Application.Packaging.Queries;
-using ResourcePackerGUI.Application.Resources.Queries;
+using ResourcePackerGUI.Application.Definitions.Queries.CreateChecksumDefinitions;
+using ResourcePackerGUI.Application.Packaging.Queries.GetPackageInformation;
+using ResourcePackerGUI.Application.Packaging.Queries.GetPackageResources;
+using ResourcePackerGUI.Application.Resources.Commands.ExportResources;
+using ResourcePackerGUI.Application.Resources.Queries.GetConflictingResources;
+using ResourcePackerGUI.Application.Resources.Queries.UpdateResourceDefinitions;
 using ResourcePackerGUI.Domain.Entities;
 using Serilog;
 using Serilog.Core;
@@ -43,7 +44,6 @@ using WinFormsUI.Properties;
 
 namespace WinFormsUI.Forms
 {
-    [SuppressMessage("ReSharper", "LocalizableElement")]
     public partial class MainForm : Form
     {
         private const int ReportInterval = 25;
@@ -223,42 +223,32 @@ namespace WinFormsUI.Forms
 
                 try
                 {
-                    var pathReplacements = await GetFileConflictPathReplacements(baseExtractionPath);
+                    var pathReplacements = 
+                        await GetFileConflictPathReplacements(baseExtractionPath, resources);
 
-                    var exportQuery = new ExportResourcesQuery(baseExtractionPath, resources, pathReplacements)
+                    var exportResourcesCommand = new ExportResourcesCommand(baseExtractionPath, resources, pathReplacements)
                     {
                         Progress = _progressPrimary,
                         ProgressReportInterval = ReportInterval
                     };
 
-                    var extractedAmount = await _mediator.Send(exportQuery);
+                    await _mediator.Send(exportResourcesCommand);
 
-                    if (extractedAmount == 0)
+                    this.FlashNotification();
+                    var extractionCompleteDialogResult =
+                        MessageBox.Show("The resources have been successfully extracted to the destination folder. \n" +
+                                        "Do you want to view the extracted resources?",
+                            "Extraction completed", MessageBoxButtons.YesNo, MessageBoxIcon.Asterisk);
+
+                    if (extractionCompleteDialogResult == DialogResult.Yes)
                     {
-                        MessageBox.Show("None of the resources could be extracted from the package. \n" +
-                                        "All resources either failed to extract, or were ignored.",
-                            "Extraction completed", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                    }
-                    else
-                    {
-                        SystemSounds.Asterisk.Play();
-                        this.FlashNotification();
-
-                        var extractionCompleteDialogResult =
-                            MessageBox.Show("The resources have been successfully extracted to the destination folder. \n" +
-                                            "Do you want to view the extracted resources?",
-                                "Extraction completed", MessageBoxButtons.YesNo, MessageBoxIcon.Asterisk);
-
-                        if (extractionCompleteDialogResult == DialogResult.Yes)
+                        Process.Start(new ProcessStartInfo
                         {
-                            Process.Start(new ProcessStartInfo
-                            {
-                                FileName = baseExtractionPath,
-                                UseShellExecute = true,
-                                WindowStyle = ProcessWindowStyle.Normal,
-                                Verb = "open"
-                            });
-                        }
+                            FileName = baseExtractionPath,
+                            UseShellExecute = true,
+                            WindowStyle = ProcessWindowStyle.Normal,
+                            Verb = "open"
+                        });
                     }
                 }
                 catch (OperationCanceledException ex)
@@ -388,14 +378,15 @@ namespace WinFormsUI.Forms
                 _showDebugMessages ? LogEventLevel.Debug : LogEventLevel.Information;
         }
 
-        private async Task<Dictionary<Resource, string>> GetFileConflictPathReplacements(string baseExtractionPath)
+        private async Task<Dictionary<Resource, string>> GetFileConflictPathReplacements(
+            string baseExtractionPath, IReadOnlyList<Resource> resources)
         {
-            if (_resources == null || _resources.Count == 0)
+            if (resources.Count == 0)
             {
-                throw new InvalidOperationException("Resources are null or empty.");
+                throw new ArgumentNullException(nameof(resources));
             }
 
-            var conflictingResourcesQuery = new GetConflictingResourcesQuery(baseExtractionPath, _resources)
+            var conflictingResourcesQuery = new GetConflictingResourcesQuery(baseExtractionPath, resources)
             {
                 Progress = _progressSecondary,
                 ProgressReportInterval = ReportInterval

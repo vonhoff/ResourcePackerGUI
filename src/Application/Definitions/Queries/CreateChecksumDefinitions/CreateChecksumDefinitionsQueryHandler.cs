@@ -1,11 +1,9 @@
 ﻿using System.Text;
 using MediatR;
 using ResourcePackerGUI.Application.Common.Interfaces;
-
-using ResourcePackerGUI.Application.Definitions.Queries;
 using Serilog;
 
-namespace ResourcePackerGUI.Application.Definitions.Handlers
+namespace ResourcePackerGUI.Application.Definitions.Queries.CreateChecksumDefinitions
 {
     public class CreateChecksumDefinitionsQueryHandler : IRequestHandler<CreateChecksumDefinitionsQuery, IReadOnlyDictionary<uint, string>>
     {

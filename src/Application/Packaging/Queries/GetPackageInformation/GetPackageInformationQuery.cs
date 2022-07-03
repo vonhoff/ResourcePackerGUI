@@ -1,9 +1,9 @@
 ﻿using MediatR;
 using ResourcePackerGUI.Domain.Entities;
 
-namespace ResourcePackerGUI.Application.Packaging.Queries
+namespace ResourcePackerGUI.Application.Packaging.Queries.GetPackageInformation
 {
-    public class GetPackageInformationQuery : IRequest<Package>
+    public record GetPackageInformationQuery : IRequest<Package>
     {
         /// <summary>
         /// Constructor for the <see cref="GetPackageInformationQuery"/> class.

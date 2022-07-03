@@ -1,9 +1,9 @@
 ﻿using MediatR;
 using ResourcePackerGUI.Domain.Entities;
 
-namespace ResourcePackerGUI.Application.PathEntries.Queries
+namespace ResourcePackerGUI.Application.PathEntries.Queries.CreatePathEntries
 {
-    public class CreatePathEntriesQuery : IRequest<IReadOnlyList<PathEntry>>
+    public record CreatePathEntriesQuery : IRequest<IReadOnlyList<PathEntry>>
     {
         /// <summary>
         /// Constructor for the <see cref="CreatePathEntriesQuery"/> class.

@@ -10,7 +10,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Packaging\Handlers\kb3dr1yj.ire~" />
+    <None Remove="Packaging\Commands\kb3dr1yj.ire~" />
   </ItemGroup>
 
   <ItemGroup>

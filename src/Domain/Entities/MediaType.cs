@@ -20,7 +20,7 @@
 
 namespace ResourcePackerGUI.Domain.Entities
 {
-    public class MediaType
+    public record MediaType
     {
         public string Name => $"{PrimaryType}/{SubType}";
         public string Description { get; init; } = string.Empty;

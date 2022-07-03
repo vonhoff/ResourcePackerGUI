@@ -1,8 +1,8 @@
 ﻿using MediatR;
 
-namespace ResourcePackerGUI.Application.Definitions.Queries
+namespace ResourcePackerGUI.Application.Definitions.Queries.CreateChecksumDefinitions
 {
-    public class CreateChecksumDefinitionsQuery : IRequest<IReadOnlyDictionary<uint, string>>
+    public record CreateChecksumDefinitionsQuery : IRequest<IReadOnlyDictionary<uint, string>>
     {
         /// <summary>
         /// Constructor for the <see cref="CreateChecksumDefinitionsQuery"/> class.

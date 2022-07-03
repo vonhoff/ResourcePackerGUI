@@ -1,17 +1,17 @@
 ﻿using MediatR;
 using ResourcePackerGUI.Domain.Entities;
 
-namespace ResourcePackerGUI.Application.Resources.Queries
+namespace ResourcePackerGUI.Application.Resources.Commands.ExportResources
 {
-    public class ExportResourcesQuery : IRequest<int>
+    public record ExportResourcesCommand : IRequest
     {
         /// <summary>
-        /// Constructor for the <see cref="ExportResourcesQuery"/> class.
+        /// Constructor for the <see cref="ExportResourcesCommand"/> class.
         /// </summary>
         /// <param name="basePath">The root folder to write the resources to.</param>
         /// <param name="resources">The resources to export.</param>
         /// <param name="conflictingNameReplacements">A dictionary of resolve methods for conflicting file encounters.</param>
-        public ExportResourcesQuery(string basePath, IReadOnlyList<Resource> resources,
+        public ExportResourcesCommand(string basePath, IReadOnlyList<Resource> resources,
             IReadOnlyDictionary<Resource, string>? conflictingNameReplacements = null)
         {
             Resources = resources;

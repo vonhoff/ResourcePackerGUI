@@ -1,13 +1,11 @@
 ﻿using MediatR;
 using ResourcePackerGUI.Application.Common.Exceptions;
 using ResourcePackerGUI.Application.Common.Interfaces;
-
-using ResourcePackerGUI.Application.Packaging.Queries;
 using ResourcePackerGUI.Domain.Entities;
 using ResourcePackerGUI.Domain.Structures;
 using Serilog;
 
-namespace ResourcePackerGUI.Application.Packaging.Handlers
+namespace ResourcePackerGUI.Application.Packaging.Queries.GetPackageResources
 {
     public class GetPackageResourcesQueryHandler : IRequestHandler<GetPackageResourcesQuery, IReadOnlyList<Resource>>
     {
@@ -80,7 +78,7 @@ namespace ResourcePackerGUI.Application.Packaging.Handlers
                 resources.Add(resource);
                 percentage = (int)((double)(i + 1) / request.Entries.Count * 100);
                 Log.Debug("Added asset: {@asset}",
-                    new { resource.Name, MediaType = mimeType?.Name});
+                    new { resource.Name, MediaType = mimeType?.Name });
             }
 
             return resources;

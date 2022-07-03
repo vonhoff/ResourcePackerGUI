@@ -1,16 +1,16 @@
 ﻿using MediatR;
 using ResourcePackerGUI.Domain.Entities;
 
-namespace ResourcePackerGUI.Application.PathEntries.Queries
+namespace ResourcePackerGUI.Application.PathEntries.Commands.ExportPathEntries
 {
-    public class ExportPathEntriesQuery : IRequest
+    public record ExportPathEntriesCommand : IRequest
     {
         /// <summary>
-        /// Constructor for the <see cref="ExportPathEntriesQuery"/> class.
+        /// Constructor for the <see cref="ExportPathEntriesCommand"/> class.
         /// </summary>
         /// <param name="pathEntries">The path entries to export.</param>
         /// <param name="output">The output file to write the entries to.</param>
-        public ExportPathEntriesQuery(IReadOnlyList<PathEntry> pathEntries, string output)
+        public ExportPathEntriesCommand(IReadOnlyList<PathEntry> pathEntries, string output)
         {
             PathEntries = pathEntries;
             Output = output;

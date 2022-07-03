@@ -1,8 +1,7 @@
 ﻿using Application.UnitTests.Common.Fixture;
 using ResourcePackerGUI.Application.Common.Exceptions;
 using ResourcePackerGUI.Application.Common.Interfaces;
-using ResourcePackerGUI.Application.Packaging.Handlers;
-using ResourcePackerGUI.Application.Packaging.Queries;
+using ResourcePackerGUI.Application.Packaging.Queries.GetPackageResources;
 using ResourcePackerGUI.Domain.Structures;
 
 namespace Application.UnitTests.Packaging

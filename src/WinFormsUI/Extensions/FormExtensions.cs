@@ -18,20 +18,18 @@
 
 #endregion
 
-using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 
 namespace WinFormsUI.Extensions
 {
-    [SuppressMessage("ReSharper", "InconsistentNaming")]
     internal static class FormExtensions
     {
         // Flash both the window caption and taskbar button.
         // This is equivalent to setting the FLASHW_CAPTION | FLASHW_TRAY flags.
-        private const uint FLASHW_ALL = 3;
+        private const uint FlashAll = 3;
 
         // Flash continuously until the window comes to the foreground.
-        private const uint FLASHW_TIMERNOFG = 12;
+        private const uint FlashTimerNoForeground = 12;
 
         /// <summary>
         /// Send a form taskbar notification, the window will blink until it gets focus.
@@ -53,11 +51,11 @@ namespace WinFormsUI.Extensions
             }
 
             var hWnd = form.Handle;
-            var fInfo = new FLASHWINFO();
+            var fInfo = new FlashInfo();
 
             fInfo.cbSize = Convert.ToUInt32(Marshal.SizeOf(fInfo));
-            fInfo.hwnd = hWnd;
-            fInfo.dwFlags = FLASHW_ALL | FLASHW_TIMERNOFG;
+            fInfo.handle = hWnd;
+            fInfo.dwFlags = FlashAll | FlashTimerNoForeground;
             fInfo.uCount = uint.MaxValue;
             fInfo.dwTimeout = 0;
 
@@ -81,7 +79,7 @@ namespace WinFormsUI.Extensions
         // To support flashing.
         [DllImport("user32.dll", CallingConvention = CallingConvention.Cdecl)]
         [return: MarshalAs(UnmanagedType.Bool)]
-        private static extern bool FlashWindowEx(ref FLASHWINFO pwfi);
+        private static extern bool FlashWindowEx(ref FlashInfo flashInfo);
 
         [DllImport("user32.dll", CharSet = CharSet.Auto, ExactSpelling = true)]
         private static extern IntPtr GetForegroundWindow();
@@ -90,10 +88,10 @@ namespace WinFormsUI.Extensions
         private static extern int GetWindowThreadProcessId(IntPtr handle, out int processId);
 
         [StructLayout(LayoutKind.Sequential)]
-        private struct FLASHWINFO
+        private struct FlashInfo
         {
             public uint cbSize;
-            public IntPtr hwnd;
+            public IntPtr handle;
             public uint dwFlags;
             public uint uCount;
             public uint dwTimeout;

@@ -1,8 +1,7 @@
 ﻿using System.IO.Abstractions.TestingHelpers;
 using Application.UnitTests.Common.Fixture;
 using ResourcePackerGUI.Application.Common.Interfaces;
-using ResourcePackerGUI.Application.Packaging.Handlers;
-using ResourcePackerGUI.Application.Packaging.Queries;
+using ResourcePackerGUI.Application.Packaging.Commands.BuildPackage;
 using ResourcePackerGUI.Domain.Entities;
 
 namespace Application.UnitTests.Packaging
@@ -37,8 +36,8 @@ namespace Application.UnitTests.Packaging
             var fileSystem = new MockFileSystem(_mockFiles, "F:\\repos\\ResourcePacker\\Debug\\");
             const string output = "F:\\repos\\ResourcePacker\\Debug\\assets.dat";
 
-            var query = new BuildPackageQuery(_pathEntries, output);
-            var sut = new BuildPackageQueryHandler(fileSystem, _aesEncryptionService, _crc32Service);
+            var query = new BuildPackageCommand(_pathEntries, output);
+            var sut = new BuildPackageCommandHandler(fileSystem, _aesEncryptionService, _crc32Service);
             await sut.Handle(query, default);
             Assert.True(fileSystem.FileExists(output));
 
@@ -53,8 +52,8 @@ namespace Application.UnitTests.Packaging
             var fileSystem = new MockFileSystem(_mockFiles, "F:\\repos\\ResourcePacker\\Debug\\");
             const string output = "F:\\repos\\ResourcePacker\\Debug\\assets.dat";
 
-            var query = new BuildPackageQuery(_pathEntries, output, "test123");
-            var sut = new BuildPackageQueryHandler(fileSystem, _aesEncryptionService, _crc32Service);
+            var query = new BuildPackageCommand(_pathEntries, output, "test123");
+            var sut = new BuildPackageCommandHandler(fileSystem, _aesEncryptionService, _crc32Service);
             await sut.Handle(query, default);
             Assert.True(fileSystem.FileExists(output));
 

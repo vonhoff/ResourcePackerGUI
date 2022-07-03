@@ -1,7 +1,6 @@
 ﻿using Application.UnitTests.Common.Fixture;
 using ResourcePackerGUI.Application.Common.Interfaces;
-using ResourcePackerGUI.Application.Resources.Handlers;
-using ResourcePackerGUI.Application.Resources.Queries;
+using ResourcePackerGUI.Application.Resources.Queries.UpdateResourceDefinitions;
 using ResourcePackerGUI.Domain.Entities;
 using ResourcePackerGUI.Domain.Structures;
 

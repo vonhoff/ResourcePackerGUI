@@ -1,21 +1,11 @@
-﻿using System.IO.Abstractions;
-using MediatR;
-
-using ResourcePackerGUI.Application.PathEntries.Queries;
+﻿using MediatR;
 using ResourcePackerGUI.Domain.Entities;
 using Serilog;
 
-namespace ResourcePackerGUI.Application.PathEntries.Handlers
+namespace ResourcePackerGUI.Application.PathEntries.Queries.CreatePathEntries
 {
     public class CreatePathEntriesQueryHandler : IRequestHandler<CreatePathEntriesQuery, IReadOnlyList<PathEntry>>
     {
-        private readonly IFileSystem _fileSystem;
-
-        public CreatePathEntriesQueryHandler(IFileSystem fileSystem)
-        {
-            _fileSystem = fileSystem;
-        }
-
         public Task<IReadOnlyList<PathEntry>> Handle(CreatePathEntriesQuery request, CancellationToken cancellationToken)
         {
             var definitions = CreatePathEntries(request);

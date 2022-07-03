@@ -4,20 +4,19 @@ using System.Text;
 using MediatR;
 using ResourcePackerGUI.Application.Common.Extensions;
 using ResourcePackerGUI.Application.Common.Interfaces;
-using ResourcePackerGUI.Application.Packaging.Queries;
 using ResourcePackerGUI.Domain.Structures;
 using Serilog;
 
-namespace ResourcePackerGUI.Application.Packaging.Handlers
+namespace ResourcePackerGUI.Application.Packaging.Commands.BuildPackage
 {
-    public class BuildPackageQueryHandler : IRequestHandler<BuildPackageQuery>
+    public class BuildPackageCommandHandler : IRequestHandler<BuildPackageCommand>
     {
         private const ulong PackHeaderId = 30227092120757586;
         private readonly IAesEncryptionService _aesEncryptionService;
         private readonly ICrc32Service _crc32Service;
         private readonly IFileSystem _fileSystem;
 
-        public BuildPackageQueryHandler(IFileSystem fileSystem,
+        public BuildPackageCommandHandler(IFileSystem fileSystem,
             IAesEncryptionService aesEncryptionService,
             ICrc32Service crc32Service)
         {
@@ -26,7 +25,7 @@ namespace ResourcePackerGUI.Application.Packaging.Handlers
             _crc32Service = crc32Service;
         }
 
-        public Task<Unit> Handle(BuildPackageQuery request, CancellationToken cancellationToken)
+        public Task<Unit> Handle(BuildPackageCommand request, CancellationToken cancellationToken)
         {
             var header = new PackageHeader
             {
@@ -112,7 +111,7 @@ namespace ResourcePackerGUI.Application.Packaging.Handlers
         }
 
         /// <summary>
-        /// Writes assets from the provided settings in <see cref="BuildPackageQuery"/>.
+        /// Writes assets from the provided settings in <see cref="BuildPackageCommand"/>.
         /// </summary>
         /// <param name="request">The request containing the entries and progress instances.</param>
         /// <param name="offset">The initial offset for writing the assets.</param>
@@ -120,7 +119,7 @@ namespace ResourcePackerGUI.Application.Packaging.Handlers
         /// <param name="binaryWriter">The writer is responsible for writing the assets.</param>
         /// <param name="cancellationToken">A cancellation token that can be used to cancel the process if necessary.</param>
         /// <returns>The entries created for the assets.</returns>
-        private IEnumerable<Entry> WriteAssets(BuildPackageQuery request, int offset, uint[] key,
+        private IEnumerable<Entry> WriteAssets(BuildPackageCommand request, int offset, uint[] key,
             BinaryWriter binaryWriter, CancellationToken cancellationToken)
         {
             var entries = new Entry[request.PathEntries.Count];

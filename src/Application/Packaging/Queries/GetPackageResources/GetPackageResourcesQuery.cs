@@ -2,9 +2,9 @@
 using ResourcePackerGUI.Domain.Entities;
 using ResourcePackerGUI.Domain.Structures;
 
-namespace ResourcePackerGUI.Application.Packaging.Queries
+namespace ResourcePackerGUI.Application.Packaging.Queries.GetPackageResources
 {
-    public class GetPackageResourcesQuery : IRequest<IReadOnlyList<Resource>>
+    public record GetPackageResourcesQuery : IRequest<IReadOnlyList<Resource>>
     {
         /// <summary>
         /// Constructor for the <see cref="GetPackageResourcesQuery"/> class.

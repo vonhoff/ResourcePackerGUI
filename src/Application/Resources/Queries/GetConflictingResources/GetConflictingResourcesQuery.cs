@@ -1,7 +1,7 @@
 ﻿using MediatR;
 using ResourcePackerGUI.Domain.Entities;
 
-namespace ResourcePackerGUI.Application.Resources.Queries
+namespace ResourcePackerGUI.Application.Resources.Queries.GetConflictingResources
 {
     public class GetConflictingResourcesQuery : IRequest<IReadOnlyList<Resource>>
     {

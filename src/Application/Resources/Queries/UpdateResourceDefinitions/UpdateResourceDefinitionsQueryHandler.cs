@@ -1,10 +1,8 @@
 ﻿using MediatR;
 using ResourcePackerGUI.Application.Common.Interfaces;
-
-using ResourcePackerGUI.Application.Resources.Queries;
 using Serilog;
 
-namespace ResourcePackerGUI.Application.Resources.Handlers
+namespace ResourcePackerGUI.Application.Resources.Queries.UpdateResourceDefinitions
 {
     public class UpdateResourceDefinitionsQueryHandler : IRequestHandler<UpdateResourceDefinitionsQuery, int>
     {

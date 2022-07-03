@@ -1,6 +1,5 @@
 ﻿using System.IO.Abstractions.TestingHelpers;
-using ResourcePackerGUI.Application.Resources.Handlers;
-using ResourcePackerGUI.Application.Resources.Queries;
+using ResourcePackerGUI.Application.Resources.Commands.ExportResources;
 using ResourcePackerGUI.Domain.Entities;
 
 namespace Application.UnitTests.Resources
@@ -18,8 +17,8 @@ namespace Application.UnitTests.Resources
         public async Task ExportResources()
         {
             var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>(), "F:\\assets\\");
-            var query = new ExportResourcesQuery("F:\\assets\\", _resources);
-            var sut = new ExportResourcesQueryHandler(fileSystem);
+            var query = new ExportResourcesCommand("F:\\assets\\", _resources);
+            var sut = new ExportResourcesCommandHandler(fileSystem);
             await sut.Handle(query, default);
             Assert.Equal(SampleAcceptPng, fileSystem.GetFile("F:\\assets\\accept.png").Contents);
             Assert.Equal(SampleAsteriskOrangePng, fileSystem.GetFile("F:\\assets\\asterisk_orange.png").Contents);
@@ -43,11 +42,10 @@ namespace Application.UnitTests.Resources
             };
 
             var fileSystem = new MockFileSystem(files, "F:\\assets\\");
-            var query = new ExportResourcesQuery("F:\\assets\\", _resources, conflictFileReplacements);
-            var sut = new ExportResourcesQueryHandler(fileSystem);
-            var exported = await sut.Handle(query, default);
+            var query = new ExportResourcesCommand("F:\\assets\\", _resources, conflictFileReplacements);
+            var sut = new ExportResourcesCommandHandler(fileSystem);
+            await sut.Handle(query, default);
 
-            Assert.Equal(2, exported);
             Assert.NotEqual(SampleAcceptPng, fileSystem.GetFile("F:\\assets\\accept.png").Contents);
             Assert.Equal(SampleAsteriskOrangePng, fileSystem.GetFile("F:\\assets\\asterisk_orange.png").Contents);
             Assert.NotEqual(SampleAwardStarGoldPng, fileSystem.GetFile("F:\\assets\\award_star_gold_3.png").Contents);

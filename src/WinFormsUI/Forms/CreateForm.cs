@@ -1,27 +1,8 @@
-﻿#region GNU General Public License
-
-/* Copyright 2022 Vonhoff, MaxtorCoder
- *
- * This file is part of ResourcePackerGUI.
- *
- * ResourcePackerGUI is free software: you can redistribute it and/or modify it under the terms of the
- * GNU General Public License as published by the Free Software Foundation, either version 3 of the License,
- * or (at your option) any later version.
- *
- * ResourcePackerGUI is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
- * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along with ResourcePackerGUI.
- * If not, see <https://www.gnu.org/licenses/>.
- */
-
-#endregion
-
-using System.Media;
+﻿using System.Media;
 using MediatR;
-using ResourcePackerGUI.Application.Packaging.Queries;
-using ResourcePackerGUI.Application.PathEntries.Queries;
+using ResourcePackerGUI.Application.Packaging.Commands.BuildPackage;
+using ResourcePackerGUI.Application.PathEntries.Commands.ExportPathEntries;
+using ResourcePackerGUI.Application.PathEntries.Queries.CreatePathEntries;
 using ResourcePackerGUI.Domain.Entities;
 using Serilog;
 using WinFormsUI.Extensions;
@@ -218,7 +199,7 @@ namespace WinFormsUI.Forms
                 var definitionsLocation = _createDefinitionFile ? _definitionsLocation : string.Empty;
                 if (!string.IsNullOrEmpty(definitionsLocation))
                 {
-                    var exportDefinitionQuery = new ExportPathEntriesQuery(_resourcesToInclude, definitionsLocation)
+                    var exportDefinitionQuery = new ExportPathEntriesCommand(_resourcesToInclude, definitionsLocation)
                     {
                         Progress = _progressSecondary,
                         ProgressReportInterval = ReportInterval
@@ -231,7 +212,7 @@ namespace WinFormsUI.Forms
 
                 try
                 {
-                    var buildQuery = new BuildPackageQuery(_resourcesToInclude, _packageLocation, txtPassword.Text)
+                    var buildQuery = new BuildPackageCommand(_resourcesToInclude, _packageLocation, txtPassword.Text)
                     {
                         ProgressPrimary = _progressPrimary,
                         ProgressSecondary = _progressSecondary,
@@ -440,7 +421,6 @@ namespace WinFormsUI.Forms
         private void CreateSelectorNodes(TreeNode rootNode, IReadOnlyList<PathEntry> pathEntries)
         {
             var percentage = 0;
-            var relativePath = string.Empty;
 
             using var progressTimer = new System.Timers.Timer(ReportInterval);
 
@@ -452,7 +432,7 @@ namespace WinFormsUI.Forms
             {
                 _cancellationTokenSource.Token.ThrowIfCancellationRequested();
 
-                relativePath = pathEntries[i].RelativePath;
+                var relativePath = pathEntries[i].RelativePath;
                 var currentNode = rootNode;
 
                 var pathNodes = relativePath.Replace(@"\", "/").Split('/');

@@ -1,6 +1,6 @@
 ﻿namespace ResourcePackerGUI.Domain.Entities
 {
-    public class PathEntry
+    public record PathEntry
     {
         /// <summary>
         /// Constructor for the <see cref="PathEntry"/> class.

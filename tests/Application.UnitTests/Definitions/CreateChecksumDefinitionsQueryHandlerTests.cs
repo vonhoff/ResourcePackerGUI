@@ -1,8 +1,7 @@
 ﻿using System.Text;
 using Application.UnitTests.Common.Fixture;
 using ResourcePackerGUI.Application.Common.Interfaces;
-using ResourcePackerGUI.Application.Definitions.Handlers;
-using ResourcePackerGUI.Application.Definitions.Queries;
+using ResourcePackerGUI.Application.Definitions.Queries.CreateChecksumDefinitions;
 
 namespace Application.UnitTests.Definitions
 {
@@ -24,9 +23,9 @@ namespace Application.UnitTests.Definitions
             var query = new CreateChecksumDefinitionsQuery(stream);
             var sut = new CreateChecksumDefinitionsQueryHandler(_crc32Service);
             var result = await sut.Handle(query, default);
-            Assert.True(result?.Count == 2);
-            Assert.True(result?.TryGetValue(3090263786, out _) == true);
-            Assert.True(result?.TryGetValue(3106401826, out _) == true);
+            Assert.True(result.Count == 2);
+            Assert.True(result.TryGetValue(3090263786, out _));
+            Assert.True(result.TryGetValue(3106401826, out _));
         }
 
         [Fact]
@@ -37,7 +36,7 @@ namespace Application.UnitTests.Definitions
             var query = new CreateChecksumDefinitionsQuery(stream);
             var sut = new CreateChecksumDefinitionsQueryHandler(_crc32Service);
             var result = await sut.Handle(query, default);
-            Assert.True(result?.Count == 1);
+            Assert.True(result.Count == 1);
         }
 
         [Fact]
@@ -48,9 +47,9 @@ namespace Application.UnitTests.Definitions
             var query = new CreateChecksumDefinitionsQuery(stream);
             var sut = new CreateChecksumDefinitionsQueryHandler(_crc32Service);
             var result = await sut.Handle(query, default);
-            Assert.True(result?.Count == 2);
-            Assert.True(result?.TryGetValue(3090263786, out _) == true);
-            Assert.True(result?.TryGetValue(3106401826, out _) == true);
+            Assert.True(result.Count == 2);
+            Assert.True(result.TryGetValue(3090263786, out _));
+            Assert.True(result.TryGetValue(3106401826, out _));
         }
 
         [Fact]
@@ -61,9 +60,9 @@ namespace Application.UnitTests.Definitions
             var query = new CreateChecksumDefinitionsQuery(stream);
             var sut = new CreateChecksumDefinitionsQueryHandler(_crc32Service);
             var result = await sut.Handle(query, default);
-            Assert.True(result?.Count == 2);
-            Assert.True(result?.TryGetValue(3411133111, out _) == true);
-            Assert.True(result?.TryGetValue(859863405, out _) == true);
+            Assert.True(result.Count == 2);
+            Assert.True(result.TryGetValue(3411133111, out _));
+            Assert.True(result.TryGetValue(859863405, out _));
         }
     }
 }

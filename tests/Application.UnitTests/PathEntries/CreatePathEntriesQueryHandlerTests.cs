@@ -1,23 +1,20 @@
-﻿using System.IO.Abstractions.TestingHelpers;
-using ResourcePackerGUI.Application.PathEntries.Handlers;
-using ResourcePackerGUI.Application.PathEntries.Queries;
+﻿using ResourcePackerGUI.Application.PathEntries.Queries.CreatePathEntries;
 
 namespace Application.UnitTests.PathEntries
 {
     public class CreatePathEntriesQueryHandlerTests
     {
         [Fact]
-        public async Task CreatePathEntries_ValidFiles()
+        public async Task CreatePathEntries()
         {
-            Dictionary<string, MockFileData> mockFiles = new()
+            List<string> filePaths = new()
             {
-                { "F:\\repos\\ResourcePacker\\Debug\\assets\\base.png", new MockFileData(Array.Empty<byte>()) },
-                { "F:\\repos\\ResourcePacker\\Debug\\assets\\mushroom-red.png", new MockFileData(Array.Empty<byte>()) },
+                "F:\\repos\\ResourcePacker\\Debug\\assets\\base.png",
+                "F:\\repos\\ResourcePacker\\Debug\\assets\\mushroom-red.png",
             };
 
-            var fileSystem = new MockFileSystem(mockFiles, "F:\\repos\\ResourcePacker\\Debug\\");
-            var query = new CreatePathEntriesQuery(mockFiles.Keys.ToList(), 4);
-            var sut = new CreatePathEntriesQueryHandler(fileSystem);
+            var query = new CreatePathEntriesQuery(filePaths, 4);
+            var sut = new CreatePathEntriesQueryHandler();
             var result = await sut.Handle(query, default);
             Assert.NotNull(result);
             Assert.Equal(2, result.Count);
@@ -28,16 +25,8 @@ namespace Application.UnitTests.PathEntries
         }
 
         [Fact]
-        public async Task CreatePathEntries_ShouldIgnoreInvalidFilePaths()
+        public async Task CreatePathEntries_ShouldIgnoreInvalidEntries()
         {
-            Dictionary<string, MockFileData> mockFiles = new()
-            {
-                { "F:\\repos\\assets\\base.png", new MockFileData(Array.Empty<byte>()) },
-                { "F:\\repos\\assets\\section.png", new MockFileData(Array.Empty<byte>()) },
-                { "F:\\repos\\ResourcePacker\\Debug\\assets\\base.png", new MockFileData(Array.Empty<byte>()) },
-                { "F:\\repos\\ResourcePacker\\Debug\\assets\\mushroom-red.png", new MockFileData(Array.Empty<byte>()) },
-            };
-
             IReadOnlyList<string> absoluteFilePaths = new List<string>()
             {
                 string.Empty,
@@ -45,19 +34,18 @@ namespace Application.UnitTests.PathEntries
                 "\r\n",
                 ":{}$%=;&",
                 "F:\\repos\\ResourcePacker\\Debug\\assets\\mushroom-red.png",
-                "F:\\repos\\ResourcePacker\\Debug\\assets\\mushroom-blue.png",
+                "F:\\repos\\ResourcePacker\\mushroom-blue.png",
                 "F:\\repos\\assets\\base.png",
                 "F:\\repos\\assets\\section.png",
-                "F:\\repos\\ResourcePacker\\assets\\player.png",
+                "F:\\repos\\ResourcePacker\\player.png",
                 "F:\\repos\\ResourcePacker\\Debug\\assets\\base.png"
             };
 
-            var fileSystem = new MockFileSystem(mockFiles, "F:\\repos\\ResourcePacker\\Debug\\");
             var query = new CreatePathEntriesQuery(absoluteFilePaths, 4);
-            var sut = new CreatePathEntriesQueryHandler(fileSystem);
+            var sut = new CreatePathEntriesQueryHandler();
             var result = await sut.Handle(query, default);
             Assert.NotNull(result);
-            Assert.Equal(2, result.Count);
+            Assert.Equal(4, result.Count);
             Assert.Equal("assets/mushroom-red.png", result[0].RelativePath);
             Assert.Equal("assets/base.png", result[1].RelativePath);
             Assert.Equal("F:\\repos\\ResourcePacker\\Debug\\assets\\mushroom-red.png", result[0].AbsolutePath);
