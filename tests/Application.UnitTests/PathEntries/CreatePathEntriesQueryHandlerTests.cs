@@ -45,7 +45,7 @@ namespace Application.UnitTests.PathEntries
             var sut = new CreatePathEntriesQueryHandler();
             var result = await sut.Handle(query, default);
             Assert.NotNull(result);
-            Assert.Equal(4, result.Count);
+            Assert.Equal(2, result.Count);
             Assert.Equal("assets/mushroom-red.png", result[0].RelativePath);
             Assert.Equal("assets/base.png", result[1].RelativePath);
             Assert.Equal("F:\\repos\\ResourcePacker\\Debug\\assets\\mushroom-red.png", result[0].AbsolutePath);
