@@ -3,7 +3,7 @@ using ResourcePackerGUI.Domain.Entities;
 
 namespace ResourcePackerGUI.Application.Resources.Queries.UpdateResourceDefinitions
 {
-    public class UpdateResourceDefinitionsQuery : IRequest<int>
+    public record UpdateResourceDefinitionsQuery : IRequest<int>
     {
         /// <summary>
         /// Constructor for the <see cref="UpdateResourceDefinitionsQuery"/> class.

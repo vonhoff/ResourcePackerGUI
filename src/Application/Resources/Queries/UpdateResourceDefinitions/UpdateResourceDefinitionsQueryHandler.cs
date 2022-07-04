@@ -34,6 +34,12 @@ namespace ResourcePackerGUI.Application.Resources.Queries.UpdateResourceDefiniti
                     percentage = (int)((double)(i + 1) / request.Resources.Count * 100);
 
                     var asset = request.Resources[i];
+                    if (asset.NameDefined)
+                    {
+                        updated++;
+                        continue;
+                    }
+
                     if (request.ChecksumDefinitions.TryGetValue(asset.Entry.Id, out var filePath))
                     {
                         // If the media type has not been found before,
@@ -54,11 +60,11 @@ namespace ResourcePackerGUI.Application.Resources.Queries.UpdateResourceDefiniti
 
             if (updated == request.Resources.Count)
             {
-                Log.Information("Updated all {count} resources.", request.Resources.Count);
+                Log.Information("All {count} resource names are defined.", request.Resources.Count);
             }
             else
             {
-                Log.Warning("Updated {actual} out of {expected} resources.", updated, request.Resources.Count);
+                Log.Warning("{actual} out of {expected} resource names are defined.", updated, request.Resources.Count);
             }
 
             request.Progress?.Report(100);

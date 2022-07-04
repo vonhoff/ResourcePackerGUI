@@ -208,6 +208,8 @@ namespace WinFormsUI.Controls
 
             // Changes are made to the tree, ignore any other change requests.
             _ignoreClickAction++;
+            treeView.SuspendLayout();
+            treeView.Cursor = Cursors.WaitCursor;
 
             // The checked state has already been changed, we just need to update the state index
             // Node is either ticked or un-ticked.
@@ -230,6 +232,8 @@ namespace WinFormsUI.Controls
                 }
             }
 
+            treeView.ResumeLayout();
+            treeView.Cursor = Cursors.Default;
             _ignoreClickAction--;
             AfterStateChanged?.Invoke(sender, e);
         }

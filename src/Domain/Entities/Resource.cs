@@ -58,5 +58,7 @@ namespace ResourcePackerGUI.Domain.Entities
             }
             set => _name = value;
         }
+
+        public bool NameDefined => !string.IsNullOrEmpty(_name);
     }
 }

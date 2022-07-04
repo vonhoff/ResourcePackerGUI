@@ -3,7 +3,7 @@ using ResourcePackerGUI.Domain.Entities;
 
 namespace ResourcePackerGUI.Application.Resources.Queries.GetConflictingResources
 {
-    public class GetConflictingResourcesQuery : IRequest<IReadOnlyList<Resource>>
+    public record GetConflictingResourcesQuery : IRequest<IReadOnlyList<Resource>>
     {
         /// <summary>
         /// Constructor for the <see cref="GetConflictingResourcesQuery"/> class.
