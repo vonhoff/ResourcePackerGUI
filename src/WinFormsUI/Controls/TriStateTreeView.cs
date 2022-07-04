@@ -1,6 +1,8 @@
-﻿#region Copyright 2022 Vonhoff, MaxtorCoder
+﻿#region GNU General Public License
 
-/* This file is part of ResourcePackerGUI.
+/* Copyright 2022 Simon Vonhoff & Contributors
+ *
+ * This file is part of ResourcePackerGUI.
  *
  * ResourcePackerGUI is free software: you can redistribute it and/or modify it under the terms of the
  * GNU General Public License as published by the Free Software Foundation, either version 3 of the License,
