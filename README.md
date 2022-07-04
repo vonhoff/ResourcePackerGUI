@@ -11,7 +11,7 @@ ResourcePacker is a general purpose asset packager with optional AES-128 encrypt
 ## Features
 
 - Create a package, optionally with AES-128 encryption, and to choose which files to include or exclude from the package. 
-- Create a file list for the package, or just the package.
+- Create a file list with a package, or just the package.
 - Preview resources from inside a package, with a hex view, text view, or image view.
 - Reconstruct a folder structure from the entry IDs and a provided file list.
 - Extract all resources from a package, or just a selected amount, to a folder of your choice.
