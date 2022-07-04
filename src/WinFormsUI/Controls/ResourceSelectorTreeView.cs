@@ -95,12 +95,12 @@ namespace WinFormsUI.Controls
             return result;
         }
 
-        public void CreateNodesFromResources(IReadOnlyList<Resource> assets, string packageName,
+        public void CreateNodesFromResources(IReadOnlyList<Resource> resources, string packageName,
                     IProgress<int>? progressSecondary = null, int progressReportInterval = 100)
         {
             _selectedNodes.Clear();
             _nodes.Clear();
-            if (assets.Count == 0)
+            if (resources.Count == 0)
             {
                 return;
             }
@@ -119,10 +119,10 @@ namespace WinFormsUI.Controls
                 progressTimer.Elapsed += delegate { progressSecondary!.Report(percentage); };
                 progressTimer.Enabled = progressSecondary != null;
 
-                for (var i = 0; i < assets.Count; i++)
+                for (var i = 0; i < resources.Count; i++)
                 {
-                    percentage = (int)((double)(i + 1) / assets.Count * 100);
-                    var asset = assets[i];
+                    percentage = (int)((double)(i + 1) / resources.Count * 100);
+                    var asset = resources[i];
                     var path = asset.Name;
                     var currentNode = rootNode;
                     var pathNodes = path.Split('/');

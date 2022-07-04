@@ -11,7 +11,7 @@ namespace ResourcePackerGUI.Application.Packaging.Queries.GetPackageResources
         /// </summary>
         /// <param name="entries">The collection of entries for retrieving all resources.</param>
         /// <param name="binaryReader">The binary reader for the specified package file.</param>
-        /// <param name="password">The password for use to decrypt the assets.</param>
+        /// <param name="password">The password for use to decrypt the resources.</param>
         public GetPackageResourcesQuery(IReadOnlyList<Entry> entries, BinaryReader binaryReader, string password = "")
         {
             Entries = entries;
@@ -30,7 +30,7 @@ namespace ResourcePackerGUI.Application.Packaging.Queries.GetPackageResources
         public BinaryReader BinaryReader { get; init; }
 
         /// <summary>
-        /// The password for use to decrypt the assets.
+        /// The password for use to decrypt the resources.
         /// </summary>
         public string Password { get; init; }
 

@@ -39,8 +39,8 @@ namespace ResourcePackerGUI.Application.Packaging.Commands.BuildPackage
                 var initialOffset = Unsafe.SizeOf<PackageHeader>() + (header.NumberOfEntries * Unsafe.SizeOf<Entry>());
                 var key = _aesEncryptionService.KeySetup(request.Password);
 
-                // Write all assets to file and retrieve their associated entry data.
-                var entries = WriteAssets(request, initialOffset, key, binaryWriter, cancellationToken);
+                // Write all resources to file and retrieve their associated entry data.
+                var entries = WriteResources(binaryWriter, request, initialOffset, key, cancellationToken);
 
                 // Write header to file.
                 binaryWriter.Seek(0, SeekOrigin.Begin);
@@ -111,16 +111,17 @@ namespace ResourcePackerGUI.Application.Packaging.Commands.BuildPackage
         }
 
         /// <summary>
-        /// Writes assets from the provided settings in <see cref="BuildPackageCommand"/>.
+        /// Writes resources from the provided settings in <see cref="BuildPackageCommand"/>.
         /// </summary>
+        /// <param name="binaryWriter">The writer is responsible for writing the resources.</param>
         /// <param name="request">The request containing the entries and progress instances.</param>
-        /// <param name="offset">The initial offset for writing the assets.</param>
+        /// <param name="offset">The initial offset for writing the resources.</param>
         /// <param name="key"></param>
-        /// <param name="binaryWriter">The writer is responsible for writing the assets.</param>
         /// <param name="cancellationToken">A cancellation token that can be used to cancel the process if necessary.</param>
-        /// <returns>The entries created for the assets.</returns>
-        private IEnumerable<Entry> WriteAssets(BuildPackageCommand request, int offset, uint[] key,
-            BinaryWriter binaryWriter, CancellationToken cancellationToken)
+        /// <returns>The entries created for the resources.</returns>
+        private IEnumerable<Entry> WriteResources(BinaryWriter binaryWriter, BuildPackageCommand request, int offset,
+            uint[] key,
+            CancellationToken cancellationToken)
         {
             var entries = new Entry[request.PathEntries.Count];
             var percentage = 0;

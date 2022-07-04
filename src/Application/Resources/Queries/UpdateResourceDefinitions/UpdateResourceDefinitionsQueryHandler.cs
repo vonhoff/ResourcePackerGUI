@@ -33,28 +33,28 @@ namespace ResourcePackerGUI.Application.Resources.Queries.UpdateResourceDefiniti
                 {
                     percentage = (int)((double)(i + 1) / request.Resources.Count * 100);
 
-                    var asset = request.Resources[i];
-                    if (asset.NameDefined)
+                    var resource = request.Resources[i];
+                    if (resource.NameDefined)
                     {
                         updated++;
                         continue;
                     }
 
-                    if (request.ChecksumDefinitions.TryGetValue(asset.Entry.Id, out var filePath))
+                    if (request.ChecksumDefinitions.TryGetValue(resource.Entry.Id, out var filePath))
                     {
                         // If the media type has not been found before,
                         // try to find the media type by its file extension.
-                        asset.MediaType ??= _mediaTypeService.GetTypeByName(filePath);
-                        asset.Name = filePath;
+                        resource.MediaType ??= _mediaTypeService.GetTypeByName(filePath);
+                        resource.Name = filePath;
                         updated++;
 
-                        Log.Debug("Updated asset: {@asset}",
-                            new { asset.Entry.Id, asset.Name });
+                        Log.Debug("Updated resource: {@asset}",
+                            new { resource.Entry.Id, resource.Name });
 
                         continue;
                     }
 
-                    Log.Warning("Could not find definition for hash: {id}", asset.Entry.Id);
+                    Log.Warning("Could not find definition for hash: {id}", resource.Entry.Id);
                 }
             }
 

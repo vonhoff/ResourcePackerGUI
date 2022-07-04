@@ -75,7 +75,7 @@ namespace ResourcePackerGUI.Application.Resources.Commands.ExportResources
             }
             catch (Exception ex)
             {
-                Log.Error(ex, "Could not extract asset: {path}", fileInfo.FullName);
+                Log.Error(ex, "Could not extract resource: {path}", fileInfo.FullName);
             }
         }
 

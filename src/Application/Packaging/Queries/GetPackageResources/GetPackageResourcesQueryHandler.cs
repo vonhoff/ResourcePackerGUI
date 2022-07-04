@@ -24,19 +24,19 @@ namespace ResourcePackerGUI.Application.Packaging.Queries.GetPackageResources
 
         public Task<IReadOnlyList<Resource>> Handle(GetPackageResourcesQuery request, CancellationToken cancellationToken)
         {
-            var assets = GetResources(request, cancellationToken);
-            if (assets.Count == request.Entries.Count)
+            var resources = GetResources(request, cancellationToken);
+            if (resources.Count == request.Entries.Count)
             {
-                Log.Information("Loaded all {assetCount} assets.", assets.Count);
+                Log.Information("Loaded all {assetCount} resources.", resources.Count);
             }
             else
             {
-                Log.Warning("Loaded {assetCount} out of {entryCount} assets.",
-                    assets.Count, request.Entries.Count);
+                Log.Warning("Loaded {assetCount} out of {entryCount} resources.",
+                    resources.Count, request.Entries.Count);
             }
 
             request.ProgressPrimary?.Report(100);
-            return Task.FromResult(assets);
+            return Task.FromResult(resources);
         }
 
         private IReadOnlyList<Resource> GetResources(GetPackageResourcesQuery request, CancellationToken cancellationToken)

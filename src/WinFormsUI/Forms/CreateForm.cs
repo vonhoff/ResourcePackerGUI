@@ -70,14 +70,14 @@ namespace WinFormsUI.Forms
             btnCancel.Text = "Cancel";
             txtAssetFolder.Text = _resourcesLocation;
 
-            var assetPathNodes = _resourcesLocation
+            var pathNodes = _resourcesLocation
                 .Replace(@"\", "/")
                 .Split('/')
                 .Where(n => n.Length > 0)
                 .ToArray();
 
-            _relativePackageLocationDepth = assetPathNodes.Length;
-            var rootNode = new TreeNode(assetPathNodes.Last() + " (root)")
+            _relativePackageLocationDepth = pathNodes.Length;
+            var rootNode = new TreeNode(pathNodes.Last() + " (root)")
             {
                 Checked = true,
                 StateImageIndex = 1
@@ -147,7 +147,7 @@ namespace WinFormsUI.Forms
                 }
                 catch (OperationCanceledException ex)
                 {
-                    Log.Information("The asset collection operation has been canceled.");
+                    Log.Information("The operation has been canceled.");
                     MessageBox.Show(ex.Message, "Operation canceled",
                         MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
