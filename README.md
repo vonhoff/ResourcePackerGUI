@@ -1,7 +1,7 @@
 ![Logo](ResourcePackerGUI-logo.png)
 
 # ResourcePackerGUI
-[![GPLv3 License](https://img.shields.io/badge/License-GPL%20v3-yellow.svg)](https://opensource.org/licenses/)
+[![GPLv3 License](https://img.shields.io/badge/License-GPL%20v3-yellow.svg)](LICENSE)
 [![Workflow status](https://github.com/vonhoff/ResourcePackerGUI/actions/workflows/dotnet.yml/badge.svg)](https://github.com/vonhoff/ResourcePackerGUI/actions/)
 
 ResourcePackerGUI is a graphical user interface application based on the ResourcePacker command-line tool.
