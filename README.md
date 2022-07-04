@@ -20,6 +20,7 @@ ResourcePacker is a general purpose asset packager with optional AES-128 encrypt
 ## Screenshots
 
 ![Main application screenshot](screenshot1.png)
+![Main application screenshot](screenshot2.png)
 
 ---
 
