@@ -90,7 +90,7 @@ namespace ResourcePackerGUI.Infrastructure.Services
         private static bool IsJsonText(byte[] data)
         {
             // Return false when the data does not start with a left curly bracket.
-            if (data[0] != 0x7B)
+            if (data.Length == 0 || data[0] != 0x7B)
             {
                 return false;
             }
