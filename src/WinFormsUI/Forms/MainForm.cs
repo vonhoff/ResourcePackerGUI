@@ -223,7 +223,7 @@ namespace WinFormsUI.Forms
 
                 try
                 {
-                    var pathReplacements = 
+                    var pathReplacements =
                         await GetFileConflictPathReplacements(baseExtractionPath, resources);
 
                     var exportResourcesCommand = new ExportResourcesCommand(baseExtractionPath, resources, pathReplacements)
@@ -334,6 +334,7 @@ namespace WinFormsUI.Forms
             {
                 lblStatus.Text = _packagePath;
                 lblElapsed.Text = "00:00:00.0000";
+                lblResultCount.Text = "0 Resources";
                 _cancellationTokenSource = new CancellationTokenSource();
 
                 try
@@ -473,11 +474,15 @@ namespace WinFormsUI.Forms
                 if (packageInformation.Encrypted)
                 {
                     var passwordDialog = new PasswordForm();
-                    if (passwordDialog.ShowDialog() != DialogResult.OK)
+
+                    Invoke(() =>
                     {
-                        _cancellationTokenSource.Cancel();
-                        throw new OperationCanceledException();
-                    }
+                        if (passwordDialog.ShowDialog() != DialogResult.OK)
+                        {
+                            _cancellationTokenSource.Cancel();
+                            throw new OperationCanceledException();
+                        }
+                    });
 
                     if (string.IsNullOrEmpty(passwordDialog.Password))
                     {
@@ -531,7 +536,7 @@ namespace WinFormsUI.Forms
 
                 Invoke(() =>
                 {
-                    lblResultCount.Text = $"{_resources.Count} " + (_resources.Count > 1 ? "Resources" : "Resource");
+                    lblResultCount.Text = $"{_resources.Count} " + (_resources.Count == 1 ? "Resource" : "Resources");
                     lblElapsed.Text = stopwatch.Elapsed.ToString(@"hh\:mm\:ss\.ffff");
 
                     // Only enable the extract-all button when the package has been successfully loaded.
@@ -640,6 +645,7 @@ namespace WinFormsUI.Forms
 
             Invoke(() =>
             {
+                ClearPreviews();
                 ResetProgressBars();
                 UpdateExtractSelectedButton();
             });
@@ -651,10 +657,7 @@ namespace WinFormsUI.Forms
         /// <param name="tabPage">The tab to initialize.</param>
         private void ReloadPreviewTab(TabPage? tabPage)
         {
-            // Clear all previews.
-            previewHexBox.ByteProvider = null;
-            previewImageBox.Image = null;
-            previewTextBox.Clear();
+            ClearPreviews();
 
             if (_selectedPreviewAsset?.Data == null)
             {
@@ -684,6 +687,13 @@ namespace WinFormsUI.Forms
             {
                 SetHexPreviewValue();
             }
+        }
+
+        private void ClearPreviews()
+        {
+            previewHexBox.ByteProvider = null;
+            previewImageBox.Image = null;
+            previewTextBox.Clear();
         }
 
         private void ResetProgressBars()

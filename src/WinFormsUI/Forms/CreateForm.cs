@@ -14,17 +14,18 @@ namespace WinFormsUI.Forms
     {
         private const int ReportInterval = 25;
 
-        private readonly List<PathEntry> _resourcesToInclude = new();
+        private readonly List<PathEntry> _selectedPathEntries = new();
         private CancellationTokenSource _cancellationTokenSource;
         private string _definitionsLocation = string.Empty;
         private string _packageLocation = string.Empty;
-        private string _assetsLocation = string.Empty;
+        private string _resourcesLocation = string.Empty;
         private bool _automaticDefinitionFile = true;
         private bool _createDefinitionFile = true;
         private int _relativePackageLocationDepth;
         private readonly IProgress<int> _progressPrimary;
         private readonly IProgress<int> _progressSecondary;
         private readonly IMediator _mediator;
+        private IReadOnlyList<PathEntry>? _pathEntries;
 
         public CreateForm(IMediator mediator)
         {
@@ -47,11 +48,11 @@ namespace WinFormsUI.Forms
                 return;
             }
 
-            _assetsLocation = browserDialog.SelectedPath;
+            _resourcesLocation = browserDialog.SelectedPath;
 
             try
             {
-                if (!Directory.EnumerateFileSystemEntries(_assetsLocation,
+                if (!Directory.EnumerateFileSystemEntries(_resourcesLocation,
                         string.Empty, SearchOption.AllDirectories).Any())
                 {
                     MessageBox.Show("The specified directory does not contain any files.",
@@ -67,9 +68,9 @@ namespace WinFormsUI.Forms
             }
 
             btnCancel.Text = "Cancel";
-            txtAssetFolder.Text = _assetsLocation;
+            txtAssetFolder.Text = _resourcesLocation;
 
-            var assetPathNodes = _assetsLocation
+            var assetPathNodes = _resourcesLocation
                 .Replace(@"\", "/")
                 .Split('/')
                 .Where(n => n.Length > 0)
@@ -89,7 +90,7 @@ namespace WinFormsUI.Forms
 
                 try
                 {
-                    files = CollectAvailableFiles(_assetsLocation);
+                    files = CollectAvailableFiles(_resourcesLocation);
                     if (files.Length == 0)
                     {
                         MessageBox.Show("The specified directory does not contain any files.",
@@ -111,9 +112,10 @@ namespace WinFormsUI.Forms
                             Progress = _progressSecondary,
                             ProgressReportInterval = ReportInterval
                         };
-                        var pathEntries = await _mediator.Send(pathEntriesQuery);
 
-                        CreateSelectorNodes(rootNode, pathEntries);
+                        _pathEntries = await _mediator.Send(pathEntriesQuery);
+
+                        CreateSelectorNodes(rootNode, _pathEntries);
                         _cancellationTokenSource.Token.ThrowIfCancellationRequested();
 
                         Invoke(() =>
@@ -134,10 +136,11 @@ namespace WinFormsUI.Forms
                             lblStatus.Text = "Ready";
                             lblPercentage.Text = "0%";
                             progressBarPrimary.Value = 0;
-                            btnCreate.Enabled = _packageLocation != string.Empty;
 
-                            lblAvailableItems.Text = $"Available items: {_resourcesToInclude.Count}";
-                            lblSelectedItems.Text = $"Selected items: {_resourcesToInclude.Count}";
+                            SetBtnCreateState(_packageLocation != string.Empty);
+
+                            lblAvailableItems.Text = $"Available items: {_selectedPathEntries.Count}";
+                            lblSelectedItems.Text = $"Selected items: {_selectedPathEntries.Count}";
                             this.FlashNotification();
                         });
                     }
@@ -155,8 +158,8 @@ namespace WinFormsUI.Forms
                     {
                         if (files?.Length == 0 || _cancellationTokenSource.IsCancellationRequested)
                         {
-                            _resourcesToInclude.Clear();
-                            btnCreate.Enabled = false;
+                            _selectedPathEntries.Clear();
+                            SetBtnCreateState(false);
                             txtAssetFolder.Text = string.Empty;
                             txtAssetFolder.Refresh();
                         }
@@ -172,6 +175,15 @@ namespace WinFormsUI.Forms
 
                 _cancellationTokenSource.Cancel();
             });
+        }
+
+        private void SetBtnCreateState(bool enabled)
+        {
+            btnCreate.Enabled = enabled;
+            if (enabled)
+            {
+                btnCreate.Focus();
+            }
         }
 
         private void BtnCancel_Click(object sender, EventArgs e)
@@ -193,13 +205,14 @@ namespace WinFormsUI.Forms
             lblStatus.Text = "Creating definitions...";
             progressBarSecondary.Visible = true;
             SetConfigurationState(false);
+            _pathEntries = _selectedPathEntries;
 
             Task.Run(async () =>
             {
                 var definitionsLocation = _createDefinitionFile ? _definitionsLocation : string.Empty;
                 if (!string.IsNullOrEmpty(definitionsLocation))
                 {
-                    var exportDefinitionQuery = new ExportPathEntriesCommand(_resourcesToInclude, definitionsLocation)
+                    var exportDefinitionQuery = new ExportPathEntriesCommand(_selectedPathEntries, definitionsLocation)
                     {
                         Progress = _progressSecondary,
                         ProgressReportInterval = ReportInterval
@@ -208,11 +221,11 @@ namespace WinFormsUI.Forms
                     await _mediator.Send(exportDefinitionQuery);
                 }
 
-                Invoke(() => lblStatus.Text = "Packing assets...");
+                Invoke(() => lblStatus.Text = "Packing resources...");
 
                 try
                 {
-                    var buildQuery = new BuildPackageCommand(_resourcesToInclude, _packageLocation, txtPassword.Text)
+                    var buildQuery = new BuildPackageCommand(_selectedPathEntries, _packageLocation, txtPassword.Text)
                     {
                         ProgressPrimary = _progressPrimary,
                         ProgressSecondary = _progressSecondary,
@@ -301,7 +314,7 @@ namespace WinFormsUI.Forms
 
         private void SetConfigurationState(bool enabled)
         {
-            btnCreate.Enabled = enabled;
+            SetBtnCreateState(enabled);
             btnResourcesExplore.Enabled = enabled;
             btnDefinitionsExplore.Enabled = enabled;
             btnPackageExplore.Enabled = enabled;
@@ -344,7 +357,7 @@ namespace WinFormsUI.Forms
             var saveFileDialog = new SaveFileDialog
             {
                 Filter = "ResourcePack (*.dat)|*.dat",
-                FileName = Path.GetFileNameWithoutExtension(_assetsLocation) + ".dat"
+                FileName = Path.GetFileNameWithoutExtension(_resourcesLocation) + ".dat"
             };
 
             var result = saveFileDialog.ShowDialog();
@@ -359,9 +372,9 @@ namespace WinFormsUI.Forms
             }
 
             txtPackageLocation.Text = saveFileDialog.FileName;
-            btnCreate.Enabled = _resourcesToInclude.Count > 0;
-
+            SetBtnCreateState(_selectedPathEntries.Count > 0);
             _packageLocation = saveFileDialog.FileName;
+
             if (_createDefinitionFile && _automaticDefinitionFile)
             {
                 _definitionsLocation = _packageLocation + ".txt";
@@ -398,7 +411,7 @@ namespace WinFormsUI.Forms
                 return files;
             }
 
-            _resourcesToInclude.Clear();
+            _selectedPathEntries.Clear();
 
             Invoke(() =>
             {
@@ -452,7 +465,7 @@ namespace WinFormsUI.Forms
                         if (j == pathNodes.Length - 1)
                         {
                             currentNode.Tag = pathEntries[i];
-                            _resourcesToInclude.Add(pathEntries[i]);
+                            _selectedPathEntries.Add(pathEntries[i]);
                         }
                     }
                 }
@@ -463,7 +476,7 @@ namespace WinFormsUI.Forms
 
         private void SelectorTreeView_AfterStateChanged(object sender, TreeViewEventArgs e)
         {
-            btnCreate.Enabled = _resourcesToInclude.Count != 0 && _packageLocation != string.Empty;
+            SetBtnCreateState(_selectedPathEntries.Count != 0 && _packageLocation != string.Empty);
         }
 
         private void SelectorTreeView_NodeStateChanged(object sender, TreeViewEventArgs e)
@@ -476,20 +489,20 @@ namespace WinFormsUI.Forms
 
             var item = (PathEntry)node.Tag;
 
-            var hasItem = _resourcesToInclude.Contains(item);
+            var hasItem = _selectedPathEntries.Contains(item);
             if (node.Checked)
             {
                 if (!hasItem)
                 {
-                    _resourcesToInclude.Add(item);
+                    _selectedPathEntries.Add(item);
                 }
             }
             else if (hasItem)
             {
-                _resourcesToInclude.Remove(item);
+                _selectedPathEntries.Remove(item);
             }
 
-            lblSelectedItems.Text = $"Selected items: {_resourcesToInclude.Count}";
+            lblSelectedItems.Text = $"Selected items: {_selectedPathEntries.Count}";
         }
 
         private void UpdateEncryptionProgress(int percentage)
@@ -502,6 +515,14 @@ namespace WinFormsUI.Forms
             progressBarPrimary.Value = percentage;
             lblPercentage.Text = $"{percentage}%";
             lblPercentage.Refresh();
+
+            if (_pathEntries == null)
+            {
+                return;
+            }
+
+            lblStatusFile.Text = _pathEntries[((_pathEntries.Count - 1) / 100) * percentage].RelativePath;
+            lblStatusFile.Refresh();
         }
 
         private void CreateForm_SizeChanged(object sender, EventArgs e)
