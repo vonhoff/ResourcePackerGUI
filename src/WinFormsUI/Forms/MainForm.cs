@@ -22,6 +22,7 @@ using System.Diagnostics;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using System.Text.RegularExpressions;
 using System.Xml;
 using Be.Windows.Forms;
 using MediatR;
@@ -47,6 +48,7 @@ namespace WinFormsUI.Forms
     public partial class MainForm : Form
     {
         private const int ReportInterval = 25;
+        private static readonly Regex InvalidCharactersRegex = new(@"[^\t\r\n -~]", RegexOptions.Compiled);
         private readonly LoggingLevelSwitch _loggingLevelSwitch = new(LogEventLevel.Debug);
         private readonly IMediator _mediator;
         private readonly IProgress<int> _progressPrimary;
@@ -56,14 +58,13 @@ namespace WinFormsUI.Forms
         private CancellationTokenSource _cancellationTokenSource;
         private bool _displayOutputPanel = true;
         private bool _formatPreviewText = true;
-
+        private bool _showDebugMessages = true;
         private string _packageName = string.Empty;
         private string _packagePath = string.Empty;
         private string _password = string.Empty;
         private IReadOnlyList<Resource>? _resources;
         private string _searchQuery = string.Empty;
         private Resource? _selectedPreviewAsset;
-        private bool _showDebugMessages = true;
 
         public MainForm(IMediator mediator)
         {
@@ -193,6 +194,149 @@ namespace WinFormsUI.Forms
             ExportResourcesToFolder(baseExtractionPath, _resources);
         }
 
+        private void BtnExtractSelected_Click(object sender, EventArgs e)
+        {
+            var selectedResources = packageExplorerTreeView.GetSelectedResources();
+
+            if (selectedResources.Count == 0)
+            {
+                MessageBox.Show("No resources are selected.",
+                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            string baseExtractionPath;
+            using (var browserDialog = new FolderBrowserDialog())
+            {
+                var result = browserDialog.ShowDialog();
+
+                if (result != DialogResult.OK || string.IsNullOrWhiteSpace(browserDialog.SelectedPath))
+                {
+                    return;
+                }
+
+                baseExtractionPath = Path.Join(browserDialog.SelectedPath, _packageName);
+            }
+
+            ExportResourcesToFolder(baseExtractionPath, selectedResources);
+        }
+
+        private void BtnFormattedText_Click(object sender, EventArgs e)
+        {
+            _formatPreviewText = !_formatPreviewText;
+
+            btnFormattedText.Image =
+                _formatPreviewText ? Images.checkbox_checked : Images.checkbox_unchecked;
+
+            if (previewTabs.SelectedTab == previewTextTab)
+            {
+                SetTextPreviewValue();
+            }
+        }
+
+        private void BtnLoadDefinitions_Click(object sender, EventArgs e)
+        {
+            if (_resources == null || _resources.Count == 0)
+            {
+                MessageBox.Show("Could not load definitions, there are no resources available.",
+                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            using var openFileDialog = new OpenFileDialog();
+            openFileDialog.Filter = "Text file (*.txt)|*.txt";
+            openFileDialog.RestoreDirectory = true;
+
+            if (openFileDialog.ShowDialog() != DialogResult.OK)
+            {
+                return;
+            }
+
+            var fileStream = openFileDialog.OpenFile();
+
+            Task.Run(async () =>
+            {
+                await AssignDefinitionsFromStream(fileStream);
+                RefreshPackageExplorer();
+            });
+        }
+
+        private void BtnOpen_Click(object sender, EventArgs e)
+        {
+            using var openFileDialog = new OpenFileDialog();
+            openFileDialog.Filter = "ResourcePack (*.dat)|*.dat";
+            openFileDialog.RestoreDirectory = true;
+
+            if (openFileDialog.ShowDialog() != DialogResult.OK)
+            {
+                return;
+            }
+
+            var stream = openFileDialog.OpenFile();
+            var binaryReader = new BinaryReader(stream);
+
+            _packagePath = openFileDialog.FileName;
+            _packageName = Path.GetFileNameWithoutExtension(_packagePath);
+
+            Task.Run(async () =>
+            {
+                lblStatus.Text = _packagePath;
+                lblElapsed.Text = "00:00:00.0000";
+                lblResultCount.Text = "0 Resources";
+                _cancellationTokenSource = new CancellationTokenSource();
+
+                try
+                {
+                    await OpenPackageFromBinaryReader(binaryReader);
+                    this.FlashNotification();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Could not open resource package. {ex.Message}", "Error",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+                    Invoke(() =>
+                    {
+                        lblResultCount.Text = "0 Resources";
+                        lblElapsed.Text = "00:00:00.0000";
+                    });
+                }
+
+                binaryReader.Close();
+                Invoke(() =>
+                {
+                    // Clear the processing status.
+                    lblStatus.Text = string.Empty;
+
+                    // Hide cancel button, show the create and open button.
+                    btnCancel.Visible = false;
+                    btnCreate.Visible = true;
+                    btnOpen.Visible = true;
+
+                    // Set the progress bars to their initial state.
+                    ResetProgressBars();
+                });
+            });
+        }
+
+        private void BtnToggleDebugMessages_Click(object sender, EventArgs e)
+        {
+            _showDebugMessages = !_showDebugMessages;
+
+            btnToggleDebugMessages.Image =
+                _showDebugMessages ? Images.checkbox_checked : Images.checkbox_unchecked;
+
+            _loggingLevelSwitch.MinimumLevel =
+                _showDebugMessages ? LogEventLevel.Debug : LogEventLevel.Information;
+        }
+
+        private void ClearPreviews()
+        {
+            previewHexBox.ByteProvider = null;
+            previewImageBox.Image = null;
+            previewTextBox.Clear();
+        }
+
         private void ExportResourcesToFolder(string baseExtractionPath, IReadOnlyList<Resource> resources)
         {
             if (Directory.Exists(baseExtractionPath) &&
@@ -272,113 +416,6 @@ namespace WinFormsUI.Forms
                 });
             });
         }
-
-        private void BtnFormattedText_Click(object sender, EventArgs e)
-        {
-            _formatPreviewText = !_formatPreviewText;
-
-            btnFormattedText.Image =
-                _formatPreviewText ? Images.checkbox_checked : Images.checkbox_unchecked;
-
-            if (previewTabs.SelectedTab == previewTextTab)
-            {
-                SetTextPreviewValue();
-            }
-        }
-
-        private void BtnLoadDefinitions_Click(object sender, EventArgs e)
-        {
-            if (_resources == null || _resources.Count == 0)
-            {
-                MessageBox.Show("Could not load definitions, there are no resources available.",
-                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
-
-            using var openFileDialog = new OpenFileDialog();
-            openFileDialog.Filter = "Text file (*.txt)|*.txt";
-            openFileDialog.RestoreDirectory = true;
-
-            if (openFileDialog.ShowDialog() != DialogResult.OK)
-            {
-                return;
-            }
-
-            var fileStream = openFileDialog.OpenFile();
-
-            Task.Run(async () =>
-            {
-                await AssignDefinitionsFromStream(fileStream);
-                RefreshPackageExplorer();
-            });
-        }
-
-        private void BtnOpen_Click(object sender, EventArgs e)
-        {
-            using var openFileDialog = new OpenFileDialog();
-            openFileDialog.Filter = "ResourcePack (*.dat)|*.dat";
-            openFileDialog.RestoreDirectory = true;
-
-            if (openFileDialog.ShowDialog() != DialogResult.OK)
-            {
-                return;
-            }
-
-            var stream = openFileDialog.OpenFile();
-            var binaryReader = new BinaryReader(stream);
-
-            _packagePath = openFileDialog.FileName;
-            _packageName = Path.GetFileNameWithoutExtension(_packagePath);
-
-            Task.Run(async () =>
-            {
-                lblStatus.Text = _packagePath;
-                lblElapsed.Text = "00:00:00.0000";
-                lblResultCount.Text = "0 Resources";
-                _cancellationTokenSource = new CancellationTokenSource();
-
-                try
-                {
-                    await OpenPackageFromBinaryReader(binaryReader);
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Could not open resource package. {ex.Message}", "Error",
-                        MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
-                }
-
-                binaryReader.Close();
-                Invoke(() =>
-                {
-                    // Clear the processing status.
-                    lblStatus.Text = string.Empty;
-
-                    // Hide cancel button, show the create and open button.
-                    btnCancel.Visible = false;
-                    btnCreate.Visible = true;
-                    btnOpen.Visible = true;
-
-                    // Set the progress bars to their initial state.
-                    ResetProgressBars();
-
-                    // Create a flash notification.
-                    this.FlashNotification();
-                });
-            });
-        }
-
-        private void BtnToggleDebugMessages_Click(object sender, EventArgs e)
-        {
-            _showDebugMessages = !_showDebugMessages;
-
-            btnToggleDebugMessages.Image =
-                _showDebugMessages ? Images.checkbox_checked : Images.checkbox_unchecked;
-
-            _loggingLevelSwitch.MinimumLevel =
-                _showDebugMessages ? LogEventLevel.Debug : LogEventLevel.Information;
-        }
-
         private async Task<Dictionary<Resource, string>> GetFileConflictPathReplacements(
             string baseExtractionPath, IReadOnlyList<Resource> resources)
         {
@@ -542,16 +579,12 @@ namespace WinFormsUI.Forms
                     // Only enable the extract-all button when the package has been successfully loaded.
                     btnExtractAll.Enabled = true;
                 });
+
+                return;
             }
             catch (OperationCanceledException)
             {
                 Log.Information("The operation has been canceled.");
-
-                Invoke(() =>
-                {
-                    lblResultCount.Text = "0 Resources";
-                    lblElapsed.Text = "00:00:00.0000";
-                });
             }
             catch (InvalidPasswordException)
             {
@@ -688,14 +721,6 @@ namespace WinFormsUI.Forms
                 SetHexPreviewValue();
             }
         }
-
-        private void ClearPreviews()
-        {
-            previewHexBox.ByteProvider = null;
-            previewImageBox.Image = null;
-            previewTextBox.Clear();
-        }
-
         private void ResetProgressBars()
         {
             progressBarPrimary.Value = 0;
@@ -771,6 +796,7 @@ namespace WinFormsUI.Forms
             }
 
             var text = Encoding.UTF8.GetString(_selectedPreviewAsset.Data);
+            text = InvalidCharactersRegex.Replace(text, string.Empty);
 
             if (!_formatPreviewText)
             {
@@ -842,33 +868,6 @@ namespace WinFormsUI.Forms
         private void UpdateProgressSecondary(int percentage)
         {
             progressBarSecondary.Value = percentage;
-        }
-
-        private void BtnExtractSelected_Click(object sender, EventArgs e)
-        {
-            var selectedResources = packageExplorerTreeView.GetSelectedResources();
-
-            if (selectedResources.Count == 0)
-            {
-                MessageBox.Show("No resources are selected.",
-                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
-
-            string baseExtractionPath;
-            using (var browserDialog = new FolderBrowserDialog())
-            {
-                var result = browserDialog.ShowDialog();
-
-                if (result != DialogResult.OK || string.IsNullOrWhiteSpace(browserDialog.SelectedPath))
-                {
-                    return;
-                }
-
-                baseExtractionPath = Path.Join(browserDialog.SelectedPath, _packageName);
-            }
-
-            ExportResourcesToFolder(baseExtractionPath, selectedResources);
         }
     }
 }
