@@ -12,6 +12,8 @@
     <NeutralLanguage>en-US</NeutralLanguage>
     <Platforms>x64;x86</Platforms>
     <AssemblyName>ResourcePackerGUI</AssemblyName>
+    <FileVersion>1.0.1</FileVersion>
+    <AssemblyVersion>1.0.1</AssemblyVersion>
   </PropertyGroup>
 
   <ItemGroup>
