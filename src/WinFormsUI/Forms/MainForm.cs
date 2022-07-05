@@ -92,7 +92,7 @@ namespace WinFormsUI.Forms
                 ProgressReportInterval = ReportInterval
             };
 
-            var crcDictionary = await _mediator.Send(definitionsQuery);
+            var crcDictionary = await _mediator.Send(definitionsQuery, _cancellationTokenSource.Token);
 
             var resourceUpdateQuery = new UpdateResourceDefinitionsQuery(_resources, crcDictionary)
             {
@@ -100,7 +100,7 @@ namespace WinFormsUI.Forms
                 ProgressReportInterval = ReportInterval
             };
 
-            var updatedAmount = await _mediator.Send(resourceUpdateQuery);
+            var updatedAmount = await _mediator.Send(resourceUpdateQuery, _cancellationTokenSource.Token);
             Invoke(() => btnLoadDefinitions.Enabled = _resources.Count != updatedAmount);
         }
 
@@ -274,49 +274,136 @@ namespace WinFormsUI.Forms
 
             var stream = openFileDialog.OpenFile();
             var binaryReader = new BinaryReader(stream);
-
             _packagePath = openFileDialog.FileName;
             _packageName = Path.GetFileNameWithoutExtension(_packagePath);
 
+            lblStatus.Text = _packagePath;
+            lblElapsed.Text = "00:00:00.0000";
+            lblResultCount.Text = "0 Resources";
+            _cancellationTokenSource = new CancellationTokenSource();
+
             Task.Run(async () =>
             {
-                lblStatus.Text = _packagePath;
-                lblElapsed.Text = "00:00:00.0000";
-                lblResultCount.Text = "0 Resources";
-                _cancellationTokenSource = new CancellationTokenSource();
-
                 try
                 {
-                    await OpenPackageFromBinaryReader(binaryReader);
-                    this.FlashNotification();
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Could not open resource package. {ex.Message}", "Error",
-                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    var query = new GetPackageInformationQuery(binaryReader)
+                    {
+                        Progress = _progressSecondary,
+                        ProgressReportInterval = ReportInterval
+                    };
+
+                    var packageInformation = await _mediator.Send(query, _cancellationTokenSource.Token);
+
+                    _password = string.Empty;
+
+                    if (packageInformation.Encrypted)
+                    {
+                        var passwordDialog = new PasswordForm();
+
+                        Invoke(() =>
+                        {
+                            if (passwordDialog.ShowDialog() != DialogResult.OK)
+                            {
+                                _cancellationTokenSource.Cancel();
+                                throw new OperationCanceledException();
+                            }
+                        });
+
+                        if (string.IsNullOrEmpty(passwordDialog.Password))
+                        {
+                            throw new InvalidPasswordException();
+                        }
+
+                        _password = passwordDialog.Password;
+                    }
+
+                    SetToolbarState(true);
+                    Invoke(() => btnLoadDefinitions.Enabled = false);
+
+                    // Retrieve all resources
+                    var stopwatch = Stopwatch.StartNew();
+                    var resourceRetrievalQuery =
+                        new GetPackageResourcesQuery(packageInformation.Entries, binaryReader, _password)
+                        {
+                            ProgressPrimary = _progressPrimary,
+                            ProgressSecondary = _progressSecondary,
+                            ProgressReportInterval = ReportInterval
+                        };
+
+                    _resources = await _mediator.Send(resourceRetrievalQuery, _cancellationTokenSource.Token);
+
+                    // Check for a candidate definition file to automatically assign.
+                    var candidateDefinitionsFile = _packagePath + ".txt";
+
+                    if (File.Exists(candidateDefinitionsFile))
+                    {
+                        Log.Information("Attempting to create name definitions from: {path}", candidateDefinitionsFile);
+                        var definitionsFileStream = File.OpenRead(candidateDefinitionsFile);
+                        await AssignDefinitionsFromStream(definitionsFileStream);
+                    }
+                    else
+                    {
+                        Invoke(() => btnLoadDefinitions.Enabled = true);
+                    }
+
+                    // Stop stopwatch and refresh the file tree.
+                    stopwatch.Stop();
+                    RefreshPackageExplorer();
 
                     Invoke(() =>
                     {
-                        lblResultCount.Text = "0 Resources";
-                        lblElapsed.Text = "00:00:00.0000";
+                        DisplayResourceCount();
+                        lblElapsed.Text = stopwatch.Elapsed.ToString(@"hh\:mm\:ss\.ffff");
+                        btnExtractAll.Enabled = true;
                     });
                 }
+                catch (OperationCanceledException ex)
+                {
+                    Log.Information(ex.Message);
+                    MessageBox.Show(ex.Message, "Operation canceled",
+                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                catch (InvalidPasswordException)
+                {
+                    Log.Error("The password entered is incorrect.");
+                    MessageBox.Show("The password entered is incorrect.",
+                        "Incorrect password", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+                catch (Exception ex)
+                {
+                    Log.Error(ex, "An exception occurred while opening the specified package.");
+                    MessageBox.Show($"Could not open resource package. {ex.Message}",
+                        "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
 
+                this.FlashNotification();
                 binaryReader.Close();
+
                 Invoke(() =>
                 {
-                    // Clear the processing status.
                     lblStatus.Text = string.Empty;
-
-                    // Hide cancel button, show the create and open button.
-                    btnCancel.Visible = false;
-                    btnCreate.Visible = true;
-                    btnOpen.Visible = true;
-
-                    // Set the progress bars to their initial state.
+                    SetToolbarState(false);
+                    DisplayResourceCount();
                     ResetProgressBars();
                 });
             });
+        }
+
+        private void DisplayResourceCount()
+        {
+            var count = _resources?.Count ?? 0;
+            lblResultCount.Text = $"{count} " + (count == 1 ? "Resource" : "Resources");
+        }
+
+        private void SetToolbarState(bool processing)
+        {
+            btnCancel.Visible = processing;
+            btnCreate.Visible = !processing;
+            btnOpen.Visible = !processing;
+            toolStripSeparator3.Visible = !processing;
+            btnLoadDefinitions.Visible = !processing;
+            btnExtractAll.Visible = !processing;
+            btnExtractSelected.Visible = !processing;
         }
 
         private void BtnToggleDebugMessages_Click(object sender, EventArgs e)
@@ -351,24 +438,18 @@ namespace WinFormsUI.Forms
 
                 if (existsDialogResult != DialogResult.Yes)
                 {
-                    _cancellationTokenSource.Cancel(true);
+                    return;
                 }
             }
 
+            SetToolbarState(true);
             _cancellationTokenSource = new CancellationTokenSource();
+
             Task.Run(async () =>
             {
-                Invoke(() =>
-                {
-                    btnCancel.Visible = true;
-                    btnCreate.Visible = false;
-                    btnOpen.Visible = false;
-                });
-
                 try
                 {
-                    var pathReplacements =
-                        await GetFileConflictPathReplacements(baseExtractionPath, resources);
+                    var pathReplacements = await GetFileConflictPathReplacements(baseExtractionPath, resources);
 
                     var exportResourcesCommand = new ExportResourcesCommand(baseExtractionPath, resources, pathReplacements)
                     {
@@ -376,24 +457,27 @@ namespace WinFormsUI.Forms
                         ProgressReportInterval = ReportInterval
                     };
 
-                    await _mediator.Send(exportResourcesCommand);
+                    await _mediator.Send(exportResourcesCommand, _cancellationTokenSource.Token);
 
-                    this.FlashNotification();
-                    var extractionCompleteDialogResult =
-                        MessageBox.Show("The resources have been successfully extracted to the destination folder. \n" +
-                                        "Do you want to view the extracted resources?",
-                            "Extraction completed", MessageBoxButtons.YesNo, MessageBoxIcon.Asterisk);
-
-                    if (extractionCompleteDialogResult == DialogResult.Yes)
+                    Invoke(() =>
                     {
-                        Process.Start(new ProcessStartInfo
+                        this.FlashNotification();
+                        var extractionCompleteDialogResult =
+                            MessageBox.Show("The resources have been successfully extracted to the destination folder. \n" +
+                                            "Do you want to view the extracted resources?",
+                                "Extraction completed", MessageBoxButtons.YesNo, MessageBoxIcon.Asterisk);
+
+                        if (extractionCompleteDialogResult == DialogResult.Yes)
                         {
-                            FileName = baseExtractionPath,
-                            UseShellExecute = true,
-                            WindowStyle = ProcessWindowStyle.Normal,
-                            Verb = "open"
-                        });
-                    }
+                            Process.Start(new ProcessStartInfo
+                            {
+                                FileName = baseExtractionPath,
+                                UseShellExecute = true,
+                                WindowStyle = ProcessWindowStyle.Normal,
+                                Verb = "open"
+                            });
+                        }
+                    });
                 }
                 catch (OperationCanceledException ex)
                 {
@@ -408,22 +492,16 @@ namespace WinFormsUI.Forms
 
                 Invoke(() =>
                 {
-                    btnCancel.Visible = false;
-                    btnCreate.Visible = true;
-                    btnOpen.Visible = true;
-
+                    SetToolbarState(false);
+                    DisplayResourceCount();
                     ResetProgressBars();
                 });
             });
         }
+
         private async Task<Dictionary<Resource, string>> GetFileConflictPathReplacements(
             string baseExtractionPath, IReadOnlyList<Resource> resources)
         {
-            if (resources.Count == 0)
-            {
-                throw new ArgumentNullException(nameof(resources));
-            }
-
             var conflictingResourcesQuery = new GetConflictingResourcesQuery(baseExtractionPath, resources)
             {
                 Progress = _progressSecondary,
@@ -431,7 +509,7 @@ namespace WinFormsUI.Forms
             };
 
             var resolved = 0;
-            var conflictingResources = await _mediator.Send(conflictingResourcesQuery);
+            var conflictingResources = await _mediator.Send(conflictingResourcesQuery, _cancellationTokenSource.Token);
             var pathReplacements = new Dictionary<Resource, string>();
 
             if (conflictingResources.Count == 0)
@@ -446,35 +524,38 @@ namespace WinFormsUI.Forms
                 var filePath = Path.Join(baseExtractionPath, resource.Name).Replace("/", "\\");
                 var nextAvailablePath = FilenameHelper.NextAvailablePath(filePath);
 
-                var replacementDialog = new ReplaceDialog(filePath, nextAvailablePath,
-                    conflictingResources.Count - resolved);
-
-                if (!performLastForAllCases)
+                Invoke(() =>
                 {
-                    lastAction = replacementDialog.ShowDialog();
-                    performLastForAllCases = replacementDialog.UseForAllCases;
-                }
+                    var replacementDialog = new ReplaceDialog(filePath, nextAvailablePath,
+                        conflictingResources.Count - resolved);
 
-                switch (lastAction)
-                {
-                    case DialogResult.OK:
-                        pathReplacements.Add(resource, filePath);
-                        resolved++;
-                        break;
+                    if (!performLastForAllCases)
+                    {
+                        lastAction = replacementDialog.ShowDialog();
+                        performLastForAllCases = replacementDialog.UseForAllCases;
+                    }
 
-                    case DialogResult.Continue:
-                        pathReplacements.Add(resource, nextAvailablePath);
-                        resolved++;
-                        break;
+                    switch (lastAction)
+                    {
+                        case DialogResult.OK:
+                            pathReplacements.Add(resource, filePath);
+                            resolved++;
+                            break;
 
-                    case DialogResult.Ignore:
-                        resolved++;
-                        break;
+                        case DialogResult.Continue:
+                            pathReplacements.Add(resource, nextAvailablePath);
+                            resolved++;
+                            break;
 
-                    default:
-                        _cancellationTokenSource.Cancel();
-                        throw new OperationCanceledException();
-                }
+                        case DialogResult.Ignore:
+                            resolved++;
+                            break;
+
+                        default:
+                            _cancellationTokenSource.Cancel();
+                            throw new OperationCanceledException();
+                    }
+                });
             }
 
             return pathReplacements;
@@ -492,112 +573,6 @@ namespace WinFormsUI.Forms
         private void MainForm_Resize(object sender, EventArgs e)
         {
             _scrollOutputToEndDebouncer.Invoke();
-        }
-
-        private async Task OpenPackageFromBinaryReader(BinaryReader binaryReader)
-        {
-            var query = new GetPackageInformationQuery(binaryReader)
-            {
-                Progress = _progressSecondary,
-                ProgressReportInterval = ReportInterval
-            };
-
-            var packageInformation = await _mediator.Send(query);
-
-            try
-            {
-                _password = string.Empty;
-
-                if (packageInformation.Encrypted)
-                {
-                    var passwordDialog = new PasswordForm();
-
-                    Invoke(() =>
-                    {
-                        if (passwordDialog.ShowDialog() != DialogResult.OK)
-                        {
-                            _cancellationTokenSource.Cancel();
-                            throw new OperationCanceledException();
-                        }
-                    });
-
-                    if (string.IsNullOrEmpty(passwordDialog.Password))
-                    {
-                        throw new InvalidPasswordException();
-                    }
-
-                    _password = passwordDialog.Password;
-                }
-
-                // Show the cancel button, hide the create and open button.
-                Invoke(() =>
-                {
-                    btnCancel.Visible = true;
-                    btnCreate.Visible = false;
-                    btnOpen.Visible = false;
-
-                    btnLoadDefinitions.Enabled = false;
-                    btnExtractSelected.Enabled = false;
-                    btnExtractAll.Enabled = false;
-                });
-
-                // Retrieve all resources
-                var stopwatch = Stopwatch.StartNew();
-                var resourceRetrievalQuery =
-                    new GetPackageResourcesQuery(packageInformation.Entries, binaryReader, _password)
-                    {
-                        ProgressPrimary = _progressPrimary,
-                        ProgressSecondary = _progressSecondary,
-                        ProgressReportInterval = ReportInterval
-                    };
-
-                _resources = await _mediator.Send(resourceRetrievalQuery, _cancellationTokenSource.Token);
-
-                // Check for a candidate definition file to automatically assign.
-                var candidateDefinitionsFile = _packagePath + ".txt";
-
-                if (File.Exists(candidateDefinitionsFile))
-                {
-                    Log.Information("Attempting to create name definitions from: {path}", candidateDefinitionsFile);
-                    var definitionsFileStream = File.OpenRead(candidateDefinitionsFile);
-                    await AssignDefinitionsFromStream(definitionsFileStream);
-                }
-                else
-                {
-                    Invoke(() => btnLoadDefinitions.Enabled = true);
-                }
-
-                // Stop stopwatch and refresh the file tree.
-                stopwatch.Stop();
-                RefreshPackageExplorer();
-
-                Invoke(() =>
-                {
-                    lblResultCount.Text = $"{_resources.Count} " + (_resources.Count == 1 ? "Resource" : "Resources");
-                    lblElapsed.Text = stopwatch.Elapsed.ToString(@"hh\:mm\:ss\.ffff");
-
-                    // Only enable the extract-all button when the package has been successfully loaded.
-                    btnExtractAll.Enabled = true;
-                });
-
-                return;
-            }
-            catch (OperationCanceledException)
-            {
-                Log.Information("The operation has been canceled.");
-            }
-            catch (InvalidPasswordException)
-            {
-                Log.Error("The password entered is incorrect.");
-                MessageBox.Show("The password entered is incorrect.",
-                    "Incorrect password", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-            catch (Exception ex)
-            {
-                Log.Error(ex, "An exception occurred while opening the specified package.");
-                MessageBox.Show($"Could not open resource package. {ex.Message}",
-                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
         }
 
         private void OutputBox_TextChanged(object sender, EventArgs e)
@@ -721,6 +696,7 @@ namespace WinFormsUI.Forms
                 SetHexPreviewValue();
             }
         }
+
         private void ResetProgressBars()
         {
             progressBarPrimary.Value = 0;
@@ -863,6 +839,7 @@ namespace WinFormsUI.Forms
         private void UpdateProgressPrimary(int percentage)
         {
             progressBarPrimary.Value = percentage;
+            lblResultCount.Text = $"Progress: {percentage}%";
         }
 
         private void UpdateProgressSecondary(int percentage)

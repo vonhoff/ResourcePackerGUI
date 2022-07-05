@@ -12,8 +12,10 @@
     <NeutralLanguage>en-US</NeutralLanguage>
     <Platforms>x64;x86</Platforms>
     <AssemblyName>ResourcePackerGUI</AssemblyName>
-    <FileVersion>1.0.1</FileVersion>
-    <AssemblyVersion>1.0.1</AssemblyVersion>
+    <FileVersion>1.0.1.1</FileVersion>
+    <AssemblyVersion>1.0.1.1</AssemblyVersion>
+    <Authors>$(AssemblyName)</Authors>
+    <Version>$(VersionPrefix)</Version>
   </PropertyGroup>
 
   <ItemGroup>

@@ -133,7 +133,7 @@ namespace WinFormsUI.Forms
                             ProgressReportInterval = ReportInterval
                         };
 
-                        _pathEntries = await _mediator.Send(pathEntriesQuery);
+                        _pathEntries = await _mediator.Send(pathEntriesQuery, _cancellationTokenSource.Token);
 
                         CreateSelectorNodes(rootNode, _pathEntries);
                         _cancellationTokenSource.Token.ThrowIfCancellationRequested();
@@ -238,7 +238,7 @@ namespace WinFormsUI.Forms
                         ProgressReportInterval = ReportInterval
                     };
 
-                    await _mediator.Send(exportDefinitionQuery);
+                    await _mediator.Send(exportDefinitionQuery, _cancellationTokenSource.Token);
                 }
 
                 Invoke(() => lblStatus.Text = "Packing resources...");
@@ -252,7 +252,7 @@ namespace WinFormsUI.Forms
                         ProgressReportInterval = ReportInterval
                     };
 
-                    await _mediator.Send(buildQuery);
+                    await _mediator.Send(buildQuery, _cancellationTokenSource.Token);
                 }
                 catch (OperationCanceledException ex)
                 {
