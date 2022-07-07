@@ -2573,7 +2573,7 @@ indentations in the preview panel</value>
     <value>CenterScreen</value>
   </data>
   <data name="$this.Text" xml:space="preserve">
-    <value>Resource Packer</value>
+    <value>ResourcePackerGUI</value>
   </data>
   <data name="&gt;&gt;lblDataSize.Name" xml:space="preserve">
     <value>lblDataSize</value>
