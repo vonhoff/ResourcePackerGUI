@@ -284,6 +284,8 @@ namespace WinFormsUI.Forms
 
             Task.Run(async () =>
             {
+                var hideCancellationDialog = false;
+
                 try
                 {
                     var query = new GetPackageInformationQuery(binaryReader)
@@ -304,6 +306,7 @@ namespace WinFormsUI.Forms
                         {
                             if (passwordDialog.ShowDialog() != DialogResult.OK)
                             {
+                                hideCancellationDialog = true;
                                 _cancellationTokenSource.Cancel();
                                 throw new OperationCanceledException();
                             }
@@ -360,8 +363,11 @@ namespace WinFormsUI.Forms
                 catch (OperationCanceledException ex)
                 {
                     Log.Information(ex.Message);
-                    MessageBox.Show(ex.Message, "Operation canceled",
-                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    if (!hideCancellationDialog)
+                    {
+                        MessageBox.Show(ex.Message, "Operation canceled",
+                            MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
                 }
                 catch (InvalidPasswordException)
                 {

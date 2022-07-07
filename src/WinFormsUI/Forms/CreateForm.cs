@@ -167,7 +167,7 @@ namespace WinFormsUI.Forms
                 }
                 catch (OperationCanceledException ex)
                 {
-                    Log.Information("The operation has been canceled.");
+                    Log.Information(ex.Message);
                     MessageBox.Show(ex.Message, "Operation canceled",
                         MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
@@ -239,6 +239,7 @@ namespace WinFormsUI.Forms
                     };
 
                     await _mediator.Send(exportDefinitionQuery, _cancellationTokenSource.Token);
+                    Log.Information("Created new definitions file: {path}", _definitionsLocation);
                 }
 
                 Invoke(() => lblStatus.Text = "Packing resources...");
@@ -253,10 +254,11 @@ namespace WinFormsUI.Forms
                     };
 
                     await _mediator.Send(buildQuery, _cancellationTokenSource.Token);
+                    Log.Information("Created new resource package: {path}", _packageLocation);
                 }
                 catch (OperationCanceledException ex)
                 {
-                    Log.Information("The package construction operation has been cancelled.");
+                    Log.Information(ex.Message);
                     MessageBox.Show(ex.Message, "Operation canceled",
                         MessageBoxButtons.OK, MessageBoxIcon.Information);
 
@@ -302,8 +304,6 @@ namespace WinFormsUI.Forms
                     btnCancel.Focus();
                 });
 
-                Log.Information("Created new resource package: {path}", _packageLocation);
-                Log.Information("Created new definitions file: {path}", _definitionsLocation);
                 SystemSounds.Asterisk.Play();
                 this.FlashNotification();
                 _cancellationTokenSource.Cancel();

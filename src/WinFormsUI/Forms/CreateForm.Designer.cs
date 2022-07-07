@@ -671,6 +671,7 @@ namespace WinFormsUI.Forms
             this.ClientSize = new System.Drawing.Size(1217, 733);
             this.Controls.Add(this.splitContainer1);
             this.MinimizeBox = false;
+            this.MinimumSize = new System.Drawing.Size(1135, 680);
             this.Name = "CreateForm";
             this.ShowIcon = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
