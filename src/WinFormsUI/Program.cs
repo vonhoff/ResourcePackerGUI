@@ -18,6 +18,7 @@
 
 #endregion
 
+using System.Text;
 using Microsoft.Extensions.DependencyInjection;
 using ResourcePackerGUI.Application;
 using ResourcePackerGUI.Infrastructure;

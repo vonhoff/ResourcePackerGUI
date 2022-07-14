@@ -19,6 +19,7 @@
 #endregion
 
 using System.Diagnostics;
+using System.Globalization;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -48,7 +49,7 @@ namespace WinFormsUI.Forms
     public partial class MainForm : Form
     {
         private const int ReportInterval = 25;
-        private static readonly Regex InvalidCharactersRegex = new(@"[^\t\r\n -~]", RegexOptions.Compiled);
+        private static readonly Regex EscapedUnicodeRegex = new(@"\\[Uu]([0-9A-Fa-f]{4})", RegexOptions.Compiled);
         private readonly LoggingLevelSwitch _loggingLevelSwitch = new(LogEventLevel.Debug);
         private readonly IMediator _mediator;
         private readonly IProgress<int> _progressPrimary;
@@ -778,7 +779,9 @@ namespace WinFormsUI.Forms
             }
 
             var text = Encoding.UTF8.GetString(_selectedPreviewAsset.Data);
-            text = InvalidCharactersRegex.Replace(text, string.Empty);
+
+            // Remove any format characters.
+            text = new string(text.Where(c => char.GetUnicodeCategory(c) != UnicodeCategory.Format).ToArray());
 
             if (!_formatPreviewText)
             {
@@ -790,9 +793,18 @@ namespace WinFormsUI.Forms
             {
                 case { SubType: "json" }:
                 {
-                    var json = JsonNode.Parse(text);
+                    var jsonNode = JsonNode.Parse(text);
+                    if (jsonNode == null)
+                    {
+                        previewTextBox.Text = text;
+                        return;
+                    }
+
                     var options = new JsonSerializerOptions { WriteIndented = true };
-                    previewTextBox.Text = json!.ToJsonString(options);
+                    var jsonText = jsonNode.ToJsonString(options);
+                    text = EscapedUnicodeRegex.Replace(jsonText, m =>
+                        char.ToString((char)ushort.Parse(m.Groups[1].Value, NumberStyles.AllowHexSpecifier)));
+                    previewTextBox.Text = text;
                     break;
                 }
                 case { SubType: "xml" }:
@@ -801,7 +813,7 @@ namespace WinFormsUI.Forms
                     try
                     {
                         xmlDocument.LoadXml(text);
-                        var stringWriter = new StringWriter();
+                        using var stringWriter = new StringWriter();
                         var xmlTextWriter = new XmlTextWriter(stringWriter)
                         {
                             Formatting = Formatting.Indented
