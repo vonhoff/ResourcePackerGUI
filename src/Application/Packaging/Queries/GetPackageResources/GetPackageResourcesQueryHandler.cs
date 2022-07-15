@@ -90,6 +90,7 @@ namespace ResourcePackerGUI.Application.Packaging.Queries.GetPackageResources
                         throw new InvalidPasswordException("The password entered is incorrect.", request.Password.GetHashCode());
                     }
 
+                    Log.Warning("Integrity check failed: {@results}", new { entry.Id, Expected = entry.Crc, Actual = crc });
                     continue;
                 }
 
@@ -97,8 +98,7 @@ namespace ResourcePackerGUI.Application.Packaging.Queries.GetPackageResources
                 var resource = new Resource(buffer, entry, mimeType);
                 resources.Add(resource);
                 percentage = (int)((double)(i + 1) / request.Entries.Count * 100);
-                Log.Debug("Added asset: {@asset}",
-                    new { resource.Name, MediaType = mimeType?.Name });
+                Log.Debug("Added resource: {@asset}", new { resource.Name, MediaType = mimeType?.Name });
             }
 
             return resources;

@@ -166,6 +166,8 @@ namespace WinFormsUI.Forms
             // 
             resources.ApplyResources(this.packageExplorerTreeView, "packageExplorerTreeView");
             this.packageExplorerTreeView.Name = "packageExplorerTreeView";
+            this.packageExplorerTreeView.Nodes = ((System.Collections.Generic.List<System.Windows.Forms.TreeNode>)(resources.GetObject("packageExplorerTreeView.Nodes")));
+            this.packageExplorerTreeView.SelectedNodes = ((System.Collections.Generic.List<System.Windows.Forms.TreeNode>)(resources.GetObject("packageExplorerTreeView.SelectedNodes")));
             this.packageExplorerTreeView.NodeMouseClick += new System.EventHandler<System.Windows.Forms.TreeNodeMouseClickEventArgs>(this.PackageExplorerTreeView_NodeMouseClick);
             this.packageExplorerTreeView.NodeMouseDoubleClick += new System.EventHandler<System.Windows.Forms.TreeNodeMouseClickEventArgs>(this.PackageExplorerTreeView_NodeMouseDoubleClick);
             this.packageExplorerTreeView.Leave += new System.EventHandler(this.PackageExplorerTreeView_Leave);

@@ -216,7 +216,9 @@ namespace WinFormsUI.Forms
                     return;
                 }
 
-                baseExtractionPath = Path.Join(browserDialog.SelectedPath, _packageName);
+                baseExtractionPath = packageExplorerTreeView.SelectedNodes.Contains(packageExplorerTreeView.Nodes.First()) ? 
+                    Path.Join(browserDialog.SelectedPath, _packageName) : 
+                    browserDialog.SelectedPath;
             }
 
             ExportResourcesToFolder(baseExtractionPath, selectedResources);
@@ -433,22 +435,6 @@ namespace WinFormsUI.Forms
 
         private void ExportResourcesToFolder(string baseExtractionPath, IReadOnlyList<Resource> resources)
         {
-            if (Directory.Exists(baseExtractionPath) &&
-                Directory.EnumerateFileSystemEntries(baseExtractionPath,
-                    string.Empty, SearchOption.AllDirectories).Any())
-            {
-                var existsDialogResult = MessageBox.Show(
-                    $"The destination already contains a folder named '{_packageName}' which is not empty. " +
-                    "If there are files with the same name, you will be asked if you want to replace these files. \n\n" +
-                    "Do you want to continue extracting to this folder?",
-                    "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation);
-
-                if (existsDialogResult != DialogResult.Yes)
-                {
-                    return;
-                }
-            }
-
             SetToolbarState(true);
             _cancellationTokenSource = new CancellationTokenSource();
 
@@ -845,7 +831,7 @@ namespace WinFormsUI.Forms
 
         private void UpdateExtractSelectedButton()
         {
-            var selectedNodeCount = packageExplorerTreeView.GetSelectedResourceCount();
+            var selectedNodeCount = packageExplorerTreeView.SelectedNodes.Count;
             btnExtractSelected.Enabled = selectedNodeCount > 0;
             btnExtractSelected.Text = "Extract selected";
             if (selectedNodeCount > 0)

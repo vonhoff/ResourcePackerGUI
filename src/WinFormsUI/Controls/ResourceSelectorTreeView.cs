@@ -27,8 +27,6 @@ namespace WinFormsUI.Controls
     {
         private static readonly Color SelectedBackgroundColor = Color.FromArgb(0, 120, 215);
         private static readonly Color SelectedForegroundColor = Color.White;
-        private readonly List<TreeNode> _nodes = new();
-        private readonly List<TreeNode> _selectedNodes = new();
         private TreeNode? _selectionPivot;
         private bool _skipNextNodeUpdate;
 
@@ -40,6 +38,9 @@ namespace WinFormsUI.Controls
         public event EventHandler<TreeNodeMouseClickEventArgs>? NodeMouseClick;
 
         public event EventHandler<TreeNodeMouseClickEventArgs>? NodeMouseDoubleClick;
+
+        public List<TreeNode> Nodes { get; set; } = new();
+        public List<TreeNode> SelectedNodes { get; set; } = new();
 
         protected override CreateParams CreateParams
         {
@@ -53,53 +54,15 @@ namespace WinFormsUI.Controls
 
         public void Clear()
         {
-            _nodes.Clear();
+            Nodes.Clear();
             treeView.Nodes.Clear();
-        }
-
-        public int GetSelectedResourceCount()
-        {
-            return _selectedNodes.Count;
-        }
-
-        public List<Resource> GetSelectedResources()
-        {
-            var result = new List<Resource>();
-            foreach (var node in _selectedNodes)
-            {
-                List<string> pathNodes;
-                if (node.Tag is Resource resource)
-                {
-                    pathNodes = resource.Name.Split("/").ToList();
-                }
-                else
-                {
-                    continue;
-                }
-
-                var currentNode = node;
-                while (currentNode != null && pathNodes.Count > 1)
-                {
-                    if (node.Parent != null && !_selectedNodes.Contains(node.Parent))
-                    {
-                        pathNodes.RemoveAt(pathNodes.Count - 2);
-                    }
-
-                    currentNode = currentNode.Parent;
-                }
-
-                var name = string.Join("/", pathNodes);
-                result.Add(new Resource(resource.Data, resource.Entry, resource.MediaType, name));
-            }
-
-            return result;
         }
 
         public void CreateNodesFromResources(IReadOnlyList<Resource> resources, string packageName,
                     IProgress<int>? progressSecondary = null, int progressReportInterval = 100)
         {
-            _selectedNodes.Clear();
-            _nodes.Clear();
+            SelectedNodes.Clear();
+            Nodes.Clear();
             if (resources.Count == 0)
             {
                 return;
@@ -157,8 +120,8 @@ namespace WinFormsUI.Controls
                 }
             }
 
-            _nodes.Add(rootNode);
-            _nodes.AddRange(rootNode.Nodes.CollectAll());
+            Nodes.Add(rootNode);
+            Nodes.AddRange(rootNode.Nodes.CollectAll());
 
             treeView.Invoke(() =>
             {
@@ -171,6 +134,48 @@ namespace WinFormsUI.Controls
             // Set the skip variable to false since it is only required
             // after the user requested an expansion or collapse action.
             _skipNextNodeUpdate = false;
+        }
+
+        public List<Resource> GetSelectedResources()
+        {
+            var result = new List<Resource>();
+
+            foreach (var node in SelectedNodes)
+            {
+                List<string> pathNodes;
+                if (node.Tag is Resource resource)
+                {
+                    pathNodes = resource.Name.Split("/").ToList();
+                }
+                else
+                {
+                    continue;
+                }
+
+                if (pathNodes.Count > 1)
+                {
+                    var nodesToIgnore = new List<TreeNode>();
+
+                    var currentNode = node;
+                    while (currentNode != null)
+                    {
+                        if (!SelectedNodes.Contains(currentNode.Parent) && !nodesToIgnore.Contains(currentNode.Parent))
+                        {
+                            nodesToIgnore.Add(currentNode.Parent);
+                        }
+
+                        currentNode = currentNode.Parent;
+                    }
+
+                    var discount = nodesToIgnore.Count > 1 ? nodesToIgnore.Count - 2 : 0;
+                    pathNodes.RemoveRange(0, discount);
+                }
+
+                var name = string.Join("/", pathNodes);
+                result.Add(new Resource(resource.Data, resource.Entry, resource.MediaType, name));
+            }
+
+            return result;
         }
 
         /// <summary>
@@ -205,15 +210,15 @@ namespace WinFormsUI.Controls
 
         private void AddNode(TreeNode node)
         {
-            if (!_selectedNodes.Contains(node))
+            if (!SelectedNodes.Contains(node))
             {
-                _selectedNodes.Add(node);
+                SelectedNodes.Add(node);
             }
         }
 
         private void ApplySelectedNodeStyling()
         {
-            foreach (var node in _selectedNodes)
+            foreach (var node in SelectedNodes)
             {
                 node.BackColor = SelectedBackgroundColor;
                 node.ForeColor = SelectedForegroundColor;
@@ -222,7 +227,7 @@ namespace WinFormsUI.Controls
 
         private void ClearSelectedNodeStyling()
         {
-            foreach (var node in _selectedNodes)
+            foreach (var node in SelectedNodes)
             {
                 NodeToDefaultColors(node);
             }
@@ -230,7 +235,7 @@ namespace WinFormsUI.Controls
 
         private void DeselectNodes(TreeNode node)
         {
-            _selectedNodes.Remove(node);
+            SelectedNodes.Remove(node);
 
             if (node.Nodes.Count <= 0 || node.Tag != null)
             {
@@ -239,14 +244,14 @@ namespace WinFormsUI.Controls
 
             foreach (var child in node.Nodes.CollectAll())
             {
-                _selectedNodes.Remove(child);
+                SelectedNodes.Remove(child);
             }
         }
 
         private void MultiNodeSelectionTreeView_Leave(object sender, EventArgs e)
         {
             ClearSelectedNodeStyling();
-            _selectedNodes.Clear();
+            SelectedNodes.Clear();
         }
 
         private void SelectNodes(TreeNode node)
@@ -299,7 +304,7 @@ namespace WinFormsUI.Controls
             }
             else
             {
-                _selectedNodes.Clear();
+                SelectedNodes.Clear();
                 treeView.SelectedNode = null;
             }
 
@@ -312,7 +317,7 @@ namespace WinFormsUI.Controls
             if (info.Location is not (TreeViewHitTestLocations.Image or TreeViewHitTestLocations.Label))
             {
                 ClearSelectedNodeStyling();
-                _selectedNodes.Clear();
+                SelectedNodes.Clear();
                 return;
             }
 
@@ -323,27 +328,27 @@ namespace WinFormsUI.Controls
         {
             switch (ModifierKeys)
             {
-                case Keys.Shift | Keys.Control when _selectedNodes.Count > 0:
+                case Keys.Shift | Keys.Control when SelectedNodes.Count > 0:
                 case Keys.Shift when _selectionPivot != null:
-                    var a = _nodes.IndexOf(_selectionPivot!);
-                    var b = _nodes.IndexOf(node);
+                    var a = Nodes.IndexOf(_selectionPivot!);
+                    var b = Nodes.IndexOf(node);
 
                     if (!ModifierKeys.HasFlag(Keys.Control))
                     {
-                        _selectedNodes.Clear();
+                        SelectedNodes.Clear();
                     }
 
                     while (a != b)
                     {
-                        AddNode(_nodes[a]);
+                        AddNode(Nodes[a]);
                         a = a < b ? a + 1 : a - 1;
                     }
 
-                    SelectNodes(_nodes[a]);
+                    SelectNodes(Nodes[a]);
                     break;
 
                 case Keys.Control:
-                    if (_selectedNodes.Contains(node))
+                    if (SelectedNodes.Contains(node))
                     {
                         DeselectNodes(node);
                         break;
@@ -355,7 +360,7 @@ namespace WinFormsUI.Controls
 
                 default:
                     _selectionPivot = node;
-                    _selectedNodes.Clear();
+                    SelectedNodes.Clear();
                     SelectNodes(node);
                     break;
             }
