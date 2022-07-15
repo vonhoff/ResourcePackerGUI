@@ -15,7 +15,6 @@
     <FileVersion>1.1.0.0</FileVersion>
     <AssemblyVersion>1.1.0.0</AssemblyVersion>
     <Authors>$(AssemblyName)</Authors>
-    <Version>$(VersionPrefix)</Version>
   </PropertyGroup>
 
   <ItemGroup>
