@@ -323,7 +323,7 @@
     <value>0, 0</value>
   </data>
   <data name="previewHexBox.Size" type="System.Drawing.Size, System.Drawing">
-    <value>878, 325</value>
+    <value>878, 268</value>
   </data>
   <data name="previewHexBox.TabIndex" type="System.Int32, mscorlib">
     <value>0</value>
@@ -344,7 +344,7 @@
     <value>4, 29</value>
   </data>
   <data name="previewHexTab.Size" type="System.Drawing.Size, System.Drawing">
-    <value>878, 325</value>
+    <value>878, 268</value>
   </data>
   <data name="previewHexTab.TabIndex" type="System.Int32, mscorlib">
     <value>2</value>
@@ -479,7 +479,7 @@
     <value>3, 36</value>
   </data>
   <data name="previewTabs.Size" type="System.Drawing.Size, System.Drawing">
-    <value>886, 358</value>
+    <value>886, 301</value>
   </data>
   <data name="previewTabs.TabIndex" type="System.Int32, mscorlib">
     <value>6</value>
@@ -555,7 +555,7 @@ indentations in the preview panel</value>
     <value>3, 3, 3, 3</value>
   </data>
   <data name="tabPage2.Size" type="System.Drawing.Size, System.Drawing">
-    <value>892, 397</value>
+    <value>892, 340</value>
   </data>
   <data name="tabPage2.TabIndex" type="System.Int32, mscorlib">
     <value>0</value>
@@ -582,7 +582,7 @@ indentations in the preview panel</value>
     <value>0, 3</value>
   </data>
   <data name="tabControl2.Size" type="System.Drawing.Size, System.Drawing">
-    <value>900, 430</value>
+    <value>900, 373</value>
   </data>
   <data name="tabControl2.TabIndex" type="System.Int32, mscorlib">
     <value>0</value>
@@ -627,7 +627,7 @@ indentations in the preview panel</value>
     <value>3, 36</value>
   </data>
   <data name="outputBox.Size" type="System.Drawing.Size, System.Drawing">
-    <value>886, 220</value>
+    <value>886, 277</value>
   </data>
   <data name="outputBox.TabIndex" type="System.Int32, mscorlib">
     <value>1</value>
@@ -732,7 +732,7 @@ indentations in the preview panel</value>
     <value>3, 3, 3, 3</value>
   </data>
   <data name="tabPage1.Size" type="System.Drawing.Size, System.Drawing">
-    <value>892, 259</value>
+    <value>892, 316</value>
   </data>
   <data name="tabPage1.TabIndex" type="System.Int32, mscorlib">
     <value>0</value>
@@ -759,7 +759,7 @@ indentations in the preview panel</value>
     <value>0, 0</value>
   </data>
   <data name="tabControl1.Size" type="System.Drawing.Size, System.Drawing">
-    <value>900, 292</value>
+    <value>900, 349</value>
   </data>
   <data name="tabControl1.TabIndex" type="System.Int32, mscorlib">
     <value>0</value>
@@ -792,7 +792,7 @@ indentations in the preview panel</value>
     <value>900, 729</value>
   </data>
   <data name="splitContainer2.SplitterDistance" type="System.Int32, mscorlib">
-    <value>433</value>
+    <value>376</value>
   </data>
   <data name="splitContainer2.TabIndex" type="System.Int32, mscorlib">
     <value>0</value>
