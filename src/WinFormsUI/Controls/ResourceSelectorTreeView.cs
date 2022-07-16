@@ -152,23 +152,21 @@ namespace WinFormsUI.Controls
                     continue;
                 }
 
-                if (pathNodes.Count > 1)
+                var currentNodeParent = node;
+                var offset = 1;
+                while (currentNodeParent != null && currentNodeParent != Nodes[0])
                 {
-                    var nodesToIgnore = new List<TreeNode>();
-
-                    var currentNode = node;
-                    while (currentNode != null)
+                    if (!SelectedNodes.Contains(currentNodeParent))
                     {
-                        if (!SelectedNodes.Contains(currentNode.Parent) && !nodesToIgnore.Contains(currentNode.Parent))
-                        {
-                            nodesToIgnore.Add(currentNode.Parent);
-                        }
-
-                        currentNode = currentNode.Parent;
+                        pathNodes.RemoveAt(pathNodes.Count - offset);
+                        offset = 1;
+                    }
+                    else
+                    {
+                        offset++;
                     }
 
-                    var discount = nodesToIgnore.Count > 1 ? nodesToIgnore.Count - 2 : 0;
-                    pathNodes.RemoveRange(0, discount);
+                    currentNodeParent = currentNodeParent.Parent;
                 }
 
                 var name = string.Join("/", pathNodes);

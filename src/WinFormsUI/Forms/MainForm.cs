@@ -216,6 +216,7 @@ namespace WinFormsUI.Forms
                     return;
                 }
 
+                // Append the package name to the extraction path when the root node is selected.
                 baseExtractionPath = packageExplorerTreeView.SelectedNodes.Contains(packageExplorerTreeView.Nodes.First()) ? 
                     Path.Join(browserDialog.SelectedPath, _packageName) : 
                     browserDialog.SelectedPath;
