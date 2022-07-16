@@ -153,7 +153,7 @@ namespace WinFormsUI.Controls
                 }
 
                 var currentNodeParent = node.Parent;
-                var offset = 1;
+                var offset = 2;
                 while (currentNodeParent != null && currentNodeParent != Nodes[0])
                 {
                     if (!SelectedNodes.Contains(currentNodeParent))
