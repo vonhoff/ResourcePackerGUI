@@ -49,13 +49,12 @@ namespace WinFormsUI.Forms
 
         public CreateForm(IMediator mediator)
         {
-            InitializeComponent();
+            _mediator = mediator;
             _progressPrimary = new Progress<int>(UpdateFileCollectionProgress);
             _progressSecondary = new Progress<int>(UpdateEncryptionProgress);
             _cancellationTokenSource = new CancellationTokenSource();
             _cancellationTokenSource.Cancel();
-
-            _mediator = mediator;
+            InitializeComponent();
         }
 
         private void BtnResourcesExplore_Click(object sender, EventArgs e)

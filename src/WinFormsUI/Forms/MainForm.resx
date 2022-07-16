@@ -65,6 +65,10 @@
   <data name="splitContainer1.Location" type="System.Drawing.Point, System.Drawing">
     <value>0, 37</value>
   </data>
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="splitContainer1.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>3, 2, 3, 2</value>
+  </data>
   <data name="splitContainer3.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
     <value>Fill</value>
   </data>
@@ -73,7 +77,10 @@
     <value>True</value>
   </data>
   <data name="splitContainer3.Location" type="System.Drawing.Point, System.Drawing">
-    <value>3, 3</value>
+    <value>3, 2</value>
+  </data>
+  <data name="splitContainer3.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>3, 2, 3, 2</value>
   </data>
   <data name="splitContainer3.Orientation" type="System.Windows.Forms.Orientation, System.Windows.Forms">
     <value>Horizontal</value>
@@ -84,11 +91,14 @@
   <data name="searchBox.Location" type="System.Drawing.Point, System.Drawing">
     <value>0, 0</value>
   </data>
+  <data name="searchBox.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>3, 2, 3, 2</value>
+  </data>
   <data name="searchBox.PlaceholderText" xml:space="preserve">
     <value>Search</value>
   </data>
   <data name="searchBox.Size" type="System.Drawing.Size, System.Drawing">
-    <value>353, 27</value>
+    <value>308, 23</value>
   </data>
   <data name="searchBox.TabIndex" type="System.Int32, mscorlib">
     <value>0</value>
@@ -130,7 +140,7 @@
     <value>0, 0</value>
   </data>
   <data name="lblNoResults.Size" type="System.Drawing.Size, System.Drawing">
-    <value>123, 22</value>
+    <value>100, 17</value>
   </data>
   <data name="lblNoResults.TabIndex" type="System.Int32, mscorlib">
     <value>2</value>
@@ -159,6 +169,9 @@
   <data name="packageExplorerTreeView.Location" type="System.Drawing.Point, System.Drawing">
     <value>0, 0</value>
   </data>
+  <data name="packageExplorerTreeView.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>3, 2, 3, 2</value>
+  </data>
   <data name="packageExplorerTreeView.Nodes" mimetype="application/x-microsoft.net.object.binary.base64">
     <value>
         AAEAAAD/////AQAAAAAAAAAMAgAAAFdTeXN0ZW0uV2luZG93cy5Gb3JtcywgVmVyc2lvbj02LjAuMi4w
@@ -184,7 +197,7 @@
 </value>
   </data>
   <data name="packageExplorerTreeView.Size" type="System.Drawing.Size, System.Drawing">
-    <value>353, 664</value>
+    <value>308, 472</value>
   </data>
   <data name="packageExplorerTreeView.TabIndex" type="System.Int32, mscorlib">
     <value>1</value>
@@ -214,10 +227,13 @@
     <value>1</value>
   </data>
   <data name="splitContainer3.Size" type="System.Drawing.Size, System.Drawing">
-    <value>353, 696</value>
+    <value>308, 503</value>
   </data>
   <data name="splitContainer3.SplitterDistance" type="System.Int32, mscorlib">
     <value>28</value>
+  </data>
+  <data name="splitContainer3.SplitterWidth" type="System.Int32, mscorlib">
+    <value>3</value>
   </data>
   <data name="splitContainer3.TabIndex" type="System.Int32, mscorlib">
     <value>1</value>
@@ -235,14 +251,16 @@
     <value>0</value>
   </data>
   <data name="tabPage3.Location" type="System.Drawing.Point, System.Drawing">
-    <value>4, 29</value>
+    <value>4, 24</value>
   </data>
-  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="tabPage3.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>3, 2, 3, 2</value>
+  </data>
   <data name="tabPage3.Padding" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>3, 3, 3, 3</value>
+    <value>3, 2, 3, 2</value>
   </data>
   <data name="tabPage3.Size" type="System.Drawing.Size, System.Drawing">
-    <value>359, 702</value>
+    <value>314, 507</value>
   </data>
   <data name="tabPage3.TabIndex" type="System.Int32, mscorlib">
     <value>0</value>
@@ -266,10 +284,13 @@
     <value>Fill</value>
   </data>
   <data name="tabControl3.Location" type="System.Drawing.Point, System.Drawing">
-    <value>3, 3</value>
+    <value>3, 2</value>
+  </data>
+  <data name="tabControl3.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>3, 2, 3, 2</value>
   </data>
   <data name="tabControl3.Size" type="System.Drawing.Size, System.Drawing">
-    <value>367, 735</value>
+    <value>322, 535</value>
   </data>
   <data name="tabControl3.TabIndex" type="System.Int32, mscorlib">
     <value>0</value>
@@ -287,7 +308,7 @@
     <value>0</value>
   </data>
   <data name="splitContainer1.Panel1.Padding" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>3, 3, 0, 0</value>
+    <value>3, 2, 0, 0</value>
   </data>
   <data name="&gt;&gt;splitContainer1.Panel1.Name" xml:space="preserve">
     <value>splitContainer1.Panel1</value>
@@ -310,6 +331,9 @@
   <data name="splitContainer2.Location" type="System.Drawing.Point, System.Drawing">
     <value>0, 0</value>
   </data>
+  <data name="splitContainer2.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>3, 2, 3, 2</value>
+  </data>
   <data name="splitContainer2.Orientation" type="System.Windows.Forms.Orientation, System.Windows.Forms">
     <value>Horizontal</value>
   </data>
@@ -322,8 +346,11 @@
   <data name="previewHexBox.Location" type="System.Drawing.Point, System.Drawing">
     <value>0, 0</value>
   </data>
+  <data name="previewHexBox.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>3, 2, 3, 2</value>
+  </data>
   <data name="previewHexBox.Size" type="System.Drawing.Size, System.Drawing">
-    <value>916, 331</value>
+    <value>696, 224</value>
   </data>
   <data name="previewHexBox.TabIndex" type="System.Int32, mscorlib">
     <value>0</value>
@@ -341,10 +368,13 @@
     <value>0</value>
   </data>
   <data name="previewHexTab.Location" type="System.Drawing.Point, System.Drawing">
-    <value>4, 29</value>
+    <value>4, 24</value>
+  </data>
+  <data name="previewHexTab.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>3, 2, 3, 2</value>
   </data>
   <data name="previewHexTab.Size" type="System.Drawing.Size, System.Drawing">
-    <value>916, 331</value>
+    <value>696, 224</value>
   </data>
   <data name="previewHexTab.TabIndex" type="System.Int32, mscorlib">
     <value>2</value>
@@ -371,10 +401,13 @@
     <value>Consolas, 9pt</value>
   </data>
   <data name="previewTextBox.Location" type="System.Drawing.Point, System.Drawing">
-    <value>3, 3</value>
+    <value>3, 2</value>
+  </data>
+  <data name="previewTextBox.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>3, 2, 3, 2</value>
   </data>
   <data name="previewTextBox.Size" type="System.Drawing.Size, System.Drawing">
-    <value>910, 325</value>
+    <value>791, 220</value>
   </data>
   <data name="previewTextBox.TabIndex" type="System.Int32, mscorlib">
     <value>2</value>
@@ -395,13 +428,16 @@
     <value>0</value>
   </data>
   <data name="previewTextTab.Location" type="System.Drawing.Point, System.Drawing">
-    <value>4, 29</value>
+    <value>4, 24</value>
+  </data>
+  <data name="previewTextTab.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>3, 2, 3, 2</value>
   </data>
   <data name="previewTextTab.Padding" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>3, 3, 3, 3</value>
+    <value>3, 2, 3, 2</value>
   </data>
   <data name="previewTextTab.Size" type="System.Drawing.Size, System.Drawing">
-    <value>916, 331</value>
+    <value>797, 224</value>
   </data>
   <data name="previewTextTab.TabIndex" type="System.Int32, mscorlib">
     <value>1</value>
@@ -425,10 +461,13 @@
     <value>Fill</value>
   </data>
   <data name="previewImageBox.Location" type="System.Drawing.Point, System.Drawing">
-    <value>3, 3</value>
+    <value>3, 2</value>
+  </data>
+  <data name="previewImageBox.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>3, 2, 3, 2</value>
   </data>
   <data name="previewImageBox.Size" type="System.Drawing.Size, System.Drawing">
-    <value>910, 325</value>
+    <value>791, 220</value>
   </data>
   <data name="previewImageBox.TabIndex" type="System.Int32, mscorlib">
     <value>0</value>
@@ -446,13 +485,16 @@
     <value>0</value>
   </data>
   <data name="previewImageTab.Location" type="System.Drawing.Point, System.Drawing">
-    <value>4, 29</value>
+    <value>4, 24</value>
+  </data>
+  <data name="previewImageTab.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>3, 2, 3, 2</value>
   </data>
   <data name="previewImageTab.Padding" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>3, 3, 3, 3</value>
+    <value>3, 2, 3, 2</value>
   </data>
   <data name="previewImageTab.Size" type="System.Drawing.Size, System.Drawing">
-    <value>916, 331</value>
+    <value>797, 224</value>
   </data>
   <data name="previewImageTab.TabIndex" type="System.Int32, mscorlib">
     <value>0</value>
@@ -476,10 +518,13 @@
     <value>Fill</value>
   </data>
   <data name="previewTabs.Location" type="System.Drawing.Point, System.Drawing">
-    <value>3, 36</value>
+    <value>3, 35</value>
+  </data>
+  <data name="previewTabs.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>3, 2, 3, 2</value>
   </data>
   <data name="previewTabs.Size" type="System.Drawing.Size, System.Drawing">
-    <value>924, 364</value>
+    <value>704, 252</value>
   </data>
   <data name="previewTabs.TabIndex" type="System.Int32, mscorlib">
     <value>6</value>
@@ -500,7 +545,7 @@
     <value>503, 19</value>
   </metadata>
   <data name="lblDataSize.Size" type="System.Drawing.Size, System.Drawing">
-    <value>96, 30</value>
+    <value>76, 30</value>
   </data>
   <data name="lblDataSize.Text" xml:space="preserve">
     <value>Size: 0 bytes</value>
@@ -509,13 +554,13 @@
     <value>6, 33</value>
   </data>
   <data name="lblMediaType.Size" type="System.Drawing.Size, System.Drawing">
-    <value>119, 30</value>
+    <value>96, 30</value>
   </data>
   <data name="lblMediaType.Text" xml:space="preserve">
     <value>Media type: n/a</value>
   </data>
   <data name="btnFormattedText.Size" type="System.Drawing.Size, System.Drawing">
-    <value>160, 30</value>
+    <value>135, 30</value>
   </data>
   <data name="btnFormattedText.Text" xml:space="preserve">
     <value>Format JSON/XML</value>
@@ -525,10 +570,10 @@
 indentations in the preview panel</value>
   </data>
   <data name="toolStrip3.Location" type="System.Drawing.Point, System.Drawing">
-    <value>3, 3</value>
+    <value>3, 2</value>
   </data>
   <data name="toolStrip3.Size" type="System.Drawing.Size, System.Drawing">
-    <value>924, 33</value>
+    <value>704, 33</value>
   </data>
   <data name="toolStrip3.TabIndex" type="System.Int32, mscorlib">
     <value>3</value>
@@ -549,13 +594,16 @@ indentations in the preview panel</value>
     <value>1</value>
   </data>
   <data name="tabPage2.Location" type="System.Drawing.Point, System.Drawing">
-    <value>4, 29</value>
+    <value>4, 24</value>
+  </data>
+  <data name="tabPage2.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>3, 2, 3, 2</value>
   </data>
   <data name="tabPage2.Padding" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>3, 3, 3, 3</value>
+    <value>3, 2, 3, 2</value>
   </data>
   <data name="tabPage2.Size" type="System.Drawing.Size, System.Drawing">
-    <value>930, 403</value>
+    <value>710, 289</value>
   </data>
   <data name="tabPage2.TabIndex" type="System.Int32, mscorlib">
     <value>0</value>
@@ -579,10 +627,13 @@ indentations in the preview panel</value>
     <value>Fill</value>
   </data>
   <data name="tabControl2.Location" type="System.Drawing.Point, System.Drawing">
-    <value>0, 3</value>
+    <value>0, 2</value>
+  </data>
+  <data name="tabControl2.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>3, 2, 3, 2</value>
   </data>
   <data name="tabControl2.Size" type="System.Drawing.Size, System.Drawing">
-    <value>938, 436</value>
+    <value>718, 317</value>
   </data>
   <data name="tabControl2.TabIndex" type="System.Int32, mscorlib">
     <value>0</value>
@@ -600,7 +651,7 @@ indentations in the preview panel</value>
     <value>0</value>
   </data>
   <data name="splitContainer2.Panel1.Padding" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>0, 3, 0, 0</value>
+    <value>0, 2, 0, 0</value>
   </data>
   <data name="&gt;&gt;splitContainer2.Panel1.Name" xml:space="preserve">
     <value>splitContainer2.Panel1</value>
@@ -624,10 +675,13 @@ indentations in the preview panel</value>
     <value>Consolas, 9pt, style=Bold</value>
   </data>
   <data name="outputBox.Location" type="System.Drawing.Point, System.Drawing">
-    <value>3, 36</value>
+    <value>3, 35</value>
+  </data>
+  <data name="outputBox.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>3, 2, 3, 2</value>
   </data>
   <data name="outputBox.Size" type="System.Drawing.Size, System.Drawing">
-    <value>924, 223</value>
+    <value>704, 150</value>
   </data>
   <data name="outputBox.TabIndex" type="System.Int32, mscorlib">
     <value>1</value>
@@ -654,7 +708,7 @@ indentations in the preview panel</value>
     <value>No</value>
   </data>
   <data name="btnToggleDebugMessages.Size" type="System.Drawing.Size, System.Drawing">
-    <value>132, 30</value>
+    <value>110, 30</value>
   </data>
   <data name="btnToggleDebugMessages.Text" xml:space="preserve">
     <value>Debug entries</value>
@@ -675,7 +729,7 @@ indentations in the preview panel</value>
     <value>No</value>
   </data>
   <data name="btnClearConsole.Size" type="System.Drawing.Size, System.Drawing">
-    <value>73, 30</value>
+    <value>64, 30</value>
   </data>
   <data name="btnClearConsole.Text" xml:space="preserve">
     <value>Clear</value>
@@ -684,7 +738,7 @@ indentations in the preview panel</value>
     <value>Clear all log entries</value>
   </data>
   <data name="lblLogEntries.Size" type="System.Drawing.Size, System.Drawing">
-    <value>103, 30</value>
+    <value>83, 30</value>
   </data>
   <data name="lblLogEntries.Text" xml:space="preserve">
     <value>Log entries: 0</value>
@@ -696,16 +750,16 @@ indentations in the preview panel</value>
     <value>Magenta</value>
   </data>
   <data name="btnExportLogEntries.Size" type="System.Drawing.Size, System.Drawing">
-    <value>130, 30</value>
+    <value>109, 30</value>
   </data>
   <data name="btnExportLogEntries.Text" xml:space="preserve">
     <value>Export entries</value>
   </data>
   <data name="toolStrip2.Location" type="System.Drawing.Point, System.Drawing">
-    <value>3, 3</value>
+    <value>3, 2</value>
   </data>
   <data name="toolStrip2.Size" type="System.Drawing.Size, System.Drawing">
-    <value>924, 33</value>
+    <value>704, 33</value>
   </data>
   <data name="toolStrip2.TabIndex" type="System.Int32, mscorlib">
     <value>0</value>
@@ -726,13 +780,16 @@ indentations in the preview panel</value>
     <value>1</value>
   </data>
   <data name="tabPage1.Location" type="System.Drawing.Point, System.Drawing">
-    <value>4, 29</value>
+    <value>4, 24</value>
+  </data>
+  <data name="tabPage1.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>3, 2, 3, 2</value>
   </data>
   <data name="tabPage1.Padding" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>3, 3, 3, 3</value>
+    <value>3, 2, 3, 2</value>
   </data>
   <data name="tabPage1.Size" type="System.Drawing.Size, System.Drawing">
-    <value>930, 262</value>
+    <value>710, 187</value>
   </data>
   <data name="tabPage1.TabIndex" type="System.Int32, mscorlib">
     <value>0</value>
@@ -758,8 +815,11 @@ indentations in the preview panel</value>
   <data name="tabControl1.Location" type="System.Drawing.Point, System.Drawing">
     <value>0, 0</value>
   </data>
+  <data name="tabControl1.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>3, 2, 3, 2</value>
+  </data>
   <data name="tabControl1.Size" type="System.Drawing.Size, System.Drawing">
-    <value>938, 295</value>
+    <value>718, 215</value>
   </data>
   <data name="tabControl1.TabIndex" type="System.Int32, mscorlib">
     <value>0</value>
@@ -789,10 +849,13 @@ indentations in the preview panel</value>
     <value>1</value>
   </data>
   <data name="splitContainer2.Size" type="System.Drawing.Size, System.Drawing">
-    <value>938, 738</value>
+    <value>718, 537</value>
   </data>
   <data name="splitContainer2.SplitterDistance" type="System.Int32, mscorlib">
-    <value>439</value>
+    <value>319</value>
+  </data>
+  <data name="splitContainer2.SplitterWidth" type="System.Int32, mscorlib">
+    <value>3</value>
   </data>
   <data name="splitContainer2.TabIndex" type="System.Int32, mscorlib">
     <value>0</value>
@@ -825,10 +888,10 @@ indentations in the preview panel</value>
     <value>400</value>
   </data>
   <data name="splitContainer1.Size" type="System.Drawing.Size, System.Drawing">
-    <value>1312, 738</value>
+    <value>1047, 537</value>
   </data>
   <data name="splitContainer1.SplitterDistance" type="System.Int32, mscorlib">
-    <value>370</value>
+    <value>325</value>
   </data>
   <data name="splitContainer1.TabIndex" type="System.Int32, mscorlib">
     <value>2</value>
@@ -849,7 +912,7 @@ indentations in the preview panel</value>
     <value>132, 17</value>
   </metadata>
   <data name="lblStatus.Size" type="System.Drawing.Size, System.Drawing">
-    <value>683, 22</value>
+    <value>463, 23</value>
   </data>
   <data name="lblStatus.TextAlign" type="System.Drawing.ContentAlignment, System.Drawing">
     <value>MiddleLeft</value>
@@ -858,22 +921,22 @@ indentations in the preview panel</value>
     <value>False</value>
   </data>
   <data name="lblResultCount.Size" type="System.Drawing.Size, System.Drawing">
-    <value>150, 22</value>
+    <value>150, 23</value>
   </data>
   <data name="lblResultCount.Text" xml:space="preserve">
     <value>0 Resources</value>
   </data>
   <data name="progressBarSecondary.Size" type="System.Drawing.Size, System.Drawing">
-    <value>100, 20</value>
+    <value>88, 22</value>
   </data>
   <data name="progressBarPrimary.Size" type="System.Drawing.Size, System.Drawing">
-    <value>250, 20</value>
+    <value>219, 22</value>
   </data>
   <data name="lblElapsed.AutoSize" type="System.Boolean, mscorlib">
     <value>False</value>
   </data>
   <data name="lblElapsed.Size" type="System.Drawing.Size, System.Drawing">
-    <value>110, 22</value>
+    <value>110, 23</value>
   </data>
   <data name="lblElapsed.Text" xml:space="preserve">
     <value>00:00:00.0000</value>
@@ -882,10 +945,13 @@ indentations in the preview panel</value>
     <value>MiddleRight</value>
   </data>
   <data name="statusStrip.Location" type="System.Drawing.Point, System.Drawing">
-    <value>0, 775</value>
+    <value>0, 574</value>
+  </data>
+  <data name="statusStrip.Padding" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>1, 0, 12, 0</value>
   </data>
   <data name="statusStrip.Size" type="System.Drawing.Size, System.Drawing">
-    <value>1312, 28</value>
+    <value>1047, 28</value>
   </data>
   <data name="statusStrip.TabIndex" type="System.Int32, mscorlib">
     <value>1</value>
@@ -906,7 +972,7 @@ indentations in the preview panel</value>
     <value>1</value>
   </data>
   <data name="btnCreate.Size" type="System.Drawing.Size, System.Drawing">
-    <value>82, 30</value>
+    <value>71, 30</value>
   </data>
   <data name="btnCreate.Text" xml:space="preserve">
     <value>Create</value>
@@ -915,7 +981,7 @@ indentations in the preview panel</value>
     <value>Create a new resource package</value>
   </data>
   <data name="btnOpen.Size" type="System.Drawing.Size, System.Drawing">
-    <value>75, 30</value>
+    <value>66, 30</value>
   </data>
   <data name="btnOpen.Text" xml:space="preserve">
     <value>Open</value>
@@ -927,7 +993,7 @@ indentations in the preview panel</value>
     <value>Magenta</value>
   </data>
   <data name="btnAbout.Size" type="System.Drawing.Size, System.Drawing">
-    <value>80, 30</value>
+    <value>70, 30</value>
   </data>
   <data name="btnAbout.Text" xml:space="preserve">
     <value>About</value>
@@ -939,7 +1005,7 @@ indentations in the preview panel</value>
     <value>False</value>
   </data>
   <data name="btnLoadDefinitions.Size" type="System.Drawing.Size, System.Drawing">
-    <value>146, 30</value>
+    <value>122, 30</value>
   </data>
   <data name="btnLoadDefinitions.Text" xml:space="preserve">
     <value>Load definitions</value>
@@ -951,7 +1017,7 @@ indentations in the preview panel</value>
     <value>17, 17</value>
   </metadata>
   <data name="btnCancel.Size" type="System.Drawing.Size, System.Drawing">
-    <value>83, 30</value>
+    <value>73, 30</value>
   </data>
   <data name="btnCancel.Text" xml:space="preserve">
     <value>Cancel</value>
@@ -963,7 +1029,7 @@ indentations in the preview panel</value>
     <value>False</value>
   </data>
   <data name="btnExtractAll.Size" type="System.Drawing.Size, System.Drawing">
-    <value>104, 30</value>
+    <value>88, 30</value>
   </data>
   <data name="btnExtractAll.Text" xml:space="preserve">
     <value>Extract all</value>
@@ -975,7 +1041,7 @@ indentations in the preview panel</value>
     <value>False</value>
   </data>
   <data name="btnExtractSelected.Size" type="System.Drawing.Size, System.Drawing">
-    <value>143, 30</value>
+    <value>119, 30</value>
   </data>
   <data name="btnExtractSelected.Text" xml:space="preserve">
     <value>Extract selected</value>
@@ -987,7 +1053,7 @@ indentations in the preview panel</value>
     <value>Magenta</value>
   </data>
   <data name="btnDisplayOutput.Size" type="System.Drawing.Size, System.Drawing">
-    <value>136, 30</value>
+    <value>114, 30</value>
   </data>
   <data name="btnDisplayOutput.Text" xml:space="preserve">
     <value>Display output</value>
@@ -999,10 +1065,10 @@ indentations in the preview panel</value>
     <value>0, 0</value>
   </data>
   <data name="toolStrip.Padding" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>0, 2, 6, 2</value>
+    <value>0, 2, 5, 2</value>
   </data>
   <data name="toolStrip.Size" type="System.Drawing.Size, System.Drawing">
-    <value>1312, 37</value>
+    <value>1047, 37</value>
   </data>
   <data name="toolStrip.TabIndex" type="System.Int32, mscorlib">
     <value>0</value>
@@ -1029,10 +1095,10 @@ indentations in the preview panel</value>
     <value>62</value>
   </metadata>
   <data name="$this.AutoScaleDimensions" type="System.Drawing.SizeF, System.Drawing">
-    <value>8, 20</value>
+    <value>7, 15</value>
   </data>
   <data name="$this.ClientSize" type="System.Drawing.Size, System.Drawing">
-    <value>1312, 803</value>
+    <value>1047, 602</value>
   </data>
   <data name="$this.Icon" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
@@ -2590,8 +2656,11 @@ indentations in the preview panel</value>
         /AA=
 </value>
   </data>
+  <data name="$this.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>3, 2, 3, 2</value>
+  </data>
   <data name="$this.MinimumSize" type="System.Drawing.Size, System.Drawing">
-    <value>1024, 768</value>
+    <value>898, 586</value>
   </data>
   <data name="$this.StartPosition" type="System.Windows.Forms.FormStartPosition, System.Windows.Forms">
     <value>CenterScreen</value>

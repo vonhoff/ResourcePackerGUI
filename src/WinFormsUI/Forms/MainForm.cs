@@ -69,8 +69,6 @@ namespace WinFormsUI.Forms
 
         public MainForm(IMediator mediator)
         {
-            InitializeComponent();
-
             _mediator = mediator;
             _searchDebouncer = new ActionDebouncer(RefreshPackageExplorer, TimeSpan.FromMilliseconds(175));
             _scrollOutputToEndDebouncer = new ActionDebouncer(ScrollOutputToEnd, TimeSpan.FromMilliseconds(234));
@@ -78,6 +76,7 @@ namespace WinFormsUI.Forms
             _progressSecondary = new Progress<int>(UpdateProgressSecondary);
             _cancellationTokenSource = new CancellationTokenSource();
             _cancellationTokenSource.Cancel();
+            InitializeComponent();
         }
 
         private async Task AssignDefinitionsFromStream(Stream fileStream)

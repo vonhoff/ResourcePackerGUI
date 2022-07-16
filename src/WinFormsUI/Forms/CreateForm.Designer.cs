@@ -121,6 +121,7 @@ namespace WinFormsUI.Forms
             this.splitContainer1.FixedPanel = System.Windows.Forms.FixedPanel.Panel2;
             this.splitContainer1.IsSplitterFixed = true;
             this.splitContainer1.Location = new System.Drawing.Point(0, 0);
+            this.splitContainer1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.splitContainer1.Name = "splitContainer1";
             this.splitContainer1.Orientation = System.Windows.Forms.Orientation.Horizontal;
             // 
@@ -132,8 +133,9 @@ namespace WinFormsUI.Forms
             // 
             this.splitContainer1.Panel2.Controls.Add(this.panel2);
             this.splitContainer1.Panel2.Controls.Add(this.panel1);
-            this.splitContainer1.Size = new System.Drawing.Size(1217, 733);
-            this.splitContainer1.SplitterDistance = 680;
+            this.splitContainer1.Size = new System.Drawing.Size(1065, 550);
+            this.splitContainer1.SplitterDistance = 499;
+            this.splitContainer1.SplitterWidth = 3;
             this.splitContainer1.TabIndex = 0;
             // 
             // splitContainer2
@@ -141,31 +143,33 @@ namespace WinFormsUI.Forms
             this.splitContainer2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.splitContainer2.FixedPanel = System.Windows.Forms.FixedPanel.Panel1;
             this.splitContainer2.Location = new System.Drawing.Point(0, 0);
+            this.splitContainer2.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.splitContainer2.Name = "splitContainer2";
             // 
             // splitContainer2.Panel1
             // 
             this.splitContainer2.Panel1.Controls.Add(this.tabControl1);
-            this.splitContainer2.Panel1.Padding = new System.Windows.Forms.Padding(3, 3, 0, 0);
+            this.splitContainer2.Panel1.Padding = new System.Windows.Forms.Padding(3, 2, 0, 0);
             this.splitContainer2.Panel1MinSize = 435;
             // 
             // splitContainer2.Panel2
             // 
             this.splitContainer2.Panel2.Controls.Add(this.tabControl2);
-            this.splitContainer2.Panel2.Padding = new System.Windows.Forms.Padding(0, 3, 3, 0);
+            this.splitContainer2.Panel2.Padding = new System.Windows.Forms.Padding(0, 2, 3, 0);
             this.splitContainer2.Panel2MinSize = 435;
-            this.splitContainer2.Size = new System.Drawing.Size(1217, 680);
-            this.splitContainer2.SplitterDistance = 570;
+            this.splitContainer2.Size = new System.Drawing.Size(1065, 499);
+            this.splitContainer2.SplitterDistance = 528;
             this.splitContainer2.TabIndex = 0;
             // 
             // tabControl1
             // 
             this.tabControl1.Controls.Add(this.tabPage1);
             this.tabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tabControl1.Location = new System.Drawing.Point(3, 3);
+            this.tabControl1.Location = new System.Drawing.Point(3, 2);
+            this.tabControl1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(567, 677);
+            this.tabControl1.Size = new System.Drawing.Size(525, 497);
             this.tabControl1.TabIndex = 0;
             // 
             // tabPage1
@@ -173,10 +177,11 @@ namespace WinFormsUI.Forms
             this.tabPage1.Controls.Add(this.groupBox4);
             this.tabPage1.Controls.Add(this.groupBox7);
             this.tabPage1.Controls.Add(this.groupBox1);
-            this.tabPage1.Location = new System.Drawing.Point(4, 29);
+            this.tabPage1.Location = new System.Drawing.Point(4, 24);
+            this.tabPage1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.tabPage1.Name = "tabPage1";
-            this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(559, 644);
+            this.tabPage1.Padding = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.tabPage1.Size = new System.Drawing.Size(517, 469);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "Configuration";
             this.tabPage1.UseVisualStyleBackColor = true;
@@ -188,10 +193,11 @@ namespace WinFormsUI.Forms
             this.groupBox4.Controls.Add(this.progressBarSecondary);
             this.groupBox4.Controls.Add(this.splitContainer6);
             this.groupBox4.Dock = System.Windows.Forms.DockStyle.Top;
-            this.groupBox4.Location = new System.Drawing.Point(3, 433);
+            this.groupBox4.Location = new System.Drawing.Point(3, 324);
+            this.groupBox4.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.groupBox4.Name = "groupBox4";
-            this.groupBox4.Padding = new System.Windows.Forms.Padding(9);
-            this.groupBox4.Size = new System.Drawing.Size(553, 133);
+            this.groupBox4.Padding = new System.Windows.Forms.Padding(8, 7, 8, 7);
+            this.groupBox4.Size = new System.Drawing.Size(511, 100);
             this.groupBox4.TabIndex = 3;
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "Progress";
@@ -200,27 +206,29 @@ namespace WinFormsUI.Forms
             // 
             this.lblStatusFile.AutoEllipsis = true;
             this.lblStatusFile.Dock = System.Windows.Forms.DockStyle.Top;
-            this.lblStatusFile.Location = new System.Drawing.Point(9, 90);
+            this.lblStatusFile.Location = new System.Drawing.Point(8, 70);
             this.lblStatusFile.Name = "lblStatusFile";
-            this.lblStatusFile.Size = new System.Drawing.Size(535, 20);
+            this.lblStatusFile.Size = new System.Drawing.Size(495, 15);
             this.lblStatusFile.TabIndex = 19;
             // 
             // progressBarPrimary
             // 
             this.progressBarPrimary.Dock = System.Windows.Forms.DockStyle.Top;
-            this.progressBarPrimary.Location = new System.Drawing.Point(9, 64);
+            this.progressBarPrimary.Location = new System.Drawing.Point(8, 50);
+            this.progressBarPrimary.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.progressBarPrimary.MarqueeAnimationSpeed = 75;
             this.progressBarPrimary.Name = "progressBarPrimary";
-            this.progressBarPrimary.Size = new System.Drawing.Size(535, 26);
+            this.progressBarPrimary.Size = new System.Drawing.Size(495, 20);
             this.progressBarPrimary.TabIndex = 18;
             // 
             // progressBarSecondary
             // 
             this.progressBarSecondary.Dock = System.Windows.Forms.DockStyle.Top;
-            this.progressBarSecondary.Location = new System.Drawing.Point(9, 54);
+            this.progressBarSecondary.Location = new System.Drawing.Point(8, 42);
+            this.progressBarSecondary.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.progressBarSecondary.MarqueeAnimationSpeed = 75;
             this.progressBarSecondary.Name = "progressBarSecondary";
-            this.progressBarSecondary.Size = new System.Drawing.Size(535, 10);
+            this.progressBarSecondary.Size = new System.Drawing.Size(495, 8);
             this.progressBarSecondary.TabIndex = 16;
             this.progressBarSecondary.Visible = false;
             // 
@@ -229,7 +237,8 @@ namespace WinFormsUI.Forms
             this.splitContainer6.Dock = System.Windows.Forms.DockStyle.Top;
             this.splitContainer6.FixedPanel = System.Windows.Forms.FixedPanel.Panel2;
             this.splitContainer6.IsSplitterFixed = true;
-            this.splitContainer6.Location = new System.Drawing.Point(9, 29);
+            this.splitContainer6.Location = new System.Drawing.Point(8, 23);
+            this.splitContainer6.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.splitContainer6.Name = "splitContainer6";
             // 
             // splitContainer6.Panel1
@@ -239,8 +248,8 @@ namespace WinFormsUI.Forms
             // splitContainer6.Panel2
             // 
             this.splitContainer6.Panel2.Controls.Add(this.lblPercentage);
-            this.splitContainer6.Size = new System.Drawing.Size(535, 25);
-            this.splitContainer6.SplitterDistance = 432;
+            this.splitContainer6.Size = new System.Drawing.Size(495, 19);
+            this.splitContainer6.SplitterDistance = 392;
             this.splitContainer6.TabIndex = 8;
             // 
             // lblStatus
@@ -249,7 +258,7 @@ namespace WinFormsUI.Forms
             this.lblStatus.Dock = System.Windows.Forms.DockStyle.Left;
             this.lblStatus.Location = new System.Drawing.Point(0, 0);
             this.lblStatus.Name = "lblStatus";
-            this.lblStatus.Size = new System.Drawing.Size(50, 20);
+            this.lblStatus.Size = new System.Drawing.Size(39, 15);
             this.lblStatus.TabIndex = 0;
             this.lblStatus.Text = "Ready";
             this.lblStatus.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -258,9 +267,9 @@ namespace WinFormsUI.Forms
             // 
             this.lblPercentage.AutoSize = true;
             this.lblPercentage.Dock = System.Windows.Forms.DockStyle.Right;
-            this.lblPercentage.Location = new System.Drawing.Point(70, 0);
+            this.lblPercentage.Location = new System.Drawing.Point(76, 0);
             this.lblPercentage.Name = "lblPercentage";
-            this.lblPercentage.Size = new System.Drawing.Size(29, 20);
+            this.lblPercentage.Size = new System.Drawing.Size(23, 15);
             this.lblPercentage.TabIndex = 0;
             this.lblPercentage.Text = "0%";
             this.lblPercentage.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -275,10 +284,11 @@ namespace WinFormsUI.Forms
             this.groupBox7.Controls.Add(this.groupBox2);
             this.groupBox7.Dock = System.Windows.Forms.DockStyle.Top;
             this.groupBox7.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.groupBox7.Location = new System.Drawing.Point(3, 98);
+            this.groupBox7.Location = new System.Drawing.Point(3, 73);
+            this.groupBox7.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.groupBox7.Name = "groupBox7";
-            this.groupBox7.Padding = new System.Windows.Forms.Padding(6);
-            this.groupBox7.Size = new System.Drawing.Size(553, 335);
+            this.groupBox7.Padding = new System.Windows.Forms.Padding(5, 4, 5, 4);
+            this.groupBox7.Size = new System.Drawing.Size(511, 251);
             this.groupBox7.TabIndex = 1;
             this.groupBox7.TabStop = false;
             this.groupBox7.Text = "Resource package";
@@ -288,10 +298,11 @@ namespace WinFormsUI.Forms
             this.chkCreateDefinitionFile.AutoSize = true;
             this.chkCreateDefinitionFile.Checked = true;
             this.chkCreateDefinitionFile.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkCreateDefinitionFile.Location = new System.Drawing.Point(12, 152);
+            this.chkCreateDefinitionFile.Location = new System.Drawing.Point(10, 114);
+            this.chkCreateDefinitionFile.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.chkCreateDefinitionFile.Name = "chkCreateDefinitionFile";
-            this.chkCreateDefinitionFile.Padding = new System.Windows.Forms.Padding(3);
-            this.chkCreateDefinitionFile.Size = new System.Drawing.Size(173, 30);
+            this.chkCreateDefinitionFile.Padding = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.chkCreateDefinitionFile.Size = new System.Drawing.Size(139, 23);
             this.chkCreateDefinitionFile.TabIndex = 8;
             this.chkCreateDefinitionFile.Text = "Create definition file";
             this.chkCreateDefinitionFile.UseVisualStyleBackColor = true;
@@ -302,7 +313,8 @@ namespace WinFormsUI.Forms
             this.splitContainerDefinitionFile.Dock = System.Windows.Forms.DockStyle.Top;
             this.splitContainerDefinitionFile.FixedPanel = System.Windows.Forms.FixedPanel.Panel2;
             this.splitContainerDefinitionFile.IsSplitterFixed = true;
-            this.splitContainerDefinitionFile.Location = new System.Drawing.Point(6, 119);
+            this.splitContainerDefinitionFile.Location = new System.Drawing.Point(5, 88);
+            this.splitContainerDefinitionFile.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.splitContainerDefinitionFile.Name = "splitContainerDefinitionFile";
             // 
             // splitContainerDefinitionFile.Panel1
@@ -312,18 +324,19 @@ namespace WinFormsUI.Forms
             // splitContainerDefinitionFile.Panel2
             // 
             this.splitContainerDefinitionFile.Panel2.Controls.Add(this.btnDefinitionsExplore);
-            this.splitContainerDefinitionFile.Panel2.Padding = new System.Windows.Forms.Padding(3, 0, 3, 6);
-            this.splitContainerDefinitionFile.Size = new System.Drawing.Size(541, 35);
-            this.splitContainerDefinitionFile.SplitterDistance = 438;
+            this.splitContainerDefinitionFile.Panel2.Padding = new System.Windows.Forms.Padding(3, 0, 3, 4);
+            this.splitContainerDefinitionFile.Size = new System.Drawing.Size(501, 26);
+            this.splitContainerDefinitionFile.SplitterDistance = 398;
             this.splitContainerDefinitionFile.TabIndex = 6;
             // 
             // txtDefinitionsLocation
             // 
             this.txtDefinitionsLocation.Dock = System.Windows.Forms.DockStyle.Top;
             this.txtDefinitionsLocation.Location = new System.Drawing.Point(0, 0);
+            this.txtDefinitionsLocation.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.txtDefinitionsLocation.Name = "txtDefinitionsLocation";
             this.txtDefinitionsLocation.ReadOnly = true;
-            this.txtDefinitionsLocation.Size = new System.Drawing.Size(438, 27);
+            this.txtDefinitionsLocation.Size = new System.Drawing.Size(398, 23);
             this.txtDefinitionsLocation.TabIndex = 0;
             // 
             // btnDefinitionsExplore
@@ -331,9 +344,10 @@ namespace WinFormsUI.Forms
             this.btnDefinitionsExplore.Dock = System.Windows.Forms.DockStyle.Fill;
             this.btnDefinitionsExplore.Image = global::WinFormsUI.Properties.Images.folder_explore;
             this.btnDefinitionsExplore.Location = new System.Drawing.Point(3, 0);
+            this.btnDefinitionsExplore.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnDefinitionsExplore.Name = "btnDefinitionsExplore";
             this.btnDefinitionsExplore.Padding = new System.Windows.Forms.Padding(3, 0, 0, 0);
-            this.btnDefinitionsExplore.Size = new System.Drawing.Size(93, 29);
+            this.btnDefinitionsExplore.Size = new System.Drawing.Size(93, 22);
             this.btnDefinitionsExplore.TabIndex = 0;
             this.btnDefinitionsExplore.Text = "Explore";
             this.btnDefinitionsExplore.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
@@ -344,10 +358,10 @@ namespace WinFormsUI.Forms
             // 
             this.label4.AutoSize = true;
             this.label4.Dock = System.Windows.Forms.DockStyle.Top;
-            this.label4.Location = new System.Drawing.Point(6, 90);
+            this.label4.Location = new System.Drawing.Point(5, 67);
             this.label4.Name = "label4";
-            this.label4.Padding = new System.Windows.Forms.Padding(3, 3, 3, 6);
-            this.label4.Size = new System.Drawing.Size(157, 29);
+            this.label4.Padding = new System.Windows.Forms.Padding(3, 2, 3, 4);
+            this.label4.Size = new System.Drawing.Size(126, 21);
             this.label4.TabIndex = 5;
             this.label4.Text = "Definition file output:";
             // 
@@ -356,7 +370,8 @@ namespace WinFormsUI.Forms
             this.splitContainer3.Dock = System.Windows.Forms.DockStyle.Top;
             this.splitContainer3.FixedPanel = System.Windows.Forms.FixedPanel.Panel2;
             this.splitContainer3.IsSplitterFixed = true;
-            this.splitContainer3.Location = new System.Drawing.Point(6, 55);
+            this.splitContainer3.Location = new System.Drawing.Point(5, 41);
+            this.splitContainer3.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.splitContainer3.Name = "splitContainer3";
             // 
             // splitContainer3.Panel1
@@ -366,18 +381,19 @@ namespace WinFormsUI.Forms
             // splitContainer3.Panel2
             // 
             this.splitContainer3.Panel2.Controls.Add(this.btnPackageExplore);
-            this.splitContainer3.Panel2.Padding = new System.Windows.Forms.Padding(3, 0, 3, 6);
-            this.splitContainer3.Size = new System.Drawing.Size(541, 35);
-            this.splitContainer3.SplitterDistance = 438;
+            this.splitContainer3.Panel2.Padding = new System.Windows.Forms.Padding(3, 0, 3, 4);
+            this.splitContainer3.Size = new System.Drawing.Size(501, 26);
+            this.splitContainer3.SplitterDistance = 398;
             this.splitContainer3.TabIndex = 4;
             // 
             // txtPackageLocation
             // 
             this.txtPackageLocation.Dock = System.Windows.Forms.DockStyle.Top;
             this.txtPackageLocation.Location = new System.Drawing.Point(0, 0);
+            this.txtPackageLocation.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.txtPackageLocation.Name = "txtPackageLocation";
             this.txtPackageLocation.ReadOnly = true;
-            this.txtPackageLocation.Size = new System.Drawing.Size(438, 27);
+            this.txtPackageLocation.Size = new System.Drawing.Size(398, 23);
             this.txtPackageLocation.TabIndex = 0;
             // 
             // btnPackageExplore
@@ -385,9 +401,10 @@ namespace WinFormsUI.Forms
             this.btnPackageExplore.Dock = System.Windows.Forms.DockStyle.Fill;
             this.btnPackageExplore.Image = global::WinFormsUI.Properties.Images.folder_explore;
             this.btnPackageExplore.Location = new System.Drawing.Point(3, 0);
+            this.btnPackageExplore.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnPackageExplore.Name = "btnPackageExplore";
             this.btnPackageExplore.Padding = new System.Windows.Forms.Padding(3, 0, 0, 0);
-            this.btnPackageExplore.Size = new System.Drawing.Size(93, 29);
+            this.btnPackageExplore.Size = new System.Drawing.Size(93, 22);
             this.btnPackageExplore.TabIndex = 0;
             this.btnPackageExplore.Text = "Explore";
             this.btnPackageExplore.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
@@ -398,10 +415,10 @@ namespace WinFormsUI.Forms
             // 
             this.label3.AutoSize = true;
             this.label3.Dock = System.Windows.Forms.DockStyle.Top;
-            this.label3.Location = new System.Drawing.Point(6, 26);
+            this.label3.Location = new System.Drawing.Point(5, 20);
             this.label3.Name = "label3";
-            this.label3.Padding = new System.Windows.Forms.Padding(3, 3, 3, 6);
-            this.label3.Size = new System.Drawing.Size(120, 29);
+            this.label3.Padding = new System.Windows.Forms.Padding(3, 2, 3, 4);
+            this.label3.Size = new System.Drawing.Size(99, 21);
             this.label3.TabIndex = 3;
             this.label3.Text = "Package output:";
             // 
@@ -411,10 +428,11 @@ namespace WinFormsUI.Forms
             this.groupBox2.Controls.Add(this.txtPassword);
             this.groupBox2.Controls.Add(this.label1);
             this.groupBox2.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.groupBox2.Location = new System.Drawing.Point(6, 199);
+            this.groupBox2.Location = new System.Drawing.Point(5, 149);
+            this.groupBox2.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Padding = new System.Windows.Forms.Padding(6);
-            this.groupBox2.Size = new System.Drawing.Size(541, 130);
+            this.groupBox2.Padding = new System.Windows.Forms.Padding(5, 4, 5, 4);
+            this.groupBox2.Size = new System.Drawing.Size(501, 98);
             this.groupBox2.TabIndex = 1;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Encryption";
@@ -424,10 +442,11 @@ namespace WinFormsUI.Forms
             this.chkShowPassword.AutoSize = true;
             this.chkShowPassword.Checked = true;
             this.chkShowPassword.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkShowPassword.Location = new System.Drawing.Point(12, 91);
+            this.chkShowPassword.Location = new System.Drawing.Point(10, 68);
+            this.chkShowPassword.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.chkShowPassword.Name = "chkShowPassword";
-            this.chkShowPassword.Padding = new System.Windows.Forms.Padding(3);
-            this.chkShowPassword.Size = new System.Drawing.Size(140, 30);
+            this.chkShowPassword.Padding = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.chkShowPassword.Size = new System.Drawing.Size(114, 23);
             this.chkShowPassword.TabIndex = 7;
             this.chkShowPassword.Text = "Show password";
             this.chkShowPassword.UseVisualStyleBackColor = true;
@@ -436,20 +455,20 @@ namespace WinFormsUI.Forms
             // txtPassword
             // 
             this.txtPassword.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.txtPassword.Location = new System.Drawing.Point(6, 55);
-            this.txtPassword.Margin = new System.Windows.Forms.Padding(6);
+            this.txtPassword.Location = new System.Drawing.Point(5, 41);
+            this.txtPassword.Margin = new System.Windows.Forms.Padding(5, 4, 5, 4);
             this.txtPassword.Name = "txtPassword";
-            this.txtPassword.Size = new System.Drawing.Size(529, 27);
+            this.txtPassword.Size = new System.Drawing.Size(491, 23);
             this.txtPassword.TabIndex = 6;
             // 
             // label1
             // 
             this.label1.AutoSize = true;
             this.label1.Dock = System.Windows.Forms.DockStyle.Top;
-            this.label1.Location = new System.Drawing.Point(6, 26);
+            this.label1.Location = new System.Drawing.Point(5, 20);
             this.label1.Name = "label1";
-            this.label1.Padding = new System.Windows.Forms.Padding(3, 3, 3, 6);
-            this.label1.Size = new System.Drawing.Size(119, 29);
+            this.label1.Padding = new System.Windows.Forms.Padding(3, 2, 3, 4);
+            this.label1.Size = new System.Drawing.Size(96, 21);
             this.label1.TabIndex = 5;
             this.label1.Text = "Enter password:";
             // 
@@ -459,11 +478,12 @@ namespace WinFormsUI.Forms
             this.groupBox1.Controls.Add(this.label2);
             this.groupBox1.Dock = System.Windows.Forms.DockStyle.Top;
             this.groupBox1.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.groupBox1.Location = new System.Drawing.Point(3, 3);
-            this.groupBox1.MaximumSize = new System.Drawing.Size(0, 350);
+            this.groupBox1.Location = new System.Drawing.Point(3, 2);
+            this.groupBox1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.groupBox1.MaximumSize = new System.Drawing.Size(0, 262);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Padding = new System.Windows.Forms.Padding(6);
-            this.groupBox1.Size = new System.Drawing.Size(553, 95);
+            this.groupBox1.Padding = new System.Windows.Forms.Padding(5, 4, 5, 4);
+            this.groupBox1.Size = new System.Drawing.Size(511, 71);
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Source";
@@ -473,7 +493,8 @@ namespace WinFormsUI.Forms
             this.splitContainer4.Dock = System.Windows.Forms.DockStyle.Top;
             this.splitContainer4.FixedPanel = System.Windows.Forms.FixedPanel.Panel2;
             this.splitContainer4.IsSplitterFixed = true;
-            this.splitContainer4.Location = new System.Drawing.Point(6, 55);
+            this.splitContainer4.Location = new System.Drawing.Point(5, 41);
+            this.splitContainer4.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.splitContainer4.Name = "splitContainer4";
             // 
             // splitContainer4.Panel1
@@ -483,18 +504,19 @@ namespace WinFormsUI.Forms
             // splitContainer4.Panel2
             // 
             this.splitContainer4.Panel2.Controls.Add(this.btnResourcesExplore);
-            this.splitContainer4.Panel2.Padding = new System.Windows.Forms.Padding(3, 0, 3, 6);
-            this.splitContainer4.Size = new System.Drawing.Size(541, 35);
-            this.splitContainer4.SplitterDistance = 438;
+            this.splitContainer4.Panel2.Padding = new System.Windows.Forms.Padding(3, 0, 3, 4);
+            this.splitContainer4.Size = new System.Drawing.Size(501, 26);
+            this.splitContainer4.SplitterDistance = 398;
             this.splitContainer4.TabIndex = 1;
             // 
             // txtAssetFolder
             // 
             this.txtAssetFolder.Dock = System.Windows.Forms.DockStyle.Top;
             this.txtAssetFolder.Location = new System.Drawing.Point(0, 0);
+            this.txtAssetFolder.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.txtAssetFolder.Name = "txtAssetFolder";
             this.txtAssetFolder.ReadOnly = true;
-            this.txtAssetFolder.Size = new System.Drawing.Size(438, 27);
+            this.txtAssetFolder.Size = new System.Drawing.Size(398, 23);
             this.txtAssetFolder.TabIndex = 0;
             // 
             // btnResourcesExplore
@@ -502,9 +524,10 @@ namespace WinFormsUI.Forms
             this.btnResourcesExplore.Dock = System.Windows.Forms.DockStyle.Fill;
             this.btnResourcesExplore.Image = global::WinFormsUI.Properties.Images.folder_explore;
             this.btnResourcesExplore.Location = new System.Drawing.Point(3, 0);
+            this.btnResourcesExplore.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnResourcesExplore.Name = "btnResourcesExplore";
             this.btnResourcesExplore.Padding = new System.Windows.Forms.Padding(3, 0, 0, 0);
-            this.btnResourcesExplore.Size = new System.Drawing.Size(93, 29);
+            this.btnResourcesExplore.Size = new System.Drawing.Size(93, 22);
             this.btnResourcesExplore.TabIndex = 0;
             this.btnResourcesExplore.Text = "Explore";
             this.btnResourcesExplore.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
@@ -515,10 +538,10 @@ namespace WinFormsUI.Forms
             // 
             this.label2.AutoSize = true;
             this.label2.Dock = System.Windows.Forms.DockStyle.Top;
-            this.label2.Location = new System.Drawing.Point(6, 26);
+            this.label2.Location = new System.Drawing.Point(5, 20);
             this.label2.Name = "label2";
-            this.label2.Padding = new System.Windows.Forms.Padding(3, 3, 3, 6);
-            this.label2.Size = new System.Drawing.Size(94, 29);
+            this.label2.Padding = new System.Windows.Forms.Padding(3, 2, 3, 4);
+            this.label2.Size = new System.Drawing.Size(75, 21);
             this.label2.TabIndex = 0;
             this.label2.Text = "Root folder:";
             // 
@@ -526,19 +549,21 @@ namespace WinFormsUI.Forms
             // 
             this.tabControl2.Controls.Add(this.tabPage3);
             this.tabControl2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tabControl2.Location = new System.Drawing.Point(0, 3);
+            this.tabControl2.Location = new System.Drawing.Point(0, 2);
+            this.tabControl2.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.tabControl2.Name = "tabControl2";
             this.tabControl2.SelectedIndex = 0;
-            this.tabControl2.Size = new System.Drawing.Size(640, 677);
+            this.tabControl2.Size = new System.Drawing.Size(530, 497);
             this.tabControl2.TabIndex = 0;
             // 
             // tabPage3
             // 
             this.tabPage3.Controls.Add(this.splitContainer5);
-            this.tabPage3.Location = new System.Drawing.Point(4, 29);
+            this.tabPage3.Location = new System.Drawing.Point(4, 24);
+            this.tabPage3.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.tabPage3.Name = "tabPage3";
-            this.tabPage3.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage3.Size = new System.Drawing.Size(632, 644);
+            this.tabPage3.Padding = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.tabPage3.Size = new System.Drawing.Size(522, 469);
             this.tabPage3.TabIndex = 0;
             this.tabPage3.Text = "Package";
             this.tabPage3.UseVisualStyleBackColor = true;
@@ -548,7 +573,8 @@ namespace WinFormsUI.Forms
             this.splitContainer5.Dock = System.Windows.Forms.DockStyle.Fill;
             this.splitContainer5.FixedPanel = System.Windows.Forms.FixedPanel.Panel1;
             this.splitContainer5.IsSplitterFixed = true;
-            this.splitContainer5.Location = new System.Drawing.Point(3, 3);
+            this.splitContainer5.Location = new System.Drawing.Point(3, 2);
+            this.splitContainer5.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.splitContainer5.Name = "splitContainer5";
             this.splitContainer5.Orientation = System.Windows.Forms.Orientation.Horizontal;
             // 
@@ -559,8 +585,9 @@ namespace WinFormsUI.Forms
             // splitContainer5.Panel2
             // 
             this.splitContainer5.Panel2.Controls.Add(this.groupBox3);
-            this.splitContainer5.Size = new System.Drawing.Size(626, 638);
+            this.splitContainer5.Size = new System.Drawing.Size(516, 465);
             this.splitContainer5.SplitterDistance = 32;
+            this.splitContainer5.SplitterWidth = 3;
             this.splitContainer5.TabIndex = 4;
             // 
             // toolStrip1
@@ -574,8 +601,8 @@ namespace WinFormsUI.Forms
             this.lblSelectedItems});
             this.toolStrip1.Location = new System.Drawing.Point(0, 0);
             this.toolStrip1.Name = "toolStrip1";
-            this.toolStrip1.Padding = new System.Windows.Forms.Padding(0, 2, 6, 2);
-            this.toolStrip1.Size = new System.Drawing.Size(626, 32);
+            this.toolStrip1.Padding = new System.Windows.Forms.Padding(0, 2, 5, 2);
+            this.toolStrip1.Size = new System.Drawing.Size(516, 32);
             this.toolStrip1.TabIndex = 0;
             this.toolStrip1.Text = "toolStrip1";
             // 
@@ -583,7 +610,7 @@ namespace WinFormsUI.Forms
             // 
             this.lblAvailableItems.Name = "lblAvailableItems";
             this.lblAvailableItems.Padding = new System.Windows.Forms.Padding(3);
-            this.lblAvailableItems.Size = new System.Drawing.Size(132, 25);
+            this.lblAvailableItems.Size = new System.Drawing.Size(105, 25);
             this.lblAvailableItems.Text = "Available items: 0";
             // 
             // toolStripSeparator1
@@ -595,7 +622,7 @@ namespace WinFormsUI.Forms
             // 
             this.lblSelectedItems.Name = "lblSelectedItems";
             this.lblSelectedItems.Padding = new System.Windows.Forms.Padding(3);
-            this.lblSelectedItems.Size = new System.Drawing.Size(127, 25);
+            this.lblSelectedItems.Size = new System.Drawing.Size(101, 25);
             this.lblSelectedItems.Text = "Selected items: 0";
             // 
             // groupBox3
@@ -603,9 +630,10 @@ namespace WinFormsUI.Forms
             this.groupBox3.Controls.Add(this.selectorTreeView);
             this.groupBox3.Dock = System.Windows.Forms.DockStyle.Fill;
             this.groupBox3.Location = new System.Drawing.Point(0, 0);
+            this.groupBox3.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Padding = new System.Windows.Forms.Padding(6);
-            this.groupBox3.Size = new System.Drawing.Size(626, 602);
+            this.groupBox3.Padding = new System.Windows.Forms.Padding(5, 4, 5, 4);
+            this.groupBox3.Size = new System.Drawing.Size(516, 430);
             this.groupBox3.TabIndex = 0;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Items to pack";
@@ -613,10 +641,11 @@ namespace WinFormsUI.Forms
             // selectorTreeView
             // 
             this.selectorTreeView.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.selectorTreeView.Location = new System.Drawing.Point(6, 26);
+            this.selectorTreeView.Location = new System.Drawing.Point(5, 20);
+            this.selectorTreeView.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.selectorTreeView.Name = "selectorTreeView";
             this.selectorTreeView.ReadOnly = false;
-            this.selectorTreeView.Size = new System.Drawing.Size(614, 570);
+            this.selectorTreeView.Size = new System.Drawing.Size(506, 406);
             this.selectorTreeView.TabIndex = 0;
             this.selectorTreeView.AfterStateChanged += new System.EventHandler<System.Windows.Forms.TreeViewEventArgs>(this.SelectorTreeView_AfterStateChanged);
             this.selectorTreeView.NodeStateChanged += new System.EventHandler<System.Windows.Forms.TreeViewEventArgs>(this.SelectorTreeView_NodeStateChanged);
@@ -625,18 +654,20 @@ namespace WinFormsUI.Forms
             // 
             this.panel2.Controls.Add(this.btnCancel);
             this.panel2.Dock = System.Windows.Forms.DockStyle.Right;
-            this.panel2.Location = new System.Drawing.Point(977, 0);
+            this.panel2.Location = new System.Drawing.Point(855, 0);
+            this.panel2.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.panel2.Name = "panel2";
-            this.panel2.Padding = new System.Windows.Forms.Padding(6, 6, 3, 9);
-            this.panel2.Size = new System.Drawing.Size(120, 49);
+            this.panel2.Padding = new System.Windows.Forms.Padding(5, 4, 3, 7);
+            this.panel2.Size = new System.Drawing.Size(105, 48);
             this.panel2.TabIndex = 1;
             // 
             // btnCancel
             // 
             this.btnCancel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.btnCancel.Location = new System.Drawing.Point(6, 6);
+            this.btnCancel.Location = new System.Drawing.Point(5, 4);
+            this.btnCancel.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnCancel.Name = "btnCancel";
-            this.btnCancel.Size = new System.Drawing.Size(111, 34);
+            this.btnCancel.Size = new System.Drawing.Size(97, 37);
             this.btnCancel.TabIndex = 0;
             this.btnCancel.Text = "Close";
             this.btnCancel.UseVisualStyleBackColor = true;
@@ -646,19 +677,21 @@ namespace WinFormsUI.Forms
             // 
             this.panel1.Controls.Add(this.btnCreate);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Right;
-            this.panel1.Location = new System.Drawing.Point(1097, 0);
+            this.panel1.Location = new System.Drawing.Point(960, 0);
+            this.panel1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.panel1.Name = "panel1";
-            this.panel1.Padding = new System.Windows.Forms.Padding(3, 6, 9, 9);
-            this.panel1.Size = new System.Drawing.Size(120, 49);
+            this.panel1.Padding = new System.Windows.Forms.Padding(3, 4, 8, 7);
+            this.panel1.Size = new System.Drawing.Size(105, 48);
             this.panel1.TabIndex = 0;
             // 
             // btnCreate
             // 
             this.btnCreate.Dock = System.Windows.Forms.DockStyle.Fill;
             this.btnCreate.Enabled = false;
-            this.btnCreate.Location = new System.Drawing.Point(3, 6);
+            this.btnCreate.Location = new System.Drawing.Point(3, 4);
+            this.btnCreate.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnCreate.Name = "btnCreate";
-            this.btnCreate.Size = new System.Drawing.Size(108, 34);
+            this.btnCreate.Size = new System.Drawing.Size(94, 37);
             this.btnCreate.TabIndex = 0;
             this.btnCreate.Text = "Create";
             this.btnCreate.UseVisualStyleBackColor = true;
@@ -666,12 +699,13 @@ namespace WinFormsUI.Forms
             // 
             // CreateForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1217, 733);
+            this.ClientSize = new System.Drawing.Size(1065, 550);
             this.Controls.Add(this.splitContainer1);
+            this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.MinimizeBox = false;
-            this.MinimumSize = new System.Drawing.Size(1135, 680);
+            this.MinimumSize = new System.Drawing.Size(995, 520);
             this.Name = "CreateForm";
             this.ShowIcon = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
