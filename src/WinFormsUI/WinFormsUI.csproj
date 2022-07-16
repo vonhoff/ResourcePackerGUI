@@ -12,9 +12,9 @@
     <NeutralLanguage>en-US</NeutralLanguage>
     <Platforms>x64;x86</Platforms>
     <AssemblyName>ResourcePackerGUI</AssemblyName>
-    <FileVersion>1.1.1.0</FileVersion>
-    <AssemblyVersion>1.1.1.0</AssemblyVersion>
-    <Authors>$(AssemblyName)</Authors>
+    <FileVersion>1.1.2</FileVersion>
+    <AssemblyVersion>1.1.2</AssemblyVersion>
+    <Authors>Simon Vonhoff &amp; Contributors</Authors>
   </PropertyGroup>
 
   <ItemGroup>
