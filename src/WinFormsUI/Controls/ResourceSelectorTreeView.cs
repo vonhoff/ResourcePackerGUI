@@ -152,7 +152,7 @@ namespace WinFormsUI.Controls
                     continue;
                 }
 
-                var currentNodeParent = node;
+                var currentNodeParent = node.Parent;
                 var offset = 1;
                 while (currentNodeParent != null && currentNodeParent != Nodes[0])
                 {
