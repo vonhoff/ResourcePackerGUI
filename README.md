@@ -22,6 +22,7 @@ ResourcePacker is a general purpose asset packager with optional AES-128 encrypt
 ![Main application screenshot](screenshot1.png)
 ![Main application screenshot](screenshot2.png)
 
----
+## Licenses
 
-_Copyright &copy; 2022 Simon Vonhoff & Contributors - Provided under the [GNU General Public License, Version 3.0](LICENSE)._
+- Copyright &copy; 2022 Simon Vonhoff & Contributors - Provided under the [GNU General Public License, Version 3.0](LICENSE).
+- Silk icon set by Mark James, [famfamfam.com](http://www.famfamfam.com/lab/icons/silk/) - Provided under the [Creative Commons Attribution 2.5 License](https://creativecommons.org/licenses/by/2.5/).
