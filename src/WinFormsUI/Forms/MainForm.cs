@@ -261,6 +261,7 @@ namespace WinFormsUI.Forms
             {
                 await AssignDefinitionsFromStream(fileStream);
                 RefreshPackageExplorer();
+                DisplayResourceCount();
             });
         }
 
