@@ -63,8 +63,8 @@ namespace WinFormsUI.Forms
         private string _packageName = string.Empty;
         private string _packagePath = string.Empty;
         private string _password = string.Empty;
-        private IReadOnlyList<Resource>? _resources;
         private string _searchQuery = string.Empty;
+        private IReadOnlyList<Resource>? _resources;
         private Resource? _selectedPreviewAsset;
 
         public MainForm(IMediator mediator)
@@ -93,7 +93,6 @@ namespace WinFormsUI.Forms
             };
 
             var crcDictionary = await _mediator.Send(definitionsQuery, _cancellationTokenSource.Token);
-
             var resourceUpdateQuery = new UpdateResourceDefinitionsQuery(_resources, crcDictionary)
             {
                 Progress = _progressPrimary,
@@ -209,15 +208,14 @@ namespace WinFormsUI.Forms
             using (var browserDialog = new FolderBrowserDialog())
             {
                 var result = browserDialog.ShowDialog();
-
                 if (result != DialogResult.OK || string.IsNullOrWhiteSpace(browserDialog.SelectedPath))
                 {
                     return;
                 }
 
                 // Append the package name to the extraction path when the root node is selected.
-                baseExtractionPath = packageExplorerTreeView.SelectedNodes.Contains(packageExplorerTreeView.Nodes.First()) ? 
-                    Path.Join(browserDialog.SelectedPath, _packageName) : 
+                baseExtractionPath = packageExplorerTreeView.SelectedNodes.Contains(packageExplorerTreeView.Nodes.First()) ?
+                    Path.Join(browserDialog.SelectedPath, _packageName) :
                     browserDialog.SelectedPath;
             }
 
@@ -256,7 +254,6 @@ namespace WinFormsUI.Forms
             }
 
             var fileStream = openFileDialog.OpenFile();
-
             Task.Run(async () =>
             {
                 await AssignDefinitionsFromStream(fileStream);
@@ -325,7 +322,6 @@ namespace WinFormsUI.Forms
                     }
 
                     SetToolbarState(true);
-                    Invoke(() => btnLoadDefinitions.Enabled = false);
 
                     // Retrieve all resources
                     var stopwatch = Stopwatch.StartNew();
@@ -361,7 +357,7 @@ namespace WinFormsUI.Forms
                     {
                         DisplayResourceCount();
                         lblElapsed.Text = stopwatch.Elapsed.ToString(@"hh\:mm\:ss\.ffff");
-                        btnExtractAll.Enabled = true;
+                        ResetPreviewData();
                     });
                 }
                 catch (OperationCanceledException ex)
@@ -399,6 +395,13 @@ namespace WinFormsUI.Forms
             });
         }
 
+        private void ResetPreviewData()
+        {
+            _selectedPreviewAsset = null;
+            ReloadPreviewTab(null);
+            previewTabs.SelectedTab = previewHexTab;
+        }
+
         private void DisplayResourceCount()
         {
             var count = _resources?.Count ?? 0;
@@ -425,13 +428,6 @@ namespace WinFormsUI.Forms
 
             _loggingLevelSwitch.MinimumLevel =
                 _showDebugMessages ? LogEventLevel.Debug : LogEventLevel.Information;
-        }
-
-        private void ClearPreviews()
-        {
-            previewHexBox.ByteProvider = null;
-            previewImageBox.Image = null;
-            previewTextBox.Clear();
         }
 
         private void ExportResourcesToFolder(string baseExtractionPath, IReadOnlyList<Resource> resources)
@@ -647,7 +643,7 @@ namespace WinFormsUI.Forms
 
             Invoke(() =>
             {
-                ClearPreviews();
+                ResetPreviewData();
                 ResetProgressBars();
                 UpdateExtractSelectedButton();
             });
@@ -659,35 +655,35 @@ namespace WinFormsUI.Forms
         /// <param name="tabPage">The tab to initialize.</param>
         private void ReloadPreviewTab(TabPage? tabPage)
         {
-            ClearPreviews();
-
-            if (_selectedPreviewAsset?.Data == null)
-            {
-                return;
-            }
+            // Reset values.
+            previewHexBox.ByteProvider = null;
+            previewImageBox.Image = null;
+            previewTextBox.Clear();
 
             // Set status labels.
-            lblMediaType.Text = $"Media type: {_selectedPreviewAsset.MediaType?.Name ?? "n/a"}";
-            lblDataSize.Text = _selectedPreviewAsset.Entry.DataSize switch
+            lblFileName.Text = $"Name: {(string.IsNullOrWhiteSpace(_selectedPreviewAsset?.Name) ? "n/a" : Path.GetFileName(_selectedPreviewAsset.Name))}";
+            lblMediaType.Text = $"Media type: {_selectedPreviewAsset?.MediaType?.Name ?? "n/a"}";
+            lblDataSize.Text = _selectedPreviewAsset?.Entry.DataSize switch
             {
                 > 1000000000 => $"Size: {_selectedPreviewAsset.Entry.DataSize / 1000000000} GB",
                 > 1000000 => $"Size: {_selectedPreviewAsset.Entry.DataSize / 1000000} MB",
                 > 1000 => $"Size: {_selectedPreviewAsset.Entry.DataSize / 1000} KB",
-                _ => $"Size: {_selectedPreviewAsset.Entry.DataSize} bytes"
+                > 0 => $"Size: {_selectedPreviewAsset.Entry.DataSize} bytes",
+                _ => "Size: 0 bytes"
             };
 
             // Set values for the corresponding tab.
-            if (tabPage == previewImageTab)
-            {
-                SetImagePreviewValue();
-            }
-            else if (tabPage == previewTextTab)
+            if (tabPage == previewTextTab)
             {
                 SetTextPreviewValue();
             }
             else if (tabPage == previewHexTab)
             {
                 SetHexPreviewValue();
+            }
+            else
+            {
+                SetImagePreviewValue();
             }
         }
 
@@ -726,12 +722,7 @@ namespace WinFormsUI.Forms
         /// </summary>
         private void SetImagePreviewValue()
         {
-            if (_selectedPreviewAsset?.Data == null)
-            {
-                return;
-            }
-
-            if (_selectedPreviewAsset.MediaType?.PrimaryType != "image")
+            if (_selectedPreviewAsset?.MediaType?.PrimaryType != "image")
             {
                 previewImageBox.Text = "No image available.";
                 return;
