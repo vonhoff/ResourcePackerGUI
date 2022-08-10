@@ -195,8 +195,7 @@ namespace WinFormsUI.Forms
 
         private void BtnExtractSelected_Click(object sender, EventArgs e)
         {
-            var selectedResources = packageExplorerTreeView.GetSelectedResources();
-
+            var selectedResources = packageExplorerTreeView.SelectedResources;
             if (selectedResources.Count == 0)
             {
                 MessageBox.Show("No resources are selected.",
