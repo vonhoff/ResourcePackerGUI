@@ -53,6 +53,8 @@ namespace WinFormsUI.Forms
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.lblMediaType = new System.Windows.Forms.ToolStripLabel();
             this.btnFormattedText = new System.Windows.Forms.ToolStripButton();
+            this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
+            this.lblFileName = new System.Windows.Forms.ToolStripLabel();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.outputBox = new System.Windows.Forms.RichTextBox();
@@ -266,7 +268,9 @@ namespace WinFormsUI.Forms
             this.lblDataSize,
             this.toolStripSeparator1,
             this.lblMediaType,
-            this.btnFormattedText});
+            this.btnFormattedText,
+            this.toolStripSeparator5,
+            this.lblFileName});
             resources.ApplyResources(this.toolStrip3, "toolStrip3");
             this.toolStrip3.Name = "toolStrip3";
             // 
@@ -295,6 +299,17 @@ namespace WinFormsUI.Forms
             this.btnFormattedText.Padding = new System.Windows.Forms.Padding(3);
             resources.ApplyResources(this.btnFormattedText, "btnFormattedText");
             this.btnFormattedText.Click += new System.EventHandler(this.BtnFormattedText_Click);
+            // 
+            // toolStripSeparator5
+            // 
+            this.toolStripSeparator5.Name = "toolStripSeparator5";
+            resources.ApplyResources(this.toolStripSeparator5, "toolStripSeparator5");
+            // 
+            // lblFileName
+            // 
+            this.lblFileName.Name = "lblFileName";
+            this.lblFileName.Padding = new System.Windows.Forms.Padding(3);
+            resources.ApplyResources(this.lblFileName, "lblFileName");
             // 
             // tabControl1
             // 
@@ -602,5 +617,7 @@ namespace WinFormsUI.Forms
         private ToolStripButton btnDisplayOutput;
         private Label lblNoResults;
         private ResourceSelectorTreeView packageExplorerTreeView;
+        private ToolStripSeparator toolStripSeparator5;
+        private ToolStripLabel lblFileName;
     }
 }

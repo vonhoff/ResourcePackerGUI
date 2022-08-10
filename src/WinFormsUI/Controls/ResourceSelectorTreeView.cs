@@ -18,6 +18,7 @@
 
 #endregion
 
+using System.Xml;
 using ResourcePackerGUI.Domain.Entities;
 using WinFormsUI.Extensions;
 
@@ -27,8 +28,10 @@ namespace WinFormsUI.Controls
     {
         private static readonly Color SelectedBackgroundColor = Color.FromArgb(0, 120, 215);
         private static readonly Color SelectedForegroundColor = Color.White;
+        private static readonly Color ConflictBackgroundColor = Color.FromArgb(214, 84, 21);
+        private static readonly Color ConflictForegroundColor = Color.White;
+        private readonly Dictionary<TreeNode, string> _treeNodeNameDictionary = new();
         private TreeNode? _selectionPivot;
-        private bool _skipNextNodeUpdate;
 
         public ResourceSelectorTreeView()
         {
@@ -41,6 +44,7 @@ namespace WinFormsUI.Controls
 
         public List<TreeNode> Nodes { get; set; } = new();
         public List<TreeNode> SelectedNodes { get; set; } = new();
+        public List<Resource> SelectedResources { get; init; } = new();
 
         protected override CreateParams CreateParams
         {
@@ -61,8 +65,11 @@ namespace WinFormsUI.Controls
         public void CreateNodesFromResources(IReadOnlyList<Resource> resources, string packageName,
                     IProgress<int>? progressSecondary = null, int progressReportInterval = 100)
         {
+            lblConflictAmount.Visible = false;
+            SelectedResources.Clear();
             SelectedNodes.Clear();
             Nodes.Clear();
+
             if (resources.Count == 0)
             {
                 return;
@@ -130,50 +137,54 @@ namespace WinFormsUI.Controls
                 treeView.ExpandAll();
                 rootNode.EnsureVisible();
             });
-
-            // Set the skip variable to false since it is only required
-            // after the user requested an expansion or collapse action.
-            _skipNextNodeUpdate = false;
         }
 
-        public List<Resource> GetSelectedResources()
+        private void UpdateSelectedResources()
         {
-            var result = new List<Resource>();
+            _treeNodeNameDictionary.Clear();
+            SelectedResources.Clear();
 
             foreach (var node in SelectedNodes)
             {
-                List<string> pathNodes;
-                if (node.Tag is Resource resource)
-                {
-                    pathNodes = resource.Name.Split("/").ToList();
-                }
-                else
+                if (node.Tag is not Resource resource)
                 {
                     continue;
                 }
 
-                var currentNodeParent = node.Parent;
-                var offset = 2;
-                while (currentNodeParent != null && currentNodeParent != Nodes[0])
-                {
-                    if (!SelectedNodes.Contains(currentNodeParent))
-                    {
-                        pathNodes.RemoveAt(pathNodes.Count - offset);
-                        offset = 1;
-                    }
-                    else
-                    {
-                        offset++;
-                    }
+                var name = CreatePathBySelectedNodes(node, resource.Name);
+                SelectedResources.Add(new Resource(resource.Data, resource.Entry, resource.MediaType, name));
+                _treeNodeNameDictionary.Add(node, name);
+            }
+        }
 
-                    currentNodeParent = currentNodeParent.Parent;
+        /// <summary>
+        /// Creates a path from the starting node and the selected nodes from <see cref="SelectedNodes"/>. <br/>
+        /// It filters the deselected nodes from the provided <paramref name="path"/>.
+        /// </summary>
+        /// <param name="startingNode">The node from where to build a path from.</param>
+        /// <param name="path">The raw path as a string.</param>
+        /// <returns>A new path created from the selected nodes.</returns>
+        private string CreatePathBySelectedNodes(TreeNode startingNode, string path)
+        {
+            var pathNodes = path.Split("/").ToList();
+            var currentNodeParent = startingNode.Parent;
+            var offset = 2;
+            while (currentNodeParent != null && currentNodeParent != Nodes[0])
+            {
+                if (!SelectedNodes.Contains(currentNodeParent))
+                {
+                    pathNodes.RemoveAt(pathNodes.Count - offset);
+                }
+                else
+                {
+                    offset++;
                 }
 
-                var name = string.Join("/", pathNodes);
-                result.Add(new Resource(resource.Data, resource.Entry, resource.MediaType, name));
+                currentNodeParent = currentNodeParent.Parent;
             }
 
-            return result;
+            var name = string.Join("/", pathNodes);
+            return name;
         }
 
         /// <summary>
@@ -216,11 +227,35 @@ namespace WinFormsUI.Controls
 
         private void ApplySelectedNodeStyling()
         {
+            if (SelectedNodes.Count == 0)
+            {
+                return;
+            }
+
+            var conflictingNames = new List<string>();
+            var names = SelectedResources.Select(x => x.Name).ToList();
             foreach (var node in SelectedNodes)
             {
+                if (_treeNodeNameDictionary.TryGetValue(node, out var name) && names.Count(n => n == name) > 1)
+                {
+                    if (!conflictingNames.Contains(name))
+                    {
+                        conflictingNames.Add(name);
+                    }
+
+                    node.BackColor = ConflictBackgroundColor;
+                    node.ForeColor = ConflictForegroundColor;
+                    continue;
+                }
+
                 node.BackColor = SelectedBackgroundColor;
                 node.ForeColor = SelectedForegroundColor;
             }
+
+            lblConflictAmount.Visible = conflictingNames.Count > 0;
+            lblConflictAmount.Text = conflictingNames.Count > 1 ? 
+                $"{conflictingNames.Count} potential extraction conflicts." : 
+                "1 potential extraction conflict.";
         }
 
         private void ClearSelectedNodeStyling()
@@ -273,37 +308,34 @@ namespace WinFormsUI.Controls
             treeView.SelectedNode = null;
         }
 
-        private void TreeView_BeforeCollapse(object sender, TreeViewCancelEventArgs e)
-        {
-            _skipNextNodeUpdate = true;
-        }
-
-        private void TreeView_BeforeExpand(object sender, TreeViewCancelEventArgs e)
-        {
-            _skipNextNodeUpdate = true;
-        }
-
         private void TreeView_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
         {
-            if (_skipNextNodeUpdate)
-            {
-                _skipNextNodeUpdate = false;
-                return;
-            }
-
-            ClearSelectedNodeStyling();
-
             var info = treeView.HitTest(e.X, e.Y);
+            switch (info.Location)
+            {
+                case TreeViewHitTestLocations.PlusMinus:
+                {
+                    return;
+                }
 
-            if (info.Location is TreeViewHitTestLocations.Image or TreeViewHitTestLocations.Label)
-            {
-                UpdateSelectedNodes(e.Node);
-                ApplySelectedNodeStyling();
-            }
-            else
-            {
-                SelectedNodes.Clear();
-                treeView.SelectedNode = null;
+                case TreeViewHitTestLocations.Image or
+                     TreeViewHitTestLocations.Label or
+                     TreeViewHitTestLocations.Indent:
+                {
+                    ClearSelectedNodeStyling();
+                    UpdateSelectedNodes(e.Node);
+                    UpdateSelectedResources();
+                    ApplySelectedNodeStyling();
+                    break;
+                }
+
+                default:
+                {
+                    ClearSelectedNodeStyling();
+                    SelectedNodes.Clear();
+                    treeView.SelectedNode = null;
+                    break;
+                }
             }
 
             NodeMouseClick?.Invoke(sender, e);
@@ -312,7 +344,16 @@ namespace WinFormsUI.Controls
         private void TreeView_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
         {
             var info = treeView.HitTest(e.X, e.Y);
-            if (info.Location is not (TreeViewHitTestLocations.Image or TreeViewHitTestLocations.Label))
+
+            if (info.Location is TreeViewHitTestLocations.PlusMinus)
+            {
+                return;
+            }
+
+            if (info.Location is not (
+                TreeViewHitTestLocations.Image or
+                TreeViewHitTestLocations.Label or
+                TreeViewHitTestLocations.Indent))
             {
                 ClearSelectedNodeStyling();
                 SelectedNodes.Clear();
@@ -328,6 +369,7 @@ namespace WinFormsUI.Controls
             {
                 case Keys.Shift | Keys.Control when SelectedNodes.Count > 0:
                 case Keys.Shift when _selectionPivot != null:
+                {
                     var a = Nodes.IndexOf(_selectionPivot!);
                     var b = Nodes.IndexOf(node);
 
@@ -344,8 +386,10 @@ namespace WinFormsUI.Controls
 
                     SelectNodes(Nodes[a]);
                     break;
+                }
 
                 case Keys.Control:
+                {
                     if (SelectedNodes.Contains(node))
                     {
                         DeselectNodes(node);
@@ -355,12 +399,15 @@ namespace WinFormsUI.Controls
                     _selectionPivot = node;
                     SelectNodes(node);
                     break;
+                }
 
                 default:
+                {
                     _selectionPivot = node;
                     SelectedNodes.Clear();
                     SelectNodes(node);
                     break;
+                }
             }
         }
     }

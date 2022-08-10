@@ -63,8 +63,8 @@ namespace WinFormsUI.Forms
         private string _packageName = string.Empty;
         private string _packagePath = string.Empty;
         private string _password = string.Empty;
-        private IReadOnlyList<Resource>? _resources;
         private string _searchQuery = string.Empty;
+        private IReadOnlyList<Resource>? _resources;
         private Resource? _selectedPreviewAsset;
 
         public MainForm(IMediator mediator)
@@ -93,7 +93,6 @@ namespace WinFormsUI.Forms
             };
 
             var crcDictionary = await _mediator.Send(definitionsQuery, _cancellationTokenSource.Token);
-
             var resourceUpdateQuery = new UpdateResourceDefinitionsQuery(_resources, crcDictionary)
             {
                 Progress = _progressPrimary,
@@ -196,8 +195,7 @@ namespace WinFormsUI.Forms
 
         private void BtnExtractSelected_Click(object sender, EventArgs e)
         {
-            var selectedResources = packageExplorerTreeView.GetSelectedResources();
-
+            var selectedResources = packageExplorerTreeView.SelectedResources;
             if (selectedResources.Count == 0)
             {
                 MessageBox.Show("No resources are selected.",
@@ -209,15 +207,14 @@ namespace WinFormsUI.Forms
             using (var browserDialog = new FolderBrowserDialog())
             {
                 var result = browserDialog.ShowDialog();
-
                 if (result != DialogResult.OK || string.IsNullOrWhiteSpace(browserDialog.SelectedPath))
                 {
                     return;
                 }
 
                 // Append the package name to the extraction path when the root node is selected.
-                baseExtractionPath = packageExplorerTreeView.SelectedNodes.Contains(packageExplorerTreeView.Nodes.First()) ? 
-                    Path.Join(browserDialog.SelectedPath, _packageName) : 
+                baseExtractionPath = packageExplorerTreeView.SelectedNodes.Contains(packageExplorerTreeView.Nodes.First()) ?
+                    Path.Join(browserDialog.SelectedPath, _packageName) :
                     browserDialog.SelectedPath;
             }
 
@@ -256,11 +253,11 @@ namespace WinFormsUI.Forms
             }
 
             var fileStream = openFileDialog.OpenFile();
-
             Task.Run(async () =>
             {
                 await AssignDefinitionsFromStream(fileStream);
                 RefreshPackageExplorer();
+                DisplayResourceCount();
             });
         }
 
@@ -307,12 +304,14 @@ namespace WinFormsUI.Forms
 
                         Invoke(() =>
                         {
-                            if (passwordDialog.ShowDialog() != DialogResult.OK)
+                            if (passwordDialog.ShowDialog() == DialogResult.OK)
                             {
-                                hideCancellationDialog = true;
-                                _cancellationTokenSource.Cancel();
-                                throw new OperationCanceledException();
+                                return;
                             }
+
+                            hideCancellationDialog = true;
+                            _cancellationTokenSource.Cancel();
+                            throw new OperationCanceledException();
                         });
 
                         if (string.IsNullOrEmpty(passwordDialog.Password))
@@ -324,7 +323,6 @@ namespace WinFormsUI.Forms
                     }
 
                     SetToolbarState(true);
-                    Invoke(() => btnLoadDefinitions.Enabled = false);
 
                     // Retrieve all resources
                     var stopwatch = Stopwatch.StartNew();
@@ -360,7 +358,7 @@ namespace WinFormsUI.Forms
                     {
                         DisplayResourceCount();
                         lblElapsed.Text = stopwatch.Elapsed.ToString(@"hh\:mm\:ss\.ffff");
-                        btnExtractAll.Enabled = true;
+                        ResetPreviewData();
                     });
                 }
                 catch (OperationCanceledException ex)
@@ -398,6 +396,13 @@ namespace WinFormsUI.Forms
             });
         }
 
+        private void ResetPreviewData()
+        {
+            _selectedPreviewAsset = null;
+            ReloadPreviewTab(null);
+            previewTabs.SelectedTab = previewHexTab;
+        }
+
         private void DisplayResourceCount()
         {
             var count = _resources?.Count ?? 0;
@@ -426,13 +431,6 @@ namespace WinFormsUI.Forms
                 _showDebugMessages ? LogEventLevel.Debug : LogEventLevel.Information;
         }
 
-        private void ClearPreviews()
-        {
-            previewHexBox.ByteProvider = null;
-            previewImageBox.Image = null;
-            previewTextBox.Clear();
-        }
-
         private void ExportResourcesToFolder(string baseExtractionPath, IReadOnlyList<Resource> resources)
         {
             SetToolbarState(true);
@@ -456,7 +454,7 @@ namespace WinFormsUI.Forms
                     {
                         this.FlashNotification();
                         var extractionCompleteDialogResult =
-                            MessageBox.Show("The resources have been successfully extracted to the destination folder. \n" +
+                            MessageBox.Show("The resources have been extracted to the destination folder. \n" +
                                             "Do you want to view the extracted resources?",
                                 "Extraction completed", MessageBoxButtons.YesNo, MessageBoxIcon.Asterisk);
 
@@ -531,22 +529,27 @@ namespace WinFormsUI.Forms
                     switch (lastAction)
                     {
                         case DialogResult.OK:
+                        {
                             pathReplacements.Add(resource, filePath);
                             resolved++;
                             break;
-
+                        }
                         case DialogResult.Continue:
+                        {
                             pathReplacements.Add(resource, nextAvailablePath);
                             resolved++;
                             break;
-
+                        }
                         case DialogResult.Ignore:
+                        {
                             resolved++;
                             break;
-
+                        }
                         default:
+                        {
                             _cancellationTokenSource.Cancel();
                             throw new OperationCanceledException();
+                        }
                     }
                 });
             }
@@ -587,35 +590,44 @@ namespace WinFormsUI.Forms
 
         private void PackageExplorerTreeView_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
         {
-            if (e.Node.Tag == null)
+            if (e.Node.Tag == null || _selectedPreviewAsset == e.Node.Tag)
             {
                 return;
             }
 
             _selectedPreviewAsset = (Resource)e.Node.Tag;
 
+            TabPage pendingPage;
             switch (_selectedPreviewAsset.MediaType)
             {
                 case { PrimaryType: "image" }:
                 {
-                    previewTabs.SelectedTab = previewImageTab;
+                    pendingPage = previewImageTab;
                     break;
                 }
                 case { SubType: "xml" }:
                 case { SubType: "json" }:
                 case { PrimaryType: "text" }:
                 {
-                    previewTabs.SelectedTab = previewTextTab;
+                    pendingPage = previewTextTab;
                     break;
                 }
                 default:
                 {
-                    previewTabs.SelectedTab = previewHexTab;
+                    pendingPage = previewHexTab;
                     break;
                 }
             }
 
-            ReloadPreviewTab(previewTabs.SelectedTab);
+            // When the previous tab is the same as the pending tab, we should trigger the reload manually.
+            if (previewTabs.SelectedTab == pendingPage)
+            {
+                ReloadPreviewTab(previewTabs.SelectedTab);
+            }
+            else
+            {
+                previewTabs.SelectedTab = pendingPage;
+            }
         }
 
         private void PreviewTabs_Selecting(object sender, TabControlCancelEventArgs e)
@@ -646,7 +658,7 @@ namespace WinFormsUI.Forms
 
             Invoke(() =>
             {
-                ClearPreviews();
+                ResetPreviewData();
                 ResetProgressBars();
                 UpdateExtractSelectedButton();
             });
@@ -658,21 +670,21 @@ namespace WinFormsUI.Forms
         /// <param name="tabPage">The tab to initialize.</param>
         private void ReloadPreviewTab(TabPage? tabPage)
         {
-            ClearPreviews();
+            // Reset values.
+            previewHexBox.ByteProvider = null;
+            previewImageBox.Image = null;
+            previewTextBox.Clear();
 
-            if (_selectedPreviewAsset?.Data == null)
-            {
-                return;
-            }
-
-            // Set status labels.
-            lblMediaType.Text = $"Media type: {_selectedPreviewAsset.MediaType?.Name ?? "n/a"}";
-            lblDataSize.Text = _selectedPreviewAsset.Entry.DataSize switch
+            // Set preview status labels.
+            lblFileName.Text = $"Name: {(string.IsNullOrWhiteSpace(_selectedPreviewAsset?.Name) ? "n/a" : Path.GetFileName(_selectedPreviewAsset.Name))}";
+            lblMediaType.Text = $"Media type: {_selectedPreviewAsset?.MediaType?.Name ?? "n/a"}";
+            lblDataSize.Text = _selectedPreviewAsset?.Entry.DataSize switch
             {
                 > 1000000000 => $"Size: {_selectedPreviewAsset.Entry.DataSize / 1000000000} GB",
                 > 1000000 => $"Size: {_selectedPreviewAsset.Entry.DataSize / 1000000} MB",
                 > 1000 => $"Size: {_selectedPreviewAsset.Entry.DataSize / 1000} KB",
-                _ => $"Size: {_selectedPreviewAsset.Entry.DataSize} bytes"
+                > 0 => $"Size: {_selectedPreviewAsset.Entry.DataSize} bytes",
+                _ => "Size: 0 bytes"
             };
 
             // Set values for the corresponding tab.
@@ -680,7 +692,7 @@ namespace WinFormsUI.Forms
             {
                 SetImagePreviewValue();
             }
-            else if (tabPage == previewTextTab)
+            if (tabPage == previewTextTab)
             {
                 SetTextPreviewValue();
             }
@@ -725,12 +737,7 @@ namespace WinFormsUI.Forms
         /// </summary>
         private void SetImagePreviewValue()
         {
-            if (_selectedPreviewAsset?.Data == null)
-            {
-                return;
-            }
-
-            if (_selectedPreviewAsset.MediaType?.PrimaryType != "image")
+            if (_selectedPreviewAsset?.MediaType?.PrimaryType != "image")
             {
                 previewImageBox.Text = "No image available.";
                 return;
@@ -741,8 +748,7 @@ namespace WinFormsUI.Forms
             try
             {
                 var memoryStream = new MemoryStream();
-                memoryStream.Write(_selectedPreviewAsset.Data, 0,
-                    _selectedPreviewAsset.Data.Length);
+                memoryStream.Write(_selectedPreviewAsset.Data, 0, _selectedPreviewAsset.Data.Length);
 
                 var bitmap = new Bitmap(memoryStream, false);
                 memoryStream.Dispose();
