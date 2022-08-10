@@ -273,37 +273,31 @@ namespace WinFormsUI.Controls
             treeView.SelectedNode = null;
         }
 
-        private void TreeView_BeforeCollapse(object sender, TreeViewCancelEventArgs e)
-        {
-            _skipNextNodeUpdate = true;
-        }
-
-        private void TreeView_BeforeExpand(object sender, TreeViewCancelEventArgs e)
-        {
-            _skipNextNodeUpdate = true;
-        }
-
         private void TreeView_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
         {
-            if (_skipNextNodeUpdate)
-            {
-                _skipNextNodeUpdate = false;
-                return;
-            }
-
-            ClearSelectedNodeStyling();
-
             var info = treeView.HitTest(e.X, e.Y);
+            switch (info.Location)
+            {
+                case TreeViewHitTestLocations.PlusMinus:
+                {
+                    return;
+                }
 
-            if (info.Location is TreeViewHitTestLocations.Image or TreeViewHitTestLocations.Label)
-            {
-                UpdateSelectedNodes(e.Node);
-                ApplySelectedNodeStyling();
-            }
-            else
-            {
-                SelectedNodes.Clear();
-                treeView.SelectedNode = null;
+                case TreeViewHitTestLocations.Image or TreeViewHitTestLocations.Label:
+                {
+                    ClearSelectedNodeStyling();
+                    UpdateSelectedNodes(e.Node);
+                    ApplySelectedNodeStyling();
+                    break;
+                }
+
+                default:
+                {
+                    ClearSelectedNodeStyling();
+                    SelectedNodes.Clear();
+                    treeView.SelectedNode = null;
+                    break;
+                }
             }
 
             NodeMouseClick?.Invoke(sender, e);
@@ -312,6 +306,12 @@ namespace WinFormsUI.Controls
         private void TreeView_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
         {
             var info = treeView.HitTest(e.X, e.Y);
+
+            if (info.Location is TreeViewHitTestLocations.PlusMinus)
+            {
+                return;
+            }
+
             if (info.Location is not (TreeViewHitTestLocations.Image or TreeViewHitTestLocations.Label))
             {
                 ClearSelectedNodeStyling();
@@ -328,6 +328,7 @@ namespace WinFormsUI.Controls
             {
                 case Keys.Shift | Keys.Control when SelectedNodes.Count > 0:
                 case Keys.Shift when _selectionPivot != null:
+                {
                     var a = Nodes.IndexOf(_selectionPivot!);
                     var b = Nodes.IndexOf(node);
 
@@ -344,8 +345,10 @@ namespace WinFormsUI.Controls
 
                     SelectNodes(Nodes[a]);
                     break;
+                }
 
                 case Keys.Control:
+                {
                     if (SelectedNodes.Contains(node))
                     {
                         DeselectNodes(node);
@@ -355,12 +358,15 @@ namespace WinFormsUI.Controls
                     _selectionPivot = node;
                     SelectNodes(node);
                     break;
+                }
 
                 default:
+                {
                     _selectionPivot = node;
                     SelectedNodes.Clear();
                     SelectNodes(node);
                     break;
+                }
             }
         }
     }
