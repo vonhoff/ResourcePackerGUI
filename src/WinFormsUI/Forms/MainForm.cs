@@ -591,7 +591,7 @@ namespace WinFormsUI.Forms
 
         private void PackageExplorerTreeView_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
         {
-            if (e.Node.Tag == null)
+            if (e.Node.Tag == null || _selectedPreviewAsset == e.Node.Tag)
             {
                 return;
             }
