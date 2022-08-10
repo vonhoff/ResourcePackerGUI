@@ -283,7 +283,9 @@ namespace WinFormsUI.Controls
                     return;
                 }
 
-                case TreeViewHitTestLocations.Image or TreeViewHitTestLocations.Label:
+                case TreeViewHitTestLocations.Image or 
+                     TreeViewHitTestLocations.Label or 
+                     TreeViewHitTestLocations.Indent:
                 {
                     ClearSelectedNodeStyling();
                     UpdateSelectedNodes(e.Node);
@@ -312,7 +314,10 @@ namespace WinFormsUI.Controls
                 return;
             }
 
-            if (info.Location is not (TreeViewHitTestLocations.Image or TreeViewHitTestLocations.Label))
+            if (info.Location is not (
+                TreeViewHitTestLocations.Image or 
+                TreeViewHitTestLocations.Label or 
+                TreeViewHitTestLocations.Indent))
             {
                 ClearSelectedNodeStyling();
                 SelectedNodes.Clear();
