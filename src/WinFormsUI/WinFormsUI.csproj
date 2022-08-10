@@ -12,8 +12,8 @@
     <NeutralLanguage>en-US</NeutralLanguage>
     <Platforms>x64;x86</Platforms>
     <AssemblyName>ResourcePackerGUI</AssemblyName>
-    <FileVersion>1.1.2</FileVersion>
-    <AssemblyVersion>1.1.2</AssemblyVersion>
+    <FileVersion>1.1.3</FileVersion>
+    <AssemblyVersion>1.1.3</AssemblyVersion>
     <Authors>Simon Vonhoff &amp; Contributors</Authors>
   </PropertyGroup>
 
