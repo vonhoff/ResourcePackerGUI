@@ -28,7 +28,6 @@ namespace WinFormsUI.Controls
         private static readonly Color SelectedBackgroundColor = Color.FromArgb(0, 120, 215);
         private static readonly Color SelectedForegroundColor = Color.White;
         private TreeNode? _selectionPivot;
-        private bool _skipNextNodeUpdate;
 
         public ResourceSelectorTreeView()
         {
