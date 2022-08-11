@@ -16,7 +16,7 @@
   <ItemGroup>
     <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="10.0.1" />
     <PackageReference Include="Serilog" Version="2.11.0" />
-    <PackageReference Include="System.IO.Abstractions" Version="17.0.21" />
+    <PackageReference Include="System.IO.Abstractions" Version="17.0.24" />
   </ItemGroup>
 
   <ItemGroup>
