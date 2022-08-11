@@ -18,7 +18,6 @@
 
 #endregion
 
-using System.Xml;
 using ResourcePackerGUI.Domain.Entities;
 using WinFormsUI.Extensions;
 
@@ -65,7 +64,7 @@ namespace WinFormsUI.Controls
         public void CreateNodesFromResources(IReadOnlyList<Resource> resources, string packageName,
                     IProgress<int>? progressSecondary = null, int progressReportInterval = 100)
         {
-            lblConflictAmount.Visible = false;
+            Invoke(() => lblConflictAmount.Visible = false);
             SelectedResources.Clear();
             SelectedNodes.Clear();
             Nodes.Clear();
@@ -253,8 +252,8 @@ namespace WinFormsUI.Controls
             }
 
             lblConflictAmount.Visible = conflictingNames.Count > 0;
-            lblConflictAmount.Text = conflictingNames.Count > 1 ? 
-                $"{conflictingNames.Count} potential extraction conflicts." : 
+            lblConflictAmount.Text = conflictingNames.Count > 1 ?
+                $"{conflictingNames.Count} potential extraction conflicts." :
                 "1 potential extraction conflict.";
         }
 
@@ -283,8 +282,15 @@ namespace WinFormsUI.Controls
 
         private void MultiNodeSelectionTreeView_Leave(object sender, EventArgs e)
         {
+            ResetSelectedValues();
+        }
+
+        private void ResetSelectedValues()
+        {
             ClearSelectedNodeStyling();
             SelectedNodes.Clear();
+            SelectedResources.Clear();
+            lblConflictAmount.Visible = false;
         }
 
         private void SelectNodes(TreeNode node)
@@ -331,9 +337,7 @@ namespace WinFormsUI.Controls
 
                 default:
                 {
-                    ClearSelectedNodeStyling();
-                    SelectedNodes.Clear();
-                    treeView.SelectedNode = null;
+                    ResetSelectedValues();
                     break;
                 }
             }
@@ -355,8 +359,7 @@ namespace WinFormsUI.Controls
                 TreeViewHitTestLocations.Label or
                 TreeViewHitTestLocations.Indent))
             {
-                ClearSelectedNodeStyling();
-                SelectedNodes.Clear();
+                ResetSelectedValues();
                 return;
             }
 
