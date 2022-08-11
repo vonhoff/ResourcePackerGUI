@@ -257,7 +257,7 @@ namespace WinFormsUI.Forms
             {
                 await AssignDefinitionsFromStream(fileStream);
                 RefreshPackageExplorer();
-                DisplayResourceCount();
+                UpdateResourceCount();
             });
         }
 
@@ -278,8 +278,6 @@ namespace WinFormsUI.Forms
             _packageName = Path.GetFileNameWithoutExtension(_packagePath);
 
             lblStatus.Text = _packagePath;
-            lblElapsed.Text = "00:00:00.0000";
-            lblResultCount.Text = "0 Resources";
             _cancellationTokenSource = new CancellationTokenSource();
 
             Task.Run(async () =>
@@ -356,7 +354,7 @@ namespace WinFormsUI.Forms
 
                     Invoke(() =>
                     {
-                        DisplayResourceCount();
+                        UpdateResourceCount();
                         lblElapsed.Text = stopwatch.Elapsed.ToString(@"hh\:mm\:ss\.ffff");
                         ResetPreviewData();
                     });
@@ -390,7 +388,7 @@ namespace WinFormsUI.Forms
                 {
                     lblStatus.Text = string.Empty;
                     SetToolbarState(false);
-                    DisplayResourceCount();
+                    UpdateResourceCount();
                     ResetProgressBars();
                 });
             });
@@ -403,10 +401,11 @@ namespace WinFormsUI.Forms
             previewTabs.SelectedTab = previewHexTab;
         }
 
-        private void DisplayResourceCount()
+        private void UpdateResourceCount()
         {
             var count = _resources?.Count ?? 0;
             lblResultCount.Text = $"{count} " + (count == 1 ? "Resource" : "Resources");
+            btnExtractAll.Enabled = count > 0;
         }
 
         private void SetToolbarState(bool processing)
@@ -484,7 +483,7 @@ namespace WinFormsUI.Forms
                 Invoke(() =>
                 {
                     SetToolbarState(false);
-                    DisplayResourceCount();
+                    UpdateResourceCount();
                     ResetProgressBars();
                 });
             });
