@@ -52,8 +52,8 @@ namespace WinFormsUI.Forms
         private static readonly Regex EscapedUnicodeRegex = new(@"\\[Uu]([0-9A-Fa-f]{4})", RegexOptions.Compiled);
         private readonly LoggingLevelSwitch _loggingLevelSwitch = new(LogEventLevel.Debug);
         private readonly IMediator _mediator;
-        private readonly IProgress<int> _progressPrimary;
-        private readonly IProgress<int> _progressSecondary;
+        private readonly IProgress<float> _progressPrimary;
+        private readonly IProgress<float> _progressSecondary;
         private readonly ActionDebouncer _scrollOutputToEndDebouncer;
         private readonly ActionDebouncer _searchDebouncer;
         private CancellationTokenSource _cancellationTokenSource;
@@ -72,8 +72,8 @@ namespace WinFormsUI.Forms
             _mediator = mediator;
             _searchDebouncer = new ActionDebouncer(RefreshPackageExplorer, TimeSpan.FromMilliseconds(175));
             _scrollOutputToEndDebouncer = new ActionDebouncer(ScrollOutputToEnd, TimeSpan.FromMilliseconds(234));
-            _progressPrimary = new Progress<int>(UpdateProgressPrimary);
-            _progressSecondary = new Progress<int>(UpdateProgressSecondary);
+            _progressPrimary = new Progress<float>(UpdateProgressPrimary);
+            _progressSecondary = new Progress<float>(UpdateProgressSecondary);
             _cancellationTokenSource = new CancellationTokenSource();
             _cancellationTokenSource.Cancel();
             InitializeComponent();
@@ -845,15 +845,15 @@ namespace WinFormsUI.Forms
             }
         }
 
-        private void UpdateProgressPrimary(int percentage)
+        private void UpdateProgressPrimary(float percentage)
         {
-            progressBarPrimary.Value = percentage;
-            lblResultCount.Text = $"Progress: {percentage}%";
+            progressBarPrimary.Value = (int)percentage;
+            lblResultCount.Text = $"Progress: {Math.Round(percentage, 2)}%";
         }
 
-        private void UpdateProgressSecondary(int percentage)
+        private void UpdateProgressSecondary(float percentage)
         {
-            progressBarSecondary.Value = percentage;
+            progressBarSecondary.Value = (int)percentage;
         }
     }
 }

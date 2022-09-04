@@ -45,7 +45,7 @@ namespace ResourcePackerGUI.Application.Resources.Commands.ExportResources
 
             using (var progressTimer = new System.Timers.Timer(request.ProgressReportInterval))
             {
-                var percentage = 0;
+                var percentage = 0f;
 
                 // ReSharper disable once AccessToModifiedClosure
                 progressTimer.Elapsed += delegate { request.Progress!.Report(percentage); };
@@ -54,7 +54,7 @@ namespace ResourcePackerGUI.Application.Resources.Commands.ExportResources
                 for (var i = 0; i < request.Resources.Count; i++)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
-                    percentage = (int)((double)(i + 1) / request.Resources.Count * 100);
+                    percentage = (float)(i + 1) / request.Resources.Count * 100f;
 
                     var resource = request.Resources[i];
                     if (!CreateFileInfo(basePath, resource, out var fileInfo))

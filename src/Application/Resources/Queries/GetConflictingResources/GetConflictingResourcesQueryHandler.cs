@@ -36,7 +36,7 @@ namespace ResourcePackerGUI.Application.Resources.Queries.GetConflictingResource
 
         public Task<IReadOnlyList<Resource>> Handle(GetConflictingResourcesQuery request, CancellationToken cancellationToken)
         {
-            var percentage = 0;
+            var percentage = 0f;
             IReadOnlyList<Resource> list;
             using (var progressTimer = new System.Timers.Timer(request.ProgressReportInterval))
             {
@@ -57,7 +57,7 @@ namespace ResourcePackerGUI.Application.Resources.Queries.GetConflictingResource
         /// <param name="request"></param>
         /// <param name="percentage">A percentage to keep track of the amount of resources checked.</param>
         /// <returns>A read-only list of conflicting resources.</returns>
-        private IReadOnlyList<Resource> CollectFileConflicts(GetConflictingResourcesQuery request, ref int percentage)
+        private IReadOnlyList<Resource> CollectFileConflicts(GetConflictingResourcesQuery request, ref float percentage)
         {
             var list = new List<Resource>();
             for (var i = 0; i < request.Resources.Count; i++)
@@ -68,7 +68,7 @@ namespace ResourcePackerGUI.Application.Resources.Queries.GetConflictingResource
                     list.Add(resource);
                 }
 
-                percentage = (int)((double)(i + 1) / request.Resources.Count * 100);
+                percentage = (float)(i + 1) / request.Resources.Count * 100f;
             }
 
             return list;

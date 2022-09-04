@@ -49,7 +49,7 @@ namespace ResourcePackerGUI.Application.PathEntries.Commands.ExportPathEntries
         /// <summary>
         /// An optional progress instance to keep track of the writing process.
         /// </summary>
-        public IProgress<int>? Progress { get; init; }
+        public IProgress<float>? Progress { get; init; }
 
         /// <summary>
         /// The interval in milliseconds for updating the progress instances when present.

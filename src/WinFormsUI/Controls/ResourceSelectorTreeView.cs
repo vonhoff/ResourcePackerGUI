@@ -62,7 +62,7 @@ namespace WinFormsUI.Controls
         }
 
         public void CreateNodesFromResources(IReadOnlyList<Resource> resources, string packageName,
-                    IProgress<int>? progressSecondary = null, int progressReportInterval = 100)
+                    IProgress<float>? progressSecondary = null, int progressReportInterval = 100)
         {
             Invoke(() => lblConflictAmount.Visible = false);
             SelectedResources.Clear();
@@ -82,7 +82,7 @@ namespace WinFormsUI.Controls
 
             using (var progressTimer = new System.Timers.Timer(progressReportInterval))
             {
-                var percentage = 0;
+                var percentage = 0f;
 
                 // ReSharper disable once AccessToModifiedClosure
                 progressTimer.Elapsed += delegate { progressSecondary!.Report(percentage); };
@@ -90,7 +90,7 @@ namespace WinFormsUI.Controls
 
                 for (var i = 0; i < resources.Count; i++)
                 {
-                    percentage = (int)((double)(i + 1) / resources.Count * 100);
+                    percentage = (float)(i + 1) / resources.Count * 100f;
                     var asset = resources[i];
                     var path = asset.Name;
                     var currentNode = rootNode;

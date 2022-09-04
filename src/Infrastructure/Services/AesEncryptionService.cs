@@ -211,7 +211,7 @@ namespace ResourcePackerGUI.Infrastructure.Services
         };
 
         public bool DecryptCbc(byte[] input, int dataSize, out byte[] output, uint[] key,
-            IProgress<int>? progress = null, int progressReportInterval = 100,
+            IProgress<float>? progress = null, int progressReportInterval = 100,
             CancellationToken cancellationToken = default)
         {
             var packSize = input.Length;
@@ -225,7 +225,7 @@ namespace ResourcePackerGUI.Infrastructure.Services
             var inputBuffer = new byte[BlockSize];
             var outputBuffer = new byte[BlockSize];
             var ivBuffer = new byte[BlockSize];
-            var percentage = 0;
+            var percentage = 0f;
 
             using var progressTimer = new System.Timers.Timer(progressReportInterval);
             progressTimer.Elapsed += delegate
@@ -246,7 +246,7 @@ namespace ResourcePackerGUI.Infrastructure.Services
                 XorBuf(ivBuffer, ref outputBuffer, BlockSize);
                 MemoryUtility.CopyMemory(outputBuffer, 0, output, i * BlockSize, BlockSize);
                 MemoryUtility.CopyMemory(inputBuffer, 0, ivBuffer, 0, BlockSize);
-                percentage = (int)((double)(i + 1) / blocks * 100);
+                percentage = (float)(i + 1) / blocks * 100f;
             }
 
             output = output[..dataSize];
@@ -255,7 +255,7 @@ namespace ResourcePackerGUI.Infrastructure.Services
         }
 
         public bool EncryptCbc(byte[] input, out byte[] output, uint[] key,
-            IProgress<int>? progress = null, int progressReportInterval = 100,
+            IProgress<float>? progress = null, int progressReportInterval = 100,
             CancellationToken cancellationToken = default)
         {
             var packSize = (input.Length + BlockSize - 1) & ~(BlockSize - 1);
@@ -275,7 +275,7 @@ namespace ResourcePackerGUI.Infrastructure.Services
             var inputBuffer = new byte[BlockSize];
             var outputBuffer = new byte[BlockSize];
             var ivBuffer = new byte[BlockSize];
-            var percentage = 0;
+            var percentage = 0f;
 
             using var progressUpdateTimer = new System.Timers.Timer(progressReportInterval);
             progressUpdateTimer.Elapsed += delegate
@@ -296,10 +296,10 @@ namespace ResourcePackerGUI.Infrastructure.Services
                 Encrypt(inputBuffer, ref outputBuffer, key);
                 MemoryUtility.CopyMemory(outputBuffer, 0, output, i * BlockSize, BlockSize);
                 MemoryUtility.CopyMemory(outputBuffer, 0, ivBuffer, 0, BlockSize);
-                percentage = (int)((double)(i + 1) / blocks * 100);
+                percentage = (float)(i + 1) / blocks * 100f;
             }
 
-            progress?.Report(100);
+            progress?.Report(100f);
             return true;
         }
 
@@ -324,8 +324,8 @@ namespace ResourcePackerGUI.Infrastructure.Services
             var result = new uint[60];
             for (var index = 0; index < 4; ++index)
             {
-                result[index] = (uint)((key[4 * index] << 24) | (key[(4 * index) + 1] << 16) |
-                                  (key[(4 * index) + 2] << 8) | key[(4 * index) + 3]);
+                result[index] = (uint)((key[4 * index] << 24) | (key[4 * index + 1] << 16) |
+                                  (key[4 * index + 2] << 8) | key[4 * index + 3]);
             }
 
             for (var index = 4; index < 44; ++index)

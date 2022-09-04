@@ -33,7 +33,7 @@ namespace ResourcePackerGUI.Application.Common.Interfaces
         /// <param name="progressReportInterval">The interval in milliseconds for updating the progress instances when present.</param>
         /// <param name="cancellationToken">A cancellation token to cancel the decryption process.</param>
         /// <returns><see langword="true"/> when successful, <see langword="false"/> otherwise.</returns>
-        bool DecryptCbc(byte[] input, int dataSize, out byte[] output, uint[] key, IProgress<int>? progress = null,
+        bool DecryptCbc(byte[] input, int dataSize, out byte[] output, uint[] key, IProgress<float>? progress = null,
             int progressReportInterval = 100, CancellationToken cancellationToken = default);
 
         /// <summary>
@@ -46,7 +46,7 @@ namespace ResourcePackerGUI.Application.Common.Interfaces
         /// <param name="progressReportInterval">The interval in milliseconds for updating the progress instances when present.</param>
         /// <param name="cancellationToken">A cancellation token to cancel the encryption process.</param>
         /// <returns><see langword="true"/> when successful, <see langword="false"/> otherwise.</returns>
-        bool EncryptCbc(byte[] input, out byte[] output, uint[] key, IProgress<int>? progress = null,
+        bool EncryptCbc(byte[] input, out byte[] output, uint[] key, IProgress<float>? progress = null,
             int progressReportInterval = 100, CancellationToken cancellationToken = default);
 
         /// <summary>

@@ -83,7 +83,7 @@ namespace ResourcePackerGUI.Application.Packaging.Queries.GetPackageInformation
         {
             using var progressTimer = new System.Timers.Timer(request.ProgressReportInterval);
 
-            var percentage = 0;
+            var percentage = 0f;
             // ReSharper disable once AccessToModifiedClosure
             progressTimer.Elapsed += delegate { request.Progress!.Report(percentage); };
             progressTimer.Enabled = request.Progress != null;
@@ -99,7 +99,7 @@ namespace ResourcePackerGUI.Application.Packaging.Queries.GetPackageInformation
 
                 entries.Add(entry);
                 Log.Debug("Added entry: {@entry}", new { entry.Id, entry.Crc, entry.DataSize, entry.PackSize });
-                percentage = (int)((double)(i + 1) / header.NumberOfEntries * 100);
+                percentage = (float)(i + 1) / header.NumberOfEntries * 100f;
             }
 
             request.Progress?.Report(100);

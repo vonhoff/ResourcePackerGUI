@@ -39,7 +39,7 @@ namespace ResourcePackerGUI.Application.Definitions.Queries.CreateChecksumDefini
             IReadOnlyDictionary<uint, string> crcDictionary;
 
             using var progressTimer = new System.Timers.Timer(request.ProgressReportInterval);
-            var percentage = 0;
+            var percentage = 0f;
             // ReSharper disable once AccessToModifiedClosure
             progressTimer.Elapsed += delegate { request.Progress!.Report(percentage); };
             progressTimer.Enabled = request.Progress != null;
@@ -61,7 +61,7 @@ namespace ResourcePackerGUI.Application.Definitions.Queries.CreateChecksumDefini
         /// <param name="percentage">The percentage of the total progress.</param>
         /// <param name="cancellationToken">A cancellation token to cancel the stream reading process.</param>
         /// <returns>A read-only dictionary of checksum values and their original entries.</returns>
-        private IReadOnlyDictionary<uint, string> CreateChecksumDictionary(StreamReader reader, ref int percentage, CancellationToken cancellationToken)
+        private IReadOnlyDictionary<uint, string> CreateChecksumDictionary(StreamReader reader, ref float percentage, CancellationToken cancellationToken)
         {
             var crcDictionary = new Dictionary<uint, string>();
             var entries = new List<string>();
@@ -91,7 +91,7 @@ namespace ResourcePackerGUI.Application.Definitions.Queries.CreateChecksumDefini
                 }
 
                 Log.Warning("Duplicate checksum definition: {@entry}", new { Id = crc, Definition = definition });
-                percentage = (int)((double)(i + 1) / entries.Count * 100);
+                percentage = (float)(i + 1) / entries.Count * 100f;
             }
 
             return crcDictionary;

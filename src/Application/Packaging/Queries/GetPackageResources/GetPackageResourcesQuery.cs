@@ -57,12 +57,12 @@ namespace ResourcePackerGUI.Application.Packaging.Queries.GetPackageResources
         /// <summary>
         /// An optional progress to keep track of the amount of resources loaded.
         /// </summary>
-        public IProgress<int>? ProgressPrimary { get; init; }
+        public IProgress<float>? ProgressPrimary { get; init; }
 
         /// <summary>
         /// An optional progress to keep track of the decryption process.
         /// </summary>
-        public IProgress<int>? ProgressSecondary { get; init; }
+        public IProgress<float>? ProgressSecondary { get; init; }
 
         /// <summary>
         /// The interval in milliseconds for updating the progress instances when present.

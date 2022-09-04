@@ -56,12 +56,12 @@ namespace ResourcePackerGUI.Application.Packaging.Commands.BuildPackage
         /// <summary>
         /// An optional secondary progress instance to keep track of the encryption progress.
         /// </summary>
-        public IProgress<int>? ProgressSecondary { get; init; }
+        public IProgress<float>? ProgressSecondary { get; init; }
 
         /// <summary>
         /// An optional primary progress instance to keep track of the amount of files processed.
         /// </summary>
-        public IProgress<int>? ProgressPrimary { get; init; }
+        public IProgress<float>? ProgressPrimary { get; init; }
 
         /// <summary>
         /// The interval in milliseconds for updating the progress instances when present.

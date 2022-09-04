@@ -56,7 +56,7 @@ namespace ResourcePackerGUI.Application.Packaging.Commands.BuildPackage
             using (var outputStream = _fileSystem.File.OpenWrite(request.Output))
             {
                 using var binaryWriter = new BinaryWriter(outputStream);
-                var initialOffset = Unsafe.SizeOf<PackageHeader>() + (header.NumberOfEntries * Unsafe.SizeOf<Entry>());
+                var initialOffset = Unsafe.SizeOf<PackageHeader>() + header.NumberOfEntries * Unsafe.SizeOf<Entry>();
                 var key = _aesEncryptionService.KeySetup(request.Password);
 
                 // Write all resources to file and retrieve their associated entry data.
@@ -144,7 +144,7 @@ namespace ResourcePackerGUI.Application.Packaging.Commands.BuildPackage
             CancellationToken cancellationToken)
         {
             var entries = new Entry[request.PathEntries.Count];
-            var percentage = 0;
+            var percentage = 0f;
 
             using var progressTimer = new System.Timers.Timer(request.ProgressReportInterval);
 
@@ -179,7 +179,7 @@ namespace ResourcePackerGUI.Application.Packaging.Commands.BuildPackage
                 // Update the entry collection and offset.
                 entries[i] = entry;
                 offset += entry.PackSize;
-                percentage = (int)((double)(i + 1) / entries.Length * 100d);
+                percentage = (float)(i + 1) / entries.Length * 100f;
             }
 
             return entries;

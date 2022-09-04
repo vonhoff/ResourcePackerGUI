@@ -63,7 +63,7 @@ namespace ResourcePackerGUI.Application.Packaging.Queries.GetPackageResources
         {
             using var progressTimer = new System.Timers.Timer(request.ProgressReportInterval);
             var resources = new List<Resource>();
-            var percentage = 0;
+            var percentage = 0f;
             var key = string.IsNullOrEmpty(request.Password)
                 ? Array.Empty<uint>()
                 : _aesEncryptionService.KeySetup(request.Password);
@@ -97,7 +97,7 @@ namespace ResourcePackerGUI.Application.Packaging.Queries.GetPackageResources
                 var mimeType = _mediaTypeService.GetTypeByData(buffer);
                 var resource = new Resource(buffer, entry, mimeType);
                 resources.Add(resource);
-                percentage = (int)((double)(i + 1) / request.Entries.Count * 100);
+                percentage = (float)(i + 1) / request.Entries.Count * 100f;
                 Log.Debug("Added resource: {@asset}", new { resource.Name, MediaType = mimeType?.Name });
             }
 

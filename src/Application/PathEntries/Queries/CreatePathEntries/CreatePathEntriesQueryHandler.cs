@@ -40,7 +40,7 @@ namespace ResourcePackerGUI.Application.PathEntries.Queries.CreatePathEntries
         /// <returns>A read-only list of path entries.</returns>
         private static IReadOnlyList<PathEntry> CreatePathEntries(CreatePathEntriesQuery request)
         {
-            var percentage = 0;
+            var percentage = 0f;
             using var progressTimer = new System.Timers.Timer(request.ProgressReportInterval);
 
             // ReSharper disable once AccessToModifiedClosure
@@ -50,7 +50,7 @@ namespace ResourcePackerGUI.Application.PathEntries.Queries.CreatePathEntries
             var processedItems = new List<PathEntry>();
             for (var i = 0; i < request.AbsoluteFilePaths.Count; i++)
             {
-                percentage = (int)((double)(i + 1) / request.AbsoluteFilePaths.Count * 100);
+                percentage = (float)(i + 1) / request.AbsoluteFilePaths.Count * 100f;
                 var absolutePath = request.AbsoluteFilePaths[i];
 
                 if (!CreateRelativePath(absolutePath, request.RelativeFilePathDepth, out var relativePath))

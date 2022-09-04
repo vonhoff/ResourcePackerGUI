@@ -42,16 +42,16 @@ namespace WinFormsUI.Forms
         private bool _automaticDefinitionFile = true;
         private bool _createDefinitionFile = true;
         private int _relativePackageLocationDepth;
-        private readonly IProgress<int> _progressPrimary;
-        private readonly IProgress<int> _progressSecondary;
+        private readonly IProgress<float> _progressPrimary;
+        private readonly IProgress<float> _progressSecondary;
         private readonly IMediator _mediator;
         private IReadOnlyList<PathEntry>? _pathEntries;
 
         public CreateForm(IMediator mediator)
         {
             _mediator = mediator;
-            _progressPrimary = new Progress<int>(UpdateFileCollectionProgress);
-            _progressSecondary = new Progress<int>(UpdateEncryptionProgress);
+            _progressPrimary = new Progress<float>(UpdateFileCollectionProgress);
+            _progressSecondary = new Progress<float>(UpdateEncryptionProgress);
             _cancellationTokenSource = new CancellationTokenSource();
             _cancellationTokenSource.Cancel();
             InitializeComponent();
@@ -68,6 +68,17 @@ namespace WinFormsUI.Forms
             }
 
             _resourcesLocation = browserDialog.SelectedPath;
+            ReloadFilesFromSourceFolder();
+        }
+
+        private void ReloadFilesFromSourceFolder()
+        {
+            if (string.IsNullOrWhiteSpace(_resourcesLocation))
+            {
+                return;
+            }
+
+            Log.Information("Retrieving files from: {folder}", _resourcesLocation);
 
             try
             {
@@ -452,7 +463,7 @@ namespace WinFormsUI.Forms
 
         private void CreateSelectorNodes(TreeNode rootNode, IReadOnlyList<PathEntry> pathEntries)
         {
-            var percentage = 0;
+            var percentage = 0f;
 
             using var progressTimer = new System.Timers.Timer(ReportInterval);
 
@@ -489,7 +500,7 @@ namespace WinFormsUI.Forms
                     }
                 }
 
-                percentage = (int)((double)(i + 1) / pathEntries.Count * 100);
+                percentage = (float)(i + 1) / pathEntries.Count * 100f;
             }
         }
 
@@ -524,15 +535,15 @@ namespace WinFormsUI.Forms
             lblSelectedItems.Text = $"Selected items: {_selectedPathEntries.Count}";
         }
 
-        private void UpdateEncryptionProgress(int percentage)
+        private void UpdateEncryptionProgress(float percentage)
         {
-            progressBarSecondary.Value = percentage;
+            progressBarSecondary.Value = (int)percentage;
         }
 
-        private void UpdateFileCollectionProgress(int percentage)
+        private void UpdateFileCollectionProgress(float percentage)
         {
-            progressBarPrimary.Value = percentage;
-            lblPercentage.Text = $"{percentage}%";
+            progressBarPrimary.Value = (int)percentage;
+            lblPercentage.Text = $"{Math.Round(percentage, 2)}%";
             lblPercentage.Refresh();
 
             if (_pathEntries == null)
@@ -540,7 +551,8 @@ namespace WinFormsUI.Forms
                 return;
             }
 
-            lblStatusFile.Text = _pathEntries[((_pathEntries.Count - 1) / 100) * percentage].RelativePath;
+            var index = (int)Math.Round((_pathEntries.Count - 1) / 100f * percentage);
+            lblStatusFile.Text = _pathEntries[index].RelativePath;
             lblStatusFile.Refresh();
         }
 
@@ -548,6 +560,11 @@ namespace WinFormsUI.Forms
         {
             splitContainer2.SplitterDistance = Math.Min(splitContainer2.SplitterDistance,
                 Width - splitContainer2.Panel2MinSize);
+        }
+
+        private void BtnRefresh_Click(object sender, EventArgs e)
+        {
+            ReloadFilesFromSourceFolder();
         }
     }
 }

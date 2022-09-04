@@ -41,7 +41,7 @@ namespace ResourcePackerGUI.Application.Definitions.Queries.CreateChecksumDefini
         /// <summary>
         /// An optional progress to keep track of the process.
         /// </summary>
-        public IProgress<int>? Progress { get; init; }
+        public IProgress<float>? Progress { get; init; }
 
         /// <summary>
         /// The interval in milliseconds for updating the progress instances when present.

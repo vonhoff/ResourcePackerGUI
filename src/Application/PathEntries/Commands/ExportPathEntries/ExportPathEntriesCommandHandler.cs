@@ -48,7 +48,7 @@ namespace ResourcePackerGUI.Application.PathEntries.Commands.ExportPathEntries
                 throw new InvalidDataException("The file stream is null.");
             }
 
-            var percentage = 0;
+            var percentage = 0f;
             using var progressTimer = new System.Timers.Timer(request.ProgressReportInterval);
             // ReSharper disable once AccessToModifiedClosure
             progressTimer.Elapsed += delegate { request.Progress!.Report(percentage); };
@@ -59,7 +59,7 @@ namespace ResourcePackerGUI.Application.PathEntries.Commands.ExportPathEntries
                 cancellationToken.ThrowIfCancellationRequested();
                 var buffer = Encoding.UTF8.GetBytes(request.PathEntries[i].RelativePath + Environment.NewLine);
                 file.Write(buffer);
-                percentage = (int)((double)(i + 1) / request.PathEntries.Count * 100);
+                percentage = (float)(i + 1) / request.PathEntries.Count * 100f;
             }
 
             file.Close();
