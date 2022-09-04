@@ -97,7 +97,7 @@ namespace ResourcePackerGUI.Application.Packaging.Queries.GetPackageResources
                 var mimeType = _mediaTypeService.GetTypeByData(buffer);
                 var resource = new Resource(buffer, entry, mimeType);
                 resources.Add(resource);
-                percentage = (float)(i + 1) / request.Entries.Count * 100f;
+                percentage = (i + 1f) / request.Entries.Count * 100f;
                 Log.Debug("Added resource: {@asset}", new { resource.Name, MediaType = mimeType?.Name });
             }
 

@@ -99,7 +99,7 @@ namespace ResourcePackerGUI.Application.Packaging.Queries.GetPackageInformation
 
                 entries.Add(entry);
                 Log.Debug("Added entry: {@entry}", new { entry.Id, entry.Crc, entry.DataSize, entry.PackSize });
-                percentage = (float)(i + 1) / header.NumberOfEntries * 100f;
+                percentage = (i + 1f) / header.NumberOfEntries * 100f;
             }
 
             request.Progress?.Report(100);

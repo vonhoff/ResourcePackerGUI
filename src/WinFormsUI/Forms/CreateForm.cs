@@ -500,7 +500,7 @@ namespace WinFormsUI.Forms
                     }
                 }
 
-                percentage = (float)(i + 1) / pathEntries.Count * 100f;
+                percentage = (i + 1f) / pathEntries.Count * 100f;
             }
         }
 

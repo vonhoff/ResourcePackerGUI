@@ -59,7 +59,7 @@ namespace ResourcePackerGUI.Application.PathEntries.Commands.ExportPathEntries
                 cancellationToken.ThrowIfCancellationRequested();
                 var buffer = Encoding.UTF8.GetBytes(request.PathEntries[i].RelativePath + Environment.NewLine);
                 file.Write(buffer);
-                percentage = (float)(i + 1) / request.PathEntries.Count * 100f;
+                percentage = (i + 1f) / request.PathEntries.Count * 100f;
             }
 
             file.Close();

@@ -179,7 +179,7 @@ namespace ResourcePackerGUI.Application.Packaging.Commands.BuildPackage
                 // Update the entry collection and offset.
                 entries[i] = entry;
                 offset += entry.PackSize;
-                percentage = (float)(i + 1) / entries.Length * 100f;
+                percentage = (i + 1f) / entries.Length * 100f;
             }
 
             return entries;

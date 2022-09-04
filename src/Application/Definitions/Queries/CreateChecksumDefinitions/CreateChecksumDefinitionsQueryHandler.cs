@@ -91,7 +91,7 @@ namespace ResourcePackerGUI.Application.Definitions.Queries.CreateChecksumDefini
                 }
 
                 Log.Warning("Duplicate checksum definition: {@entry}", new { Id = crc, Definition = definition });
-                percentage = (float)(i + 1) / entries.Count * 100f;
+                percentage = (i + 1f) / entries.Count * 100f;
             }
 
             return crcDictionary;

@@ -68,7 +68,7 @@ namespace ResourcePackerGUI.Application.Resources.Queries.GetConflictingResource
                     list.Add(resource);
                 }
 
-                percentage = (float)(i + 1) / request.Resources.Count * 100f;
+                percentage = (i + 1f) / request.Resources.Count * 100f;
             }
 
             return list;

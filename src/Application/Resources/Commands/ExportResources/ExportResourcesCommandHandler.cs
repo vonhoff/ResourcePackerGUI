@@ -54,7 +54,7 @@ namespace ResourcePackerGUI.Application.Resources.Commands.ExportResources
                 for (var i = 0; i < request.Resources.Count; i++)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
-                    percentage = (float)(i + 1) / request.Resources.Count * 100f;
+                    percentage = (i + 1f) / request.Resources.Count * 100f;
 
                     var resource = request.Resources[i];
                     if (!CreateFileInfo(basePath, resource, out var fileInfo))

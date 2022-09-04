@@ -246,7 +246,7 @@ namespace ResourcePackerGUI.Infrastructure.Services
                 XorBuf(ivBuffer, ref outputBuffer, BlockSize);
                 MemoryUtility.CopyMemory(outputBuffer, 0, output, i * BlockSize, BlockSize);
                 MemoryUtility.CopyMemory(inputBuffer, 0, ivBuffer, 0, BlockSize);
-                percentage = (float)(i + 1) / blocks * 100f;
+                percentage = (i + 1f) / blocks * 100f;
             }
 
             output = output[..dataSize];
@@ -296,7 +296,7 @@ namespace ResourcePackerGUI.Infrastructure.Services
                 Encrypt(inputBuffer, ref outputBuffer, key);
                 MemoryUtility.CopyMemory(outputBuffer, 0, output, i * BlockSize, BlockSize);
                 MemoryUtility.CopyMemory(outputBuffer, 0, ivBuffer, 0, BlockSize);
-                percentage = (float)(i + 1) / blocks * 100f;
+                percentage = (i + 1f) / blocks * 100f;
             }
 
             progress?.Report(100f);

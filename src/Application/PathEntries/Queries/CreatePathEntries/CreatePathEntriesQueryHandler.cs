@@ -50,7 +50,7 @@ namespace ResourcePackerGUI.Application.PathEntries.Queries.CreatePathEntries
             var processedItems = new List<PathEntry>();
             for (var i = 0; i < request.AbsoluteFilePaths.Count; i++)
             {
-                percentage = (float)(i + 1) / request.AbsoluteFilePaths.Count * 100f;
+                percentage = (i + 1f) / request.AbsoluteFilePaths.Count * 100f;
                 var absolutePath = request.AbsoluteFilePaths[i];
 
                 if (!CreateRelativePath(absolutePath, request.RelativeFilePathDepth, out var relativePath))

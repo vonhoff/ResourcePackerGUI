@@ -90,7 +90,7 @@ namespace WinFormsUI.Controls
 
                 for (var i = 0; i < resources.Count; i++)
                 {
-                    percentage = (float)(i + 1) / resources.Count * 100f;
+                    percentage = (i + 1f) / resources.Count * 100f;
                     var asset = resources[i];
                     var path = asset.Name;
                     var currentNode = rootNode;
