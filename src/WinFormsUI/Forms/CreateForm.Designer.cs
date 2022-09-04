@@ -242,7 +242,7 @@ namespace WinFormsUI.Forms
             // 
             this.splitContainer6.Panel2.Controls.Add(this.lblPercentage);
             this.splitContainer6.Size = new System.Drawing.Size(493, 25);
-            this.splitContainer6.SplitterDistance = 383;
+            this.splitContainer6.SplitterDistance = 381;
             this.splitContainer6.SplitterWidth = 5;
             this.splitContainer6.TabIndex = 8;
             // 
@@ -261,7 +261,7 @@ namespace WinFormsUI.Forms
             // 
             this.lblPercentage.AutoSize = true;
             this.lblPercentage.Dock = System.Windows.Forms.DockStyle.Right;
-            this.lblPercentage.Location = new System.Drawing.Point(76, 0);
+            this.lblPercentage.Location = new System.Drawing.Point(78, 0);
             this.lblPercentage.Name = "lblPercentage";
             this.lblPercentage.Size = new System.Drawing.Size(29, 20);
             this.lblPercentage.TabIndex = 0;
@@ -317,7 +317,7 @@ namespace WinFormsUI.Forms
             this.splitContainerDefinitionFile.Panel2.Controls.Add(this.btnDefinitionsExplore);
             this.splitContainerDefinitionFile.Panel2.Padding = new System.Windows.Forms.Padding(3, 0, 3, 5);
             this.splitContainerDefinitionFile.Size = new System.Drawing.Size(499, 35);
-            this.splitContainerDefinitionFile.SplitterDistance = 389;
+            this.splitContainerDefinitionFile.SplitterDistance = 387;
             this.splitContainerDefinitionFile.SplitterWidth = 5;
             this.splitContainerDefinitionFile.TabIndex = 6;
             // 
@@ -327,7 +327,7 @@ namespace WinFormsUI.Forms
             this.txtDefinitionsLocation.Location = new System.Drawing.Point(0, 0);
             this.txtDefinitionsLocation.Name = "txtDefinitionsLocation";
             this.txtDefinitionsLocation.ReadOnly = true;
-            this.txtDefinitionsLocation.Size = new System.Drawing.Size(389, 27);
+            this.txtDefinitionsLocation.Size = new System.Drawing.Size(387, 27);
             this.txtDefinitionsLocation.TabIndex = 0;
             // 
             // btnDefinitionsExplore
@@ -337,7 +337,7 @@ namespace WinFormsUI.Forms
             this.btnDefinitionsExplore.Location = new System.Drawing.Point(3, 0);
             this.btnDefinitionsExplore.Name = "btnDefinitionsExplore";
             this.btnDefinitionsExplore.Padding = new System.Windows.Forms.Padding(3, 0, 0, 0);
-            this.btnDefinitionsExplore.Size = new System.Drawing.Size(99, 30);
+            this.btnDefinitionsExplore.Size = new System.Drawing.Size(101, 30);
             this.btnDefinitionsExplore.TabIndex = 0;
             this.btnDefinitionsExplore.Text = "Explore";
             this.btnDefinitionsExplore.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
@@ -372,7 +372,7 @@ namespace WinFormsUI.Forms
             this.splitContainer3.Panel2.Controls.Add(this.btnPackageExplore);
             this.splitContainer3.Panel2.Padding = new System.Windows.Forms.Padding(3, 0, 3, 5);
             this.splitContainer3.Size = new System.Drawing.Size(499, 35);
-            this.splitContainer3.SplitterDistance = 389;
+            this.splitContainer3.SplitterDistance = 387;
             this.splitContainer3.SplitterWidth = 5;
             this.splitContainer3.TabIndex = 4;
             // 
@@ -382,7 +382,7 @@ namespace WinFormsUI.Forms
             this.txtPackageLocation.Location = new System.Drawing.Point(0, 0);
             this.txtPackageLocation.Name = "txtPackageLocation";
             this.txtPackageLocation.ReadOnly = true;
-            this.txtPackageLocation.Size = new System.Drawing.Size(389, 27);
+            this.txtPackageLocation.Size = new System.Drawing.Size(387, 27);
             this.txtPackageLocation.TabIndex = 0;
             // 
             // btnPackageExplore
@@ -392,7 +392,7 @@ namespace WinFormsUI.Forms
             this.btnPackageExplore.Location = new System.Drawing.Point(3, 0);
             this.btnPackageExplore.Name = "btnPackageExplore";
             this.btnPackageExplore.Padding = new System.Windows.Forms.Padding(3, 0, 0, 0);
-            this.btnPackageExplore.Size = new System.Drawing.Size(99, 30);
+            this.btnPackageExplore.Size = new System.Drawing.Size(101, 30);
             this.btnPackageExplore.TabIndex = 0;
             this.btnPackageExplore.Text = "Explore";
             this.btnPackageExplore.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
@@ -490,7 +490,7 @@ namespace WinFormsUI.Forms
             this.splitContainer4.Panel2.Controls.Add(this.btnResourcesExplore);
             this.splitContainer4.Panel2.Padding = new System.Windows.Forms.Padding(3, 0, 3, 5);
             this.splitContainer4.Size = new System.Drawing.Size(499, 35);
-            this.splitContainer4.SplitterDistance = 389;
+            this.splitContainer4.SplitterDistance = 387;
             this.splitContainer4.SplitterWidth = 5;
             this.splitContainer4.TabIndex = 1;
             // 
@@ -500,7 +500,7 @@ namespace WinFormsUI.Forms
             this.txtAssetFolder.Location = new System.Drawing.Point(0, 0);
             this.txtAssetFolder.Name = "txtAssetFolder";
             this.txtAssetFolder.ReadOnly = true;
-            this.txtAssetFolder.Size = new System.Drawing.Size(389, 27);
+            this.txtAssetFolder.Size = new System.Drawing.Size(387, 27);
             this.txtAssetFolder.TabIndex = 0;
             // 
             // btnResourcesExplore
@@ -510,7 +510,7 @@ namespace WinFormsUI.Forms
             this.btnResourcesExplore.Location = new System.Drawing.Point(3, 0);
             this.btnResourcesExplore.Name = "btnResourcesExplore";
             this.btnResourcesExplore.Padding = new System.Windows.Forms.Padding(3, 0, 0, 0);
-            this.btnResourcesExplore.Size = new System.Drawing.Size(99, 30);
+            this.btnResourcesExplore.Size = new System.Drawing.Size(101, 30);
             this.btnResourcesExplore.TabIndex = 0;
             this.btnResourcesExplore.Text = "Explore";
             this.btnResourcesExplore.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
@@ -608,6 +608,7 @@ namespace WinFormsUI.Forms
             // btnRefresh
             // 
             this.btnRefresh.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
+            this.btnRefresh.Enabled = false;
             this.btnRefresh.Image = global::WinFormsUI.Properties.Images.arrow_refresh;
             this.btnRefresh.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.btnRefresh.Name = "btnRefresh";

@@ -78,6 +78,7 @@ namespace WinFormsUI.Forms
                 return;
             }
 
+            btnRefresh.Enabled = false;
             Log.Information("Retrieving files from: {folder}", _resourcesLocation);
 
             try
@@ -162,6 +163,7 @@ namespace WinFormsUI.Forms
                             selectorTreeView.EndUpdate();
                             Cursor.Current = Cursors.Default;
 
+                            btnRefresh.Enabled = true;
                             btnCancel.Text = "Close";
                             lblStatus.Text = "Ready";
                             lblPercentage.Text = "0%";
