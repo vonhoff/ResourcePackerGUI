@@ -87,7 +87,7 @@ namespace ResourcePackerGUI.Application.Resources.Queries.UpdateResourceDefiniti
                 Log.Warning("{actual} out of {expected} resource names are defined.", updated, request.Resources.Count);
             }
 
-            request.Progress?.Report(100);
+            request.Progress?.Report(100f);
             return Task.FromResult(updated);
         }
     }

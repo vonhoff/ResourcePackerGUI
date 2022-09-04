@@ -55,7 +55,7 @@ namespace ResourcePackerGUI.Application.Packaging.Queries.GetPackageResources
                     resources.Count, request.Entries.Count);
             }
 
-            request.ProgressPrimary?.Report(100);
+            request.ProgressPrimary?.Report(100f);
             return Task.FromResult(resources);
         }
 

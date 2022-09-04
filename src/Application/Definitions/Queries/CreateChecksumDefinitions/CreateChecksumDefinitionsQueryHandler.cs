@@ -50,7 +50,7 @@ namespace ResourcePackerGUI.Application.Definitions.Queries.CreateChecksumDefini
                 Log.Information("Computed {count} checksum definitions.", crcDictionary.Count);
             }
 
-            request.Progress?.Report(100);
+            request.Progress?.Report(100f);
             return Task.FromResult(crcDictionary);
         }
 

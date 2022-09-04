@@ -47,7 +47,7 @@ namespace ResourcePackerGUI.Application.Resources.Queries.GetConflictingResource
             }
 
             Log.Information("{amount} conflicts found.", list.Count);
-            request.Progress?.Report(100);
+            request.Progress?.Report(100f);
             return Task.FromResult(list);
         }
 

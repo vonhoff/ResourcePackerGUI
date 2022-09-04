@@ -102,7 +102,7 @@ namespace ResourcePackerGUI.Application.Packaging.Queries.GetPackageInformation
                 percentage = (i + 1f) / header.NumberOfEntries * 100f;
             }
 
-            request.Progress?.Report(100);
+            request.Progress?.Report(100f);
             return entries;
         }
 

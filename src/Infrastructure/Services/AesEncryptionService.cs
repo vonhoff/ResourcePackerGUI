@@ -250,7 +250,7 @@ namespace ResourcePackerGUI.Infrastructure.Services
             }
 
             output = output[..dataSize];
-            progress?.Report(100);
+            progress?.Report(100f);
             return true;
         }
 

@@ -70,7 +70,7 @@ namespace ResourcePackerGUI.Application.Resources.Commands.ExportResources
                 }
             }
 
-            request.Progress?.Report(100);
+            request.Progress?.Report(100f);
             return Task.FromResult(Unit.Value);
         }
 
