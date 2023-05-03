@@ -1,12 +1,14 @@
-![Logo](ResourcePackerGUI-logo.png)
-
 # ResourcePackerGUI
-[![GPLv3 License](https://img.shields.io/badge/License-GPL%20v3-yellow.svg)](LICENSE)
-[![Workflow status](https://github.com/vonhoff/ResourcePackerGUI/actions/workflows/dotnet.yml/badge.svg)](https://github.com/vonhoff/ResourcePackerGUI/actions/)
 
 ResourcePackerGUI is a graphical user interface application based on the ResourcePacker command-line tool.
 ResourcePacker is a general purpose asset packager with optional AES-128 encryption to protect your game data. It integrates seamlessly with 
 [Megamarc's Tilengine](https://github.com/megamarc/Tilengine), which has built-in support for it.
+
+## Archive note
+This project is no longer maintained due to lack of time and motivation. You are welcome to fork this repository or use the code
+under the **MIT License** , which grants you the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the software without restriction, as long as you include the copyright notice and the permission notice in all copies or
+substantial portions of the software .
 
 ## Features
 
@@ -24,5 +26,4 @@ ResourcePacker is a general purpose asset packager with optional AES-128 encrypt
 
 ## Licenses
 
-- Copyright &copy; 2022 Simon Vonhoff & Contributors - Provided under the [GNU General Public License, Version 3.0](LICENSE).
-- Silk icon set by Mark James, [famfamfam.com](http://www.famfamfam.com/lab/icons/silk/) - Provided under the [Creative Commons Attribution 2.5 License](https://creativecommons.org/licenses/by/2.5/).
+- Provided under the [MIT License](LICENSE)
